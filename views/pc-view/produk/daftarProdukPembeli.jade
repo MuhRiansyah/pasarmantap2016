@@ -1,0 +1,44 @@
+extends ../layoutBelanja  
+  
+append content
+  .well.col-sm-9(style='margin : 10px 100px')
+    h2 #{kategori_produk.kategori}
+    p(style='text-align : justify') #{kategori_produk.deskripsi}
+  hr
+  .col-sm-9(style='margin : 10px 100px')
+    .col-sm-2.pull-right
+      select(name='pilihan')
+        option(value='barokah')  Pilih Lokasi
+        option(value='barokah')  Kendari
+        option(value='barokah')  Cianjur
+    .col-sm-3.pull-right
+      select(name='pilihan')
+        option(value='barokah')  Urut Berdasar
+        option(value='barokah')  Termurah
+        option(value='barokah')  Termahal
+    br
+    hr
+    br
+    script.
+            function numberFormat(_number, _sep) {
+                _number = typeof _number != "undefined" && _number > 0 ? _number : "";
+                _number = _number.replace(new RegExp("^(\\d{" + (_number.length%3? _number.length%3:0) + "})(\\d{3})", "g"), "$1 $2").replace(/(\d{3})+?/gi, "$1 ").trim();
+                if(typeof _sep != "undefined" && _sep != " ") {
+                    _number = _number.replace(/\s/g, _sep);
+                }
+                return _number;
+            }
+
+    div
+    if(daftar_produk.length == 0)
+        .alert.alert-danger: center: h4 Tidak ada produk yang terdaftar
+    else
+      each value,n in daftar_produk
+        div(style='width:160px;height:270px;float:left')
+            |<a href='/produk/detail/#{value.id}'>
+            | <img src='/images/produk/#{value.gambar}', style='height: 150px;width:140px'/> <br/> </a>
+            | <h4> Rp <span class='uang'> </h4>
+            | <a href='/produk/detail/#{value.id}'> #{value.nama} </a><br/>
+            | <i class='fa fa-dribbble'></i>  jakarta <br/><a href='#'> Barokah Clothing</a>
+            script.
+                document.getElementsByClassName("uang")[#{n}].innerHTML = numberFormat("#{value.harga}",".");
