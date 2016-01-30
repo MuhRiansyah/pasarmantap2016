@@ -1,4 +1,4 @@
-extends pengguna/layoutBelanja
+extends pc-view/layoutBelanja
 append content
     center
         .row(style='width:900px;font-size : 14pt')
@@ -17,21 +17,22 @@ append content
                     }
                     return _number;
                 }
-            h2.title.text-center HOT LIST
+            h2.title.text-center Produk Terlaris
             each value,index in hotlist
                 .col-sm-4
                     table(style='font-size:9pt')
-                        tr: td(colspan='2'): img(src='/images/hotlist/#{value.gambar}', width='250px')
-                        tr: td(width='110px'): b: a(href='cariproduk/#{value.nama}') #{value.nama}
-                            td mulai dari Rp <span class='uang'> </span>
+                        tr: td(colspan='2'): a(href='/produk/detail/#{value.Produk.id}'): img(src='/images/produk/#{value.Produk.gambar}', width='200px',height='180px')
+                        tr: td(width='110px'): b: a(href='/produk/detail/#{value.Produk.id}') #{value.Produk.nama}
+                            td Harga Rp <span class='uang'> </span>
                             script.
-                                document.getElementsByClassName("uang")[#{index}].innerHTML = numberFormat("#{value.harga_mulai}", ".");
+                                document.getElementsByClassName("uang")[#{index}].innerHTML = numberFormat("#{value.Produk.harga}", ".");
         div(style='margin:50px 0')
         .row(style='width:900px',align='left')
-            h3 Tokopedia - Jual Beli Online Aman dan Nyaman <br>
-            p Tokopedia merupakan pasar / mal online terbesar di Indonesia yang memungkinkan individu maupun pemilik usaha di Indonesia untuk membuka dan mengelola toko online mereka secara mudah dan gratis, sekaligus memberikan pengalaman berbelanja online yang lebih aman dan nyaman. Jual beli online menjadi lebih menyenangkan. Punya online shop? Buka cabang nya di Tokopedia sekarang! Gratis!
+            h3 PasarMantap - Tempatnya Jual Beli Online <br>
+            p PasarMantap merupakan pasar / mal online yang memungkinkan individu maupun pemilik usaha di Indonesia untuk membuka dan mengelola toko online mereka secara mudah dan gratis, sekaligus memberikan pengalaman berbelanja online yang menyenangkan. Punya online shop? Buka cabang nya di PasarMantap sekarang! Gratis!
             a.btn-primary.btn(href='#') Daftar
             | <br><br>
         div(style='margin:30px 0')
+
 
 

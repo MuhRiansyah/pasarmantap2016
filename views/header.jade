@@ -7,13 +7,13 @@ append header
             .container
                 .row
                     .col-sm-1
-                    .col-sm-2
-                        .logo.pull-left
+                    .col-sm-1(style='padding-left : 20px')
+                        .logo
                             if (session.nama)
-                                a(href='/pengguna/beranda'): img(src='/images/logoPasarMantap.png', width='120px')
+                                a(href='/pc-view/beranda'): img(src='/images/logoPasarMantap.png', width='120px')
                             else
                                 a(href='/'): img(src='/images/logoPasarMantap.png', width='120px')
-                    .col-sm-9
+                    .col-sm-9(style='margin-left : 70px;margin-top : 15px')
                         .mainmenu
                             ul.nav.navbar-nav
                                 li.dropdown
@@ -36,7 +36,7 @@ append header
                                 li
 
                                         form(action='/cekPencarian', method='get')
-                                            input(type='text', placeholder='Cari Toko/Produk')
+                                            input(type='text', placeholder='Cari Produk')
                                             select(name='pilihan')
                                                 option  Semua Kategori
                                                 option(value='1')  Pakaian

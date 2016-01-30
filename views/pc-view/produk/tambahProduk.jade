@@ -1,0 +1,90 @@
+extends ../layout  
+  
+append content
+ h3 Penambahan Produk
+ form.form-horizontal(method='post', action='/produk/insert',enctype='multipart/form-data')
+     .form-group
+         label.col-sm-2.control-label Nama Produk
+         .col-sm-4
+             input.form-control(type='text', name='nama',required)
+     .form-group
+         label.col-sm-2.control-label Kategori
+         .col-sm-4
+             select.form-control(name='kategori',required)
+                 each val in kategori_produk
+                     option(value='#{val.id}') #{val.kategori}
+     .form-group
+         label.col-sm-2.control-label Harga
+         .col-sm-4
+             input.form-control(type='number', name='harga',required)
+     .form-group
+         label.col-sm-2.control-label Stok
+         .col-sm-4
+             input.form-control(type='number', name='stok',required)
+     .form-group
+        label.col-sm-2.control-label Berat(gram)
+        .col-sm-4
+            input.form-control(type='number', name='berat',required)
+            //select(name='satuanberat',style='width:100px')
+            //     option(value='gudang')  Gram
+            //     option(value='etalase')  Kilogram
+              input(type='number', name='berat')
+     .form-group
+        label.col-sm-2.control-label Foto
+        .col-sm-4
+            span.btn.btn-default.btn-file
+                | Upload
+                input#fieldPhoto.form-control(type='file', name='photo', accept='image/*', data-url='/upload')
+                input#photoName(type='hidden', name='gambar' )
+            #fileUploads
+     //.form-group
+     //   label.col-sm-2.control-label Asuransi
+     //   .col-sm-4
+     //       select.form-control(name='asuransi' required)
+     //           option(value='opsional')  Opsional
+     //           option(value='ya')  Ya
+     .form-group
+        label.col-sm-2.control-label Kondisi
+        .col-sm-4
+            select.form-control(name='kondisi' required)
+                option(value='0')  Baru
+                option(value='1')  Bekas
+     .form-group
+        label.col-sm-2.control-label Deskripsi Produk
+        .col-sm-4
+            textarea.form-control(type='text', name='deskripsi' required)
+     .form-group
+        .col-sm-offset-2.col-sm-4
+            input#submit.btn.btn-succes(type='submit', value='simpan')
+            &nbsp;
+            input.btn.btn-danger(type='reset', value='batal')
+
+
+    script(src='/vendor/jquery-file-upload/js/vendor/jquery.ui.widget.js')
+    script(src='/vendor/jquery-file-upload/js/jquery.iframe-transport.js')
+    script(src='/vendor/jquery-file-upload/js/jquery.fileupload.js')
+    script.
+        $(document).ready(function () {
+            //cara kerja library ini memungkinkan photo telah diupload sebelum form disubmit
+            $('#fieldPhoto').fileupload({
+                dataType: 'json',
+                done: function (e, data) {
+                    $.each(data.result.files, function (index, file) {
+                        $('#fileUploads').append($('<div class="upload">' +
+                                '<span class="glyphicon glyphicon-ok"></span>&nbsp;' +
+                                file.originalName + '</div>'));
+                        $('#photoName').val(file.originalName);
+                    });
+                }
+            });
+            $('#submit').click(function(){
+                alert('penambahan produk berhasil');
+            });
+        });
+
+
+
+
+
+
+

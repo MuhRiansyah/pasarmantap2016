@@ -10,19 +10,9 @@ module.exports = function(sequelize, DataTypes) {
             sandi : DataTypes.STRING,
         }, {
             classMethods: {
+
                 associate: function(models) {
-                    Pengguna.belongsTo(models.Provinsi, {
-                        onDelete: "CASCADE",
-                        foreignKey: {
-                            allowNull: false
-                        }
-                    });
-                    Pengguna.belongsTo(models.Kabupaten, {
-                        onDelete: "CASCADE",
-                        foreignKey: {
-                            allowNull: false
-                        }
-                    });
+                    Pengguna.hasMany(models.Penerima);
                 }
             }
         }

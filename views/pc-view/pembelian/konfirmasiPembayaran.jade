@@ -1,0 +1,116 @@
+extends layoutTabPembelian
+append contentDalam
+
+    if(!daftarTransaksi)
+      .alert.alert-danger
+       center
+           h4: b Tidak ada konfirmasi
+    else
+        script.
+            function numberFormat(_number, _sep) {
+                _number = typeof _number != "undefined" && _number > 0 ? _number : "";
+                _number = _number.replace(new RegExp("^(\\d{" + (_number.length % 3 ? _number.length % 3 : 0) + "})(\\d{3})", "g"), "$1 $2").replace(/(\d{3})+?/gi, "$1 ").trim();
+                if (typeof _sep != "undefined" && _sep != " ") {
+                    _number = _number.replace(/\s/g, _sep);
+                }
+                return _number;
+            }
+        .row
+            each val,index in daftarTransaksi
+                //.modal-konfirmasi(tabindex='-1', role='dialog', aria-labelledby='myLargeModalLabel', aria-hidden='true')
+                .modal.fade(class='modal-konfirmasi#{index}' tabindex='-1', role='dialog', aria-labelledby='myLargeModalLabel', aria-hidden='true')
+                    .modal-dialog.modal-sm
+                        .modal-content
+                            .modal-header
+                                h4 Konfirmasi Pembayaran
+                            .modal-body(style='padding: 40px')
+                                form(method='post',action='/keranjang/tambah')
+                                    style.
+                                        td{height: 35px }
+                                    table(width='550px')
+                                        tr: td(width='35%') Invoice
+                                            td: each inv in val.Invoices
+                                                span=inv.id+', '
+                                        tr: td Total Tagihan
+                                            td Rp 200.000
+                                        tr: td Tanggal Pembayaran
+                                            td: input(type='date')
+                                        tr: td(colspan=2): hr
+                                        tr: td(colspan=2): b Tambah Rekening Bank
+                                        tr: td Nama Bank
+                                            td: select(name='')
+                                                    option(value='1') Muamalat
+                                                    option(value='1') Mandiri Syariah
+                                        tr: td Nama Pemelik Rekening
+                                            td: input(type='text')
+                                        tr: td Nomor Rekening
+                                            td: input(type='text')
+                                        tr: td(colspan=2): hr
+                                        tr: td Rekening Tujuan
+                                            td 039393091 A/N PT Bridea Indonesia
+                                        tr: td Jumlah yang sudah dibayar
+                                            td: input(type='text')
+                                        tr: td Unggah Bukti Pembayaran
+                                            td: input(type='file')
+                                        tr: td Keterangan
+                                            td: input(type='text')
+                                        tr: td: br
+
+                                    center
+                                        input.btn.btn-primary(type='submit' value='Ya')
+                                        &nbsp
+                                        input.btn.btn-primary(type='submit' value='Tidak')
+
+        each val,index in daftarTransaksi
+            .row(style='border : 1px solid black;margin : 10px 0')
+                p <b> Tanggal Transaksi : </b> <i> #{moment(val.tanggal).format('YYYY-MM-DD')} </i> <b> Jatuh Tempo Konfirmasi : </b> <i>#{moment(val.jatuh_tempo).format('YYYY-MM-DD')} </i>
+                p <b> Total Tagihan </b> <br/><b style='font-size : 14pt'> Rp <span class='uang'></span></b>
+                script.
+                    document.getElementsByClassName("uang")[#{index}].innerHTML = numberFormat("#{val.total_tagihan}", ".");
+
+                .span.pull-right: button.btn.btn-primary(data-toggle='collapse' data-target='.rincianTransaksi#{index}') Detail Transaksi
+                .span.pull-right &nbsp
+                .span.pull-right: a.btn.btn-primary(data-toggle='modal', data-target='.modal-konfirmasi#{index}')  Konfirmasi
+            .row(class='rincianTransaksi#{index}').collapse
+                // isi invoice yang dimiliki transaksi
+                - each inv in val.Invoices
+                    .row(style='margin : -10px 30px')
+                        table(border='1', width='720px')
+                            tr
+                                td(height='35px', colspan='2')
+                                    span(style='font-size : 11pt')
+                                        | Pembelian dari toko :
+                                        a(href='/toko/#{inv.Toko.id}')  #{inv.Toko.nama}
+                                            tr
+                                td(height='70px')
+                                    span.pull-left(style='padding : 0 10px 0 10px')
+                                        img(src='/images/produk/#{inv.Produk.gambar}' width='30px')
+                                    span.pull-left
+                                        b  #{inv.Produk.nama}
+                                        br
+                                        b(style='font-size : 8pt')  #{inv.jumlah} Barang x Rp #{inv.Produk.harga}
+                                td
+                                    b  Harga Barang <br>
+                                    | #{inv.Produk.harga}
+                                    tr
+                                td
+                                    b  Alamat Tujuan
+                                    br
+                                    b  #{inv.Penerima.nama} <br/>
+                                    | #{inv.Penerima.detail_alamat} <br/>
+                                    | #{inv.Penerima.Kecamatan.nama} - #{inv.Penerima.Kabupaten.nama}, #{inv.Penerima.kode_pos} <br/>
+                                    | #{inv.Penerima.Provinsi.nama}<br/>
+                                    | Telp: #{inv.Penerima.telepon}
+                                td(colspan='2')
+                                    b  Keterangan
+                                    br
+                                    |                     -
+                                    span.pull-right
+                                        a(href='#') hapus produk ini
+                            tr
+                                td(colspan='3')
+                                    span.pull-right(style='padding : 10px 0px;font-size:12pt')
+                                        | Total Pembayaran <b> Rp #{inv.total_harga} </b>
+
+        br
+        br

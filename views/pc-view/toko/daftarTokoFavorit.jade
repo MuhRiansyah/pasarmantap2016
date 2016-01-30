@@ -1,0 +1,10 @@
+extends ../layout
+append content
+        if(tokoFavorit.length == 0)
+            .alert.alert-danger: center: h4 Tidak ada toko favorit yang terdaftar
+        else
+            each value in tokoFavorit
+                a(href='/toko/profil/#{value.Toko.id}')
+                    div(style='width:160px;height:270px;float:left')
+                        img(src='/images/#{value.Toko.logo}', style='height: 150px;width:140px')
+                        | <center> #{value.Toko.nama} </center>

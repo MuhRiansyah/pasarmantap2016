@@ -9,6 +9,7 @@ module.exports = function(sequelize, DataTypes) {
             nama : DataTypes.STRING,
             harga : DataTypes.INTEGER,
             berat : DataTypes.INTEGER,
+            stok : DataTypes.INTEGER,
             gambar : DataTypes.STRING,
             kondisi : DataTypes.INTEGER,// bekas, baru
             deskripsi : DataTypes.STRING
@@ -27,10 +28,16 @@ module.exports = function(sequelize, DataTypes) {
                             allowNull: false
                         }
                     });
+                    Produk.belongsTo(models.Toko, {
+                        onDelete: "CASCADE",
+                        foreignKey: {
+                            allowNull: false
+                        }
+                    });
+                    Produk.hasMany(models.Wishlist);
                 }
             }
         }
     );
-
     return Produk;
 };

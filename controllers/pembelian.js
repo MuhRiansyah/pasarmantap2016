@@ -8,11 +8,14 @@ var rawQuery = models.sequelize;
 module.exports = {
 
     registerRoutes: function(app,checkAuth) {
-        app.get('/pembelian/daftarpembelian',checkAuth,this.daftarPembelian);
+        //app.get('/pembelian/daftarpembelian',checkAuth,this.daftarPembelian);
+        app.get('/pembelian/daftarpembelian',this.daftarPembelian);
         //app.get('/pembelian/konfirmasipembayaran',checkAuth,this.konfirmasiPembayaran);
         app.get('/pembelian/konfirmasipembayaran',this.konfirmasiPembayaran);
-        app.get('/pembelian/konfirmasipenerimaan',checkAuth,this.konfirmasiPenerimaan);
-        app.get('/pembelian/statuspemesanan',checkAuth,this.statusPemesanan);
+        //app.get('/pembelian/konfirmasipenerimaan',checkAuth,this.konfirmasiPenerimaan);
+        app.get('/pembelian/konfirmasipenerimaan',this.konfirmasiPenerimaan);
+        //app.get('/pembelian/statuspemesanan',checkAuth,this.statusPemesanan);
+        app.get('/pembelian/statuspemesanan',this.statusPemesanan);
         //app.get('/pembelian/keranjangbelanja/:id',checkAuth,this.keranjangBelanja);
         app.get('/pembelian/keranjangbelanja/:id',this.keranjangBelanja);
         //app.get('/pembelian/konfirmasiPembelian/',checkAuth,this.konfirmasiPembelian);
@@ -33,7 +36,7 @@ module.exports = {
             ],
             //attributes: ['kategori','deskripsi']
         }).then(function(produk) {
-            res.render('pengguna/pembelian/keranjangBelanja', {
+            res.render('pc-view/pembelian/keranjangBelanja', {
                produk : produk
             });
         })
@@ -45,12 +48,12 @@ module.exports = {
     },
     konfirmasiPembelian : function(req, res, next){
 
-        res.render('pengguna/pembelian/konfirmasiPembelian', {
+        res.render('pc-view/pembelian/konfirmasiPembelian', {
 
         });
     },
     daftarPembelian : function(req, res, next){
-        res.render('pengguna/pembelian/daftarPembelian', {
+        res.render('pc-view/pembelian/daftarPembelian', {
             tabMenu: 'Daftar Transaksi Pembelian',
         });
     },
@@ -62,12 +65,16 @@ module.exports = {
                 {
                     model: models.Invoice, include:
                     [
-                        models.Toko,models.Produk
+                        models.Toko,models.Produk,{
+                            model : models.Penerima, include :[
+                                models.Provinsi,models.Kabupaten,models.Kecamatan
+                            ]
+                        }
                     ]
                 }
             ],
         }).then(function(transaksi) {
-            res.render('pengguna/pembelian/konfirmasiPembayaran', {
+            res.render('pc-view/pembelian/konfirmasiPembayaran', {
                 tabMenu: 'Konfirmasi Pembayaran',
                 daftarTransaksi : transaksi,
                 moment : moment
@@ -77,13 +84,13 @@ module.exports = {
     },
 
     konfirmasiPenerimaan : function(req, res, next){
-        res.render('pengguna/pembelian/konfirmasiPenerimaan', {
+        res.render('pc-view/pembelian/konfirmasiPenerimaan', {
             tabMenu: 'Konfirmasi Penerimaan',
         });
     },
 
     statusPemesanan: function(req, res, next){
-        res.render('pengguna/pembelian/statusPemesanan', {
+        res.render('pc-view/pembelian/statusPemesanan', {
             tabMenu: 'Status Pemesanan',
         });
     },
