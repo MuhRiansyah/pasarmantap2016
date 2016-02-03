@@ -54,11 +54,9 @@ append header
                                             input.btn-inverse(type='submit', value='cari')
 
                                 if (session.nama)
-                                    li
-                                        a.dropdown(href='#', data-toggle='dropdown')
-                                            img(src='/images/default-user-photo.png',width='30')
-                                        div.dropdown-menu
-                                            a(href='/keluar') keluar
+                                    li: a(href='/pengguna/profil/'+session.penggunaId)=session.nama
+                                    li: a(href='/keranjang/'+session.penggunaId): i.fa.fa-shopping-cart
+                                    li: a(href='/keluar'): i.fa.fa-power-off
                                 else
                                     li
                                         a(href='#')

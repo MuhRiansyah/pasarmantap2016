@@ -1,3 +1,65 @@
 extends ../layout  
   
 append content
+    .row(style='width:700px')
+        h3 Pengaturan Toko
+        br
+        h4 Informasi Toko
+        //TODO: buat penanganan url /pengaturantoko/update
+        form(method='post', action='/pengaturantoko/update',enctype='multipart/form-data')
+        table.table
+            tr: td(width='20%') Nama Toko
+                td(colspan=4): input.form-control(type='text' disabled=true value='#{session.namaToko}')
+
+            tr: td Deskripsi
+                td(colspan=4): input.form-control(type='text' value='#{toko.deskripsi}')
+            tr: td Lokasi
+                //TODO: nanti buat modal untuk mengubah lokasi provinsi-kabupaten-kecamatan
+                td: input.form-control(type='text' disabled=true value='#{toko.Provinsi.nama}')
+                td: input.form-control(type='text' disabled=true value='#{toko.Kabupaten.nama}' style='width:150px')
+                td: input.form-control(type='text' disabled=true value='#{toko.kecamatan}')
+                td: a.btn.btn-default(data-target='') Ubah
+                    //dibuat modal
+                    //select#provinsi(required=true,style='font-size:8pt',name='idProvinsi')
+                    //    each val in provinsi
+                    //        option(value='#{val.id}') #{val.nama}
+                    //&nbsp;
+                    //select#kabupaten.form-control(required=true,name='kabupatenId')
+                    //    option(disabled) pilih kabupaten/kota
+            tr: td Logo Toko
+                td(colspan=4)
+                    //TODO: saat upload ganti toko berhasil , ganti src gambar lewat jquery dibawah
+                    img(src='/images/toko/#{toko.logo}' width='100px')
+                    br
+                    span.btn.btn-default.btn-file
+                        | Ganti Logo Toko
+                        input#fieldPhoto.form-control(type='file', name='photo', accept='image/*', data-url='/upload-gambar-toko')
+                        input#photoName(type='hidden', name='gambar' )
+                    #fileUploads
+            tr: td(colspan='4' align='center'): input.btn.btn-primary(type='submit',value='simpan perubahan')
+    script(src='/vendor/jquery-file-upload/js/vendor/jquery.ui.widget.js')
+    script(src='/vendor/jquery-file-upload/js/jquery.iframe-transport.js')
+    script(src='/vendor/jquery-file-upload/js/jquery.fileupload.js')
+    script.
+        $(document).ready(function () {
+            //cara kerja library ini memungkinkan photo telah diupload sebelum form disubmit
+            $('#fieldPhoto').fileupload({
+                dataType: 'json',
+                done: function (e, data) {
+                    $.each(data.result.files, function (index, file) {
+                        $('#fileUploads').append($('<div class="upload">' +
+                                '<span class="glyphicon glyphicon-ok"></span>&nbsp;' +
+                                file.originalName + '</div>'));
+                        $('#photoName').val(file.originalName);
+                    });
+                }
+            });
+        });
+    .row(style='width:700px')
+        h4 Daftar Etalase
+        table.table
+            each val,index in produk.rows
+                tr: td: <b> #{val.Etalase.nama} </b><br/>
+                    small Total Produk : <b>#{produk.count[index].count}</b>
+                    //TODO:fasililas ubah etalase
+                    td: a(href='#') ubah

@@ -15,6 +15,8 @@ append content
     if(wishList.length == 0)
         .alert.alert-danger: center: h4 Tidak ada produk yang terdaftar
     else
+        h2 Wish List
+        .row(style='height:10px')
         each value,n in wishList
             div(style='width:160px;height:270px;float:left')
                 | <a href='/produk/detail/#{value.Produk.id}'>

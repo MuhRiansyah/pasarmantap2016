@@ -11,79 +11,83 @@ append content
      .container
       h4 Pilih Metode Pembayaran yang ingin digunakan
      .container
+         //TODO: metode hapus satu produk, atau banyak produk
        .row
-         form(action='simpanbelanjaan',method='post')
+          script.
+               function numberFormat(_number, _sep) {
+                   _number = typeof _number != "undefined" && _number > 0 ? _number : "";
+                   _number = _number.replace(new RegExp("^(\\d{" + (_number.length % 3 ? _number.length % 3 : 0) + "})(\\d{3})", "g"), "$1 $2").replace(/(\d{3})+?/gi, "$1 ").trim();
+                   if (typeof _sep != "undefined" && _sep != " ") {
+                       _number = _number.replace(/\s/g, _sep);
+                   }
+                   return _number;
+               }
           style(type='text/css').
-            td{
-            padding: 10px 10px;
-            }
-          table(border='1', width='80%')
-            tr
-              td(height='60px', colspan='2')
-                span(style='font-size : 13pt')
-                  | Pembelian dari toko :
-                  a(href='toko/#{produk.Toko.id}')  #{produk.Toko.nama}
-                script.
-                    function numberFormat(_number, _sep) {
-                        _number = typeof _number != "undefined" && _number > 0 ? _number : "";
-                        _number = _number.replace(new RegExp("^(\\d{" + (_number.length % 3 ? _number.length % 3 : 0) + "})(\\d{3})", "g"), "$1 $2").replace(/(\d{3})+?/gi, "$1 ").trim();
-                        if (typeof _sep != "undefined" && _sep != " ") {
-                            _number = _number.replace(/\s/g, _sep);
-                        }
-                        return _number;
-                    }
-            tr
-              td(height='70px')
-                span.pull-left(style='padding : 0 10px 0 10px')
-                  img(src='/images/produk/#{produk.gambar}' width='30px')
-                span.pull-left
-                  b  #{produk.nama}
-                  br
-                  b(style='font-size : 8pt')  #{session.cart[0].jumlah} Barang  x Rp <span id='hargaProduk'></span>
-                    script.
-                        var hargaProduk = document.getElementById('hargaProduk');
-                        hargaProduk.innerHTML = numberFormat("#{produk.harga}", ".");
-                  br
-                  a(href='#', style='font-size : 8pt') Ubah
-              td
-                b  Harga Barang <br>
-                | Rp <span id='totalHarga'></span>
-                script.
-                    var totalHarga = document.getElementById('totalHarga');
-                    totalHarga.innerHTML = numberFormat("#{session.cart[0].totalHarga}", ".");
+            td{ padding: 10px 10px;}
+          form(action='simpanbelanjaan',method='post')
+            each val,index in cart
+              br
+              table(border='1', width='90%' style='margin:0 30px')
                 tr
-              td
-                b  Alamat Tujuan
-                a(href='#', style='font-size : 11px')  Ubah <br/>
-                b  #{session.cart[0].nama} <br/>
-                | #{session.cart[0].alamat} <br/>
-                // kalau id penerima 0 ,berarti penerima baru yang akan di create dataya pada model penerima
-                //|  <input type='hidden' name='idPenerima' value='#{session.cart[0].idPenerima}'/>
-                |  <input type='hidden' name='idKecamatan' value='#{session.cart[0].idKecamatan}'/>
-                |  <input type='hidden' name='idKabupaten' value='#{session.cart[0].idKabupaten}'/>
-                |  <input type='hidden' name='idProvinsi' value='#{session.cart[0].idProvinsi}'/>
-                |  #{session.cart[0].kecamatan} - #{session.cart[0].kabupaten}, #{session.cart[0].kode_pos} <br/>
-                | #{session.cart[0].provinsi} <br/>
-                | Telp: #{session.cart[0].telepon}
-              td(colspan='2')
-                b  Keterangan
-                br
-                |                     -
-                span.pull-right
-                  a(href='#') hapus
+                  td(height='60px', colspan='2')
+                    span(style='font-size : 13pt')
+                      | Pembelian dari toko :
+                      a(href='toko/#{produk[index].Toko.id}')  #{produk[index].Toko.nama}
+                tr
+                  td(height='70px')
+                    span.pull-left(style='padding : 0 10px 0 10px')
+                      img(src='/images/produk/#{produk[index].gambar}' width='30px')
+                    span.pull-left
+                      b  #{produk[index].nama}
+                      br
+                      b(style='font-size : 8pt')  #{val.jumlah} Barang  x Rp <span class='hargaProduk'></span>
+                      script.
+                          document.getElementsByClassName("hargaProduk")[#{index}].innerHTML = numberFormat("#{produk[index].harga}", ".");
+                      br
+                      a(href='#', style='font-size : 8pt') Ubah
+                  td
+                    b  Harga Barang <br>
+                    | Rp <span class='totalHarga'></span>
+                    script.
+                        document.getElementsByClassName("totalHarga")[#{index}].innerHTML = numberFormat("#{cart[index].nilaiSubTotal}", ".");
+                tr
+                  td
+                    b  Alamat Tujuan
+                    a(href='#', style='font-size : 11px')  Ubah <br/>
+                    b  #{penerima[index].nama} <br/>
+                    | #{penerima[index].alamat} <br/>
+                    |  <input type='hidden' name='idKecamatan' value='#{penerima[index].kecamatan}'/>
+                    |  <input type='hidden' name='idKabupaten' value='#{penerima[index].kabupatenId}'/>
+                    |  <input type='hidden' name='idProvinsi' value='#{penerima[index].provinsiId}'/>
+                    |  #{penerima[index].kecamatan} - #{penerima[index].Kabupaten.nama} - #{penerima[index].Kabupaten.kode_pos} <br/>
+                    | #{penerima[index].Provinsi.nama} <br/>
+                    | Telp: #{penerima[index].telepon}
+                  td(colspan='2')
+                    b  Keterangan
+                    br
+                    | #{cart[index].keterangan}
+                    span.pull-right
+                      a(href='#') hapus
+
+           .row(style='width:880px') </br>
+               span.pull-left(style='padding : 10px 20px ')
+                   a(href='#') Hapus Semua
+               //TODO: dibuat hasil penjumlahan dari seluruh isi cart
+               span.pull-right(style='padding : 10px 0px;font-size:14pt')
+                   | Total Pembayaran <b> Rp <span id='totalPembayaran'></span> </b>
+                   script.
+                       document.getElementById("totalPembayaran").innerHTML = numberFormat("#{totalPembayaran}", ".");
+           .row </br>
+               .col-sm-10(style='margin:20px;height:90px')
+                   span.pull-left(style='padding : 10px 0px')
+                       a(href='#')  << lanjukan berbelanja
+                   span.pull-right
+                       input.btn.btn-inverse(type='submit', value='Konfirmasi Pembayaran >')
 
 
-            tr
-              td(colspan='6')
-                span.pull-left(style='padding : 10px 10px ')
-                  a(href='#') Hapus Semua
-                span.pull-right(style='padding : 10px 0px;font-size:14pt')
-                  | Total Pembayaran <b> Rp <span id='totalPembayaran'></span> 240.000 </b>
-          .row </br>
-            .col-sm-9(style='margin:20px;height:90px')
-                span.pull-left(style='padding : 10px 0px')
-                  a(href='#')  << lanjukan berbelanja
-                span.pull-right
-                  input.btn.btn-inverse(type='submit', value='Konfirmasi Pembayaran >')
+
+
+
+
 
 

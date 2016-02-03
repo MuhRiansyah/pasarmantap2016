@@ -37,19 +37,23 @@ module.exports = function(app,mobile){
 
 	//route untuk data pembelian
 	pembelianController.registerRoutes(app,checkAuth);
+	//request AJAX
 	app.get('/getpenerima/:idPenerima', main.getPenerima);
 	app.get('/getkabupaten/:id', main.getKabupaten);
+	app.get('/getongkir/:idKotaTujuan/:idProduk',main.getOngkir);
+
 
 	//sebelum menggunakan API
 	//app.get('/getkecamatan/:id', main.getKecamatan);
 	//route untuk data produk
 	produkController.registerRoutes(app,checkAuth);
+	app.post('/keranjang/tambah', cart.tambahCart);
+	app.get('/keranjang', cart.getCart);
+
 	penggunaController.registerRoutes(app);
 	//route untuk data penjualan
 	penjualanController.registerRoutes(app,checkAuth);
 	//route untuk data toko
 	tokoController.registerRoutes(app,checkAuth);
 
-	app.post('/keranjang/tambah', cart.tambahCart);
-	app.get('/keranjang', cart.getCart);
 };

@@ -8,10 +8,12 @@ module.exports = function(sequelize, DataTypes) {
             nama : DataTypes.STRING,
             email : DataTypes.STRING,
             sandi : DataTypes.STRING,
+            tanggal_lahir : DataTypes.DATE,
+            telepon : DataTypes.STRING,
         }, {
             classMethods: {
-
                 associate: function(models) {
+                    Pengguna.belongsTo(models.Toko);
                     Pengguna.hasMany(models.Penerima);
                 }
             }

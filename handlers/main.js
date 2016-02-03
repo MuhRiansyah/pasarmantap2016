@@ -1,6 +1,10 @@
 var models  = require('../models');
 var async  = require('async');
 var sequelize = require("sequelize");
+var credentials = require('../api/credentials.js');
+var ongkir = require('../api/rajaOngkir')({
+	key: credentials.rajaOngkir.key
+});
 
 
 
@@ -8,6 +12,8 @@ exports.baru= function(req, res) {
 	res.render('baru',{
 	})
 }
+
+
 
 exports.utamaMobile = function(req, res){
 	async.series([
@@ -189,6 +195,7 @@ exports.ceklogin = function(req, res, next) {
 	}).then(function(pengguna) {
 		if(pengguna){
 			req.session.nama =  pengguna.nama;
+			req.session.idPengguna =  pengguna.id;
 			req.session.loggedin = "true";
 			res.redirect('/pc-view/beranda');
 		}else{
@@ -196,7 +203,7 @@ exports.ceklogin = function(req, res, next) {
 			res.send('gagal masuk')
 		}
 	})
-}
+};
 exports.cekloginMobile = function(req, res, next) {
 	//buat session jika berhasil login
 	models.Pengguna.find({
@@ -214,6 +221,23 @@ exports.cekloginMobile = function(req, res, next) {
 			res.send('gagal masuk')
 		}
 	})
+};
+//request AJAX
+exports.getOngkir = function(req, res, next){
+	//models
+	models.Toko.find({
+		where:{id:res.locals.session.tokoId}
+	}).then(function(toko){
+		models.Produk.find({
+			where:{id:req.params.idProduk}
+		}).then(function(produk){
+			ongkir.getOngkosKirim(
+				toko.KabupatenId,req.params.idKotaTujuan,produk.berat,
+				function(ongkosKirim){
+					res.send({ongkos:ongkosKirim});
+				});
+		});
+	});
 };
 
 exports.getPenerima = function(req, res, next) {

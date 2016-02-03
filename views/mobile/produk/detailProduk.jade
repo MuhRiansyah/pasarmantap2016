@@ -91,6 +91,7 @@ append content
                                                 select#kecamatan(required=true,style='font-size:8pt')
                                                     option(disabled) pilih kecamatan
                                 center: input.btn.btn-primary(type='submit' value='Beli Produk Ini')
+
         .col-sm-4
             p <a href='/daftarproduk/#{toko.Produk[0].KategoriProdukId}'> #{toko.Produk[0].Kategori_Produk.kategori} </a> > <a href='#'> #{toko.Produk[0].nama}</a>
             table
@@ -123,7 +124,7 @@ append content
                 tr: td(rowspan='4',width='110px')
                     a(href='/toko/#{toko.nama}'): img(src='/images/#{toko.logo}', width='100px')
                 tr: td: a(href='#') #{toko.nama}
-                tr: td #{toko.lokasi}
+                tr: td #{toko.Kabupaten.nama}
                 tr: td: a.btn-primary.btn(href='produk/favorit/#{toko.id}') Jadikan Favorit
 
     br

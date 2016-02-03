@@ -12,7 +12,6 @@ module.exports = function(sequelize, DataTypes) {
         }, {
             classMethods: {
                 associate: function(models) {
-
                     Penerima.belongsTo(models.Pengguna, {
                         onDelete: "CASCADE",
                         foreignKey: {

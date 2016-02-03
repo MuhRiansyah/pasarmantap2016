@@ -12,8 +12,27 @@ module.exports = {
         //app.get('/toko/pengaturan/', this.pengaturan);
         app.get('/toko/favorit/', this.getTokoFavorit);
         app.get('/toko/jadikanfavorit/:idToko', this.insertTokoFavorit);
+        app.get('/toko/pengaturan/', this.pengaturanToko);
     },
 
+    pengaturanToko : function(req, res, next){
+        models.Toko.find({
+            include : [models.Kabupaten,models.Provinsi],
+            where   : {id:res.locals.session.tokoId}
+        }).then(function(toko){
+            models.Produk.findAndCountAll({
+                include : models.Etalase,
+                group   : 'etalaseId',
+                where   : {tokoId:res.locals.session.tokoId}
+            }).then(function(produk){
+                //console.log(produk.rows[0].Etalase.nama+' - '+produk.count[0].count);
+                res.render('pc-view/toko/pengaturanToko',{
+                    produk : produk,
+                    toko : toko
+                });
+            });
+        });
+    },
     insertTokoFavorit : function(req, res, next){
         models.Toko_Favorit.create({
             include : models.Toko
@@ -43,7 +62,7 @@ module.exports = {
                     include: [
                         { model: models.Produk,as:'Produk',where : {etalaseId :req.params.idEtalase},
                             include : models.Etalase
-                        }
+                        },models.Kabupaten
                     ],
                     where : { id : req.params.idToko }
                 }).then(function(toko) {
@@ -54,7 +73,7 @@ module.exports = {
             stack.getProdukMilikEtalase = function(callback){
                 models.Toko.find({
                     include: [
-                        { model: models.Produk,as:'Produk'}
+                        { model: models.Produk,as:'Produk'},models.Kabupaten
                     ],
                     where : { id : req.params.idToko }
                 }).then(function(toko) {
@@ -83,7 +102,7 @@ module.exports = {
         //        callback(null,jumlah);
         //    })
         //}
-        async.series(stack,function(err,result){
+        async.parallel(stack,function(err,result){
             if(!req.params.idEtalase){
                 var namaEtalase = 'Semua Etalase';
             }else{

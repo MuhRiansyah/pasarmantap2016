@@ -3,6 +3,10 @@
  */
 var models = require('../models');
 var async = require('async');
+var credentials = require('../api/credentials.js');
+var ongkir = require('../api/rajaOngkir')({
+    key: credentials.rajaOngkir.key
+});
 
 exports.test = function (test) {
     //detailProduk(test)
@@ -12,7 +16,82 @@ exports.test = function (test) {
     //getPenerima(test);
     //daftarProduk(test);
     //kategoriProdukMilikToko(test);
+    //beliPrroduk(test);
+    //getToko(test);
+    //getOngkir(test);
+    //pengaturanToko(test);
+    getCart(test);
 };
+function getCart(test){
+    var cart = [];
+    cart.push({
+        produkId : 1
+    });
+    cart.push({
+        produkId : 2
+    });
+    var cart1 = [];
+    for(val in cart){
+        cart1.push(cart[val].produkId);
+    }
+    models.Produk.findAll({
+        where : {
+            id : {$in: cart1}
+        },
+        include: [models.Toko]
+    }).then(function(produk) {
+        console.log(produk);
+        test.done();
+    });
+}
+function pengaturanToko(test){
+    models.Produk.findAndCountAll({
+        include : models.Etalase,
+        group   : 'etalaseId',
+        where   : {tokoId:'1'}
+    }).then(function(produk){
+        console.log(produk.count);
+        console.log(produk.rows);
+        console.log(produk.rows[0].Etalase.nama+' - '+produk.count[0].count);
+        console.log(produk.rows[1].Etalase.nama+' - '+produk.count[1].count);
+        test.done()
+    });
+}
+function getOngkir(test){
+    models.Toko.find({
+        where:{id:'1'}
+    }).then(function(toko){
+        models.Produk.find({
+            where:{id:'1'}
+        }).then(function(produk){
+            console.log(produk.berat);
+            console.log(toko.KabupatenId);
+            ongkir.getOngkosKirim(
+                toko.KabupatenId,'1',produk.berat,
+                function(ongkosKirim){
+                    console.log('============')
+                    console.log(ongkosKirim);
+                    test.done();
+                });
+        });
+    });
+}
+function getToko(test){
+    models.Toko.find({
+        include: [
+            { model: models.Produk, where : {id : '1'},as:'Produk',
+                include : [models.Kategori_Produk] },
+            models.Kabupaten
+        ]
+    }).then(function(toko) {
+        console.log(toko.Kabupaten.nama);
+        test.done();
+    })
+}
+function beliProduk(test){
+
+}
+
 function kategoriProdukMilikToko(test){
     models.Produk.findAll({
         where : {
@@ -67,7 +146,7 @@ function insertProvinsi(test){
     stack.insertKabupaten = function(callback){
         models.Kabupaten.create({
             id : 221,
-            nama : 'kendari',
+            nama : 'kendari'
         }).then(function() {
             models.Provinsi.findAndCountAll()
                 .then(function(result){

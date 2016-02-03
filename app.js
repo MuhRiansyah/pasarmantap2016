@@ -11,17 +11,12 @@ var session = require('express-session');
 
 var jqupload = require('jquery-file-upload-middleware');
 var app = express();
-var credentials = require('./api/credentials.js');
-
-var ongkir = require('./api/rajaOngkir')({
-  key: credentials.rajaOngkir.key,
-});
 
 // jQuery File Upload endpoint middleware
 app.use('/upload', function(req, res, next){
   var now = Date.now();
   jqupload.fileHandler({
-    // gimana cara ganti nama file gambar jadi waktu sekarang
+    // gimana cara ganti nama file gambar jadi waktu sekarang (misalkan jadi : 20151020101.png)
     uploadDir: function(){
       //return __dirname + '/public/uploads/' + now;
       return __dirname + '/public/images/produk/';
@@ -29,6 +24,20 @@ app.use('/upload', function(req, res, next){
     uploadUrl: function(){
       //return '/uploads/' + now;
       return '/images/produk/';
+    }
+  })(req, res, next);
+});
+app.use('/upload-gambar-toko', function(req, res, next){
+  var now = Date.now();
+  jqupload.fileHandler({
+    // gimana cara ganti nama file gambar jadi waktu sekarang (misalkan jadi : 20151020101.png)
+    uploadDir: function(){
+      //return __dirname + '/public/uploads/' + now;
+      return __dirname + '/public/images/toko/';
+    },
+    uploadUrl: function(){
+      //return '/uploads/' + now;
+      return '/images/toko/';
     }
   })(req, res, next);
 });
@@ -44,14 +53,6 @@ app.use('/upload', function(req, res, next){
 //    res.send({listArr:kabupatenHTML});
 //  });
 //});
-app.get('/getongkir/:idKotaTujuan',function(req, res, next) {
-  var idKotaAsal = 501;
-  var beratProduk = 1700;
-  ongkir.getOngkosKirim(idKotaAsal,req.params.idKotaTujuan,beratProduk,
-    function(ongkosKirim){
-      res.send({ongkos:ongkosKirim});
-  });
-});
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -76,7 +77,16 @@ app.use(session({
 }));
 
 app.use(function(req,res,next){
-  res.locals.session = req.session;
+  //diset session selalu aktif
+  var session = {
+      penggunaId : 1,
+      tokoId : 1,
+      namaToko : 'Barokah',
+      nama : 'muh riansyah',
+      loggedin : "true"
+  };
+  //res.locals.session = req.session;
+  res.locals.session = session;
   next();
 });
 

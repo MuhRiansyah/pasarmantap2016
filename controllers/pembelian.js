@@ -4,7 +4,7 @@
 var models  = require('../models');
 var sequelize = require("sequelize");
 var moment = require("moment");
-var rawQuery = models.sequelize;
+
 module.exports = {
 
     registerRoutes: function(app,checkAuth) {
@@ -22,6 +22,7 @@ module.exports = {
         app.get('/pembelian/konfirmasipembelian/',this.konfirmasiPembelian);
         //app.post('/pembelian/konfirmasiPembelian/simpanbelanjaan',checkAuth,this.simpanBelanjaan);
         app.post('/pembelian/keranjangbelanja/simpanbelanjaan',this.simpanBelanjaan);
+
     },
 
     keranjangBelanja : function(req, res, next){
