@@ -16,6 +16,12 @@ module.exports = function(sequelize, DataTypes) {
         }, {
             classMethods: {
                 associate: function(models) {
+                    Produk.belongsToMany(models.Invoice, {
+                        through: {
+                            model: models.Invoice_Produk
+                        },
+                        foreignKey: 'produkId'
+                    });
                     Produk.belongsTo(models.Kategori_Produk, {
                         onDelete: "CASCADE",
                         foreignKey: {

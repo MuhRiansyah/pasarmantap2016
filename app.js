@@ -41,6 +41,20 @@ app.use('/upload-gambar-toko', function(req, res, next){
     }
   })(req, res, next);
 });
+app.use('/upload-bukti-pembayaran', function(req, res, next){
+  var now = Date.now();
+  jqupload.fileHandler({
+    // gimana cara ganti nama file gambar jadi waktu sekarang (misalkan jadi : 20151020101.png)
+    uploadDir: function(){
+      //return __dirname + '/public/uploads/' + now;
+      return __dirname + '/public/images/buktiPembayaran/';
+    },
+    uploadUrl: function(){
+      //return '/uploads/' + now;
+      return '/images/buktiPembayaran/';
+    }
+  })(req, res, next);
+});
 
 //API mengambil kabupaten, membutuhkan koneksi internet stabil
 //app.get('/getkabupaten/:province_id',function(req, res, next) {
@@ -78,12 +92,14 @@ app.use(session({
 
 app.use(function(req,res,next){
   //diset session selalu aktif
+  var cart = req.session.cart || (req.session.cart = []);
   var session = {
       penggunaId : 1,
       tokoId : 1,
       namaToko : 'Barokah',
       nama : 'muh riansyah',
-      loggedin : "true"
+      loggedin : "true",
+      jumlahIsiCart : cart.length
   };
   //res.locals.session = req.session;
   res.locals.session = session;

@@ -7,7 +7,7 @@ body {
   font-size: 10pt;  
   position: relative;
   font-weight:400px;
-  background: #f8f8f8
+  background: rgba(233, 233, 233, 0.61)
 }
 .btn-file {
   position: relative;
@@ -105,7 +105,21 @@ a#scrollUp i{
 .header_top {
   background: none repeat scroll 0 0 #555500;
 }
-
+.headerPasar{
+  position: fixed;
+  margin : 0 auto;
+  width: 100%;
+  background-color: whitesmoke;
+  padding : 15px 0;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0), 0 6px 20px 0 rgba(0, 0, 0, 0.1);
+  z-index: 99;
+}
+.containerIsiBelanja{
+  margin: 100px 110px;
+}
+.containerIsi{
+  margin: 100px 80px
+}
 .contactinfo ul li:first-child{
     margin-left: -15px;
 }
@@ -996,7 +1010,6 @@ h2.title {
 
 .category-tab ul {
   background: #40403E;
-  border-bottom: 1px solid #FE980F;
   list-style: none outside none;
   margin: 0 0 30px;
   padding: 0;
@@ -1006,7 +1019,7 @@ h2.title {
 .category-tab ul li a {
   border: 0 none;
   border-radius: 0;
-  color: #B3AFA8;
+  color: #fcfffa;
   display: block;
   font-family: 'Roboto', sans-serif;
   font-size: 14px;
@@ -1014,7 +1027,7 @@ h2.title {
 }
 
 .category-tab ul  li  a:hover{
-	background:#FE980F;
+    background: rgb(61, 119, 187);
 	color:#fff;
 }
 

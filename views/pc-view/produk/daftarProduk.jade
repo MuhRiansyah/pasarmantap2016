@@ -26,7 +26,7 @@ append content
         table.table-bordered.table-hover(width='680px',style='margin : 15px')
             each value,indexProduk in daftar_produk
                 tr(style='height : 100px')
-                    td(width='3%') <input type='checkbox'/>
+                    //td(width='3%') <input type='checkbox'/>
                     td(width='10%') <img src='/images/produk/#{value.gambar}' width='70px' height='70px' alt=''/>
                     if(value.kondisi == '0')
                         td(width='30%') #{value.nama} - bekas <br/>#{value.Kategori_Produk.kategori}

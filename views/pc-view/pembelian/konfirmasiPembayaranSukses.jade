@@ -1,0 +1,24 @@
+extends ../layoutBelanja
+append content
+        script.
+            function numberFormat(_number, _sep) {
+                _number = typeof _number != "undefined" && _number > 0 ? _number : "";
+                _number = _number.replace(new RegExp("^(\\d{" + (_number.length % 3 ? _number.length % 3 : 0) + "})(\\d{3})", "g"), "$1 $2").replace(/(\d{3})+?/gi, "$1 ").trim();
+                if (typeof _sep != "undefined" && _sep != " ") {
+                    _number = _number.replace(/\s/g, _sep);
+                }
+                return _number;
+            }
+        center
+            .row
+                .alert.alert-warning(style='padding: 30px;width:700px; border : 1px solid black')
+                    h4 Konfirmasi Pembayaran Sukses
+                    p Terima Kasih, Anda telah berhasil melakukan konfirmasi pembayaran dengan menggunakan Transfer ATM
+                    p Total yang Anda Konfirmasi
+                    h3 Rp <span id='uang'></span>
+                    script.
+                        document.getElementById("uang").innerHTML = numberFormat("12000000",".");
+                    p Pembayaran Anda akan diverifikasi oleh pasarmantap dalam 1 x 24 jam dan akan diteruskan kepada penjual.
+                    p klik <a href='/pembelian/statuspemesanan'>disini</a> untuk memantau status pemesanan Anda.
+        br
+        br

@@ -9,9 +9,8 @@ append content
             }
             return _number;
         }
-    .row
-        .col-sm-1
-        .col-sm-3
+    .row(style='margin : 30px 10px')
+        .col-sm-4
             table
                 tr: td(colspan='4') <img src='/images/produk/#{toko.Produk[0].gambar}' width='250'>
                 //daftar gambar produk
@@ -54,8 +53,7 @@ append content
                 tr: td #{toko.Kabupaten.nama}
                 tr: td: a.btn-primary.btn(href='/produk/favorit/#{toko.id}') Jadikan Favorit
     br
-    .row
-        .col-sm-1
+    .row(style='margin : 0px 10px')
         .category-tab
               // category-tab
               .col-sm-8

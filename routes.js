@@ -35,8 +35,7 @@ module.exports = function(app,mobile){
 	app.get('/pc-view/beranda', main.beranda);
 	app.get('/baru', main.baru);
 
-	//route untuk data pembelian
-	pembelianController.registerRoutes(app,checkAuth);
+
 	//request AJAX
 	app.get('/getpenerima/:idPenerima', main.getPenerima);
 	app.get('/getkabupaten/:id', main.getKabupaten);
@@ -49,7 +48,12 @@ module.exports = function(app,mobile){
 	produkController.registerRoutes(app,checkAuth);
 	app.post('/keranjang/tambah', cart.tambahCart);
 	app.get('/keranjang', cart.getCart);
+	//route untuk menambah ke invoice
+	app.post('/keranjang/simpan', cart.insertCartToInvoice);
+	app.get('/keranjang/konfirmasi', cart.konfirmasiPembelian);
 
+	//route untuk data pembelian
+	pembelianController.registerRoutes(app,checkAuth);
 	penggunaController.registerRoutes(app);
 	//route untuk data penjualan
 	penjualanController.registerRoutes(app,checkAuth);

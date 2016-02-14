@@ -78,23 +78,24 @@ module.exports = {
         form.parse(req, function(err, fields){
             //tidak apa-apa diupload dengan nama file gambar yang sama
             // buat pengondisian untuk tidak memasukan selain file .JPG, .PNG
-            //models.Etalase.find({where :{penggunaId:res.locals.session.penggunaId}})
-            //models.Toko.find({where :{penggunaId:res.locals.session.penggunaId}})
-            models.Produk.create({
-                nama : fields.nama,
-                harga : fields.harga,
-                stok : fields.stok,
-                berat : fields.berat,
-                gambar : fields.gambar,
-                kondisi : fields.kondisi,
-                deskripsi : fields.deskripsi,
-                KategoriProdukId : fields.kategori,
-                //TODO: saat di create,produk otomatis menjadi etalase pertama milik toko,based on session id pengguna
-                EtalaseId : 1,
-                //TODO: nanti pakai session toko based on session id pengguna
-                TokoId : 1
-            }).then(function() {
-                res.redirect('/produk/tambah');
+            models.Etalase.find({
+                where :{tokoId:res.locals.session.tokoId}
+            }).then(function (etalase) {
+                models.Produk.create({
+                    nama : fields.nama,
+                    harga : fields.nilaiHarga,
+                    stok : fields.stok,
+                    berat : fields.berat,
+                    gambar : fields.gambar,
+                    kondisi : fields.kondisi,
+                    deskripsi : fields.deskripsi,
+                    KategoriProdukId : fields.kategori,
+                    //saat di create,produk otomatis menjadi etalase pertama milik toko,based on session id pengguna
+                    EtalaseId : etalase.id,
+                    TokoId : res.locals.session.tokoId
+                }).then(function() {
+                    res.redirect('/produk/tambah');
+                });
             });
         });
     },
@@ -205,11 +206,12 @@ module.exports = {
         };
         async.parallel(stack,function(err,result){
             var beratProduk = result.getToko.Produk[0].berat;
-            //TODO : idKotaAsal mengacu kepada alamat toko yang dimiliki
-            var idKotaAsal = 1;
-            var idKotaTujuan = result.getPenerima[0].Kabupaten.id;
+            //kota asal
+            var idKotaTokoPenjual = result.getToko.Kabupaten.id;
+            //kota tujuan
+            var idKotaPenerima = result.getPenerima[0].Kabupaten.id;
             ongkir.getOngkosKirim(
-                idKotaAsal,idKotaTujuan,beratProduk,
+                idKotaTokoPenjual,idKotaPenerima,beratProduk,
                 function(ongkosKirim){
                     var subTotal = ongkosKirim + result.getToko.Produk[0].harga;
                     res.render('pc-view/produk/beliProduk',{
@@ -219,7 +221,6 @@ module.exports = {
                         ongkosKirim : ongkosKirim,
                         subTotal : subTotal
                     });
-
                 }
             );
         });

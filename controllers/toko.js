@@ -9,12 +9,17 @@ module.exports = {
     registerRoutes: function(app,checkAuth) {
         app.get('/toko/profil/:idToko/:idEtalase', this.profilToko);
         app.get('/toko/profil/:idToko/', this.profilToko);
-        //app.get('/toko/pengaturan/', this.pengaturan);
+        app.get('/toko/buka/', this.bukaToko);
         app.get('/toko/favorit/', this.getTokoFavorit);
         app.get('/toko/jadikanfavorit/:idToko', this.insertTokoFavorit);
         app.get('/toko/pengaturan/', this.pengaturanToko);
     },
 
+    bukaToko : function(req, res, next){
+        res.render('',{
+
+        });
+    },
     pengaturanToko : function(req, res, next){
         models.Toko.find({
             include : [models.Kabupaten,models.Provinsi],

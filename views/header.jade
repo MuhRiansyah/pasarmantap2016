@@ -2,7 +2,7 @@
 append header
     header#header
         // header
-        .header-middle
+        .headerPasar
             // header_top
             .container
                 .row
@@ -34,28 +34,58 @@ append header
                                             li: a(href='/produk/daftarbykategori/12') Tablet & Smartphone
                                             li: a(href='/produk/daftarbykategori/13') Sepatu
                                 li
-
-                                        form(action='/cekPencarian', method='get')
-                                            input(type='text', placeholder='Cari Produk')
-                                            select(name='pilihan')
-                                                option  Semua Kategori
-                                                option(value='1')  Pakaian
-                                                option(value='2') Buku
-                                                option(value='3') Mainan & Hobi
-                                                option(value='5') Software
-                                                option(value='6') Film
-                                                option(value='7') Musik
-                                                option(value='8') Otomotif
-                                                option(value='9') Elektronik
-                                                option(value='10') Kamera
-                                                option(value='11') Laptop & Notebook
-                                                option(value='12') Tablet & Smartphone
-                                                option(value='13') Sepatu
-                                            input.btn-inverse(type='submit', value='cari')
+                                    form(action='/cekPencarian', method='get')
+                                        div.input-group.custom-search-form(style='width:450px')
+                                            input.form-control(type='text', placeholder='Cari Produk')
+                                            span.input-group-btn
+                                                select.form-control(name='pilihan' style='width:200px')
+                                                    option  Semua Kategori
+                                                    option(value='1')  Pakaian
+                                                    option(value='2') Buku
+                                                    option(value='3') Mainan & Hobi
+                                                    option(value='5') Software
+                                                    option(value='6') Film
+                                                    option(value='7') Musik
+                                                    option(value='8') Otomotif
+                                                    option(value='9') Elektronik
+                                                    option(value='10') Kamera
+                                                    option(value='11') Laptop & Notebook
+                                                    option(value='12') Tablet & Smartphone
+                                                    option(value='13') Sepatu
+                                            input.btn.btn-default(type='submit', value='cari')
 
                                 if (session.nama)
                                     li: a(href='/pengguna/profil/'+session.penggunaId)=session.nama
-                                    li: a(href='/keranjang/'+session.penggunaId): i.fa.fa-shopping-cart
+                                    li.dropdown
+                                        a.dropdown-toggle(href='#', data-toggle='dropdown')
+                                            i.fa.fa-bell
+                                            i.fa.fa-caret-down
+                                        style.
+                                            .dropdown-menu li{ border-bottom: solid lightgray 0.5px}
+                                        ul.dropdown-menu
+                                            li(style="padding-left :15px"): b Pembelian
+                                            li: a(href='/pembelian/statuspemesanan')
+                                                div(style='padding : 4px 0') Status Pemesanan &nbsp;
+                                                        span.small(style='background-color : black;color:white;padding : 2px'): b  2
+                                            li: a(href='/pembelian/konfirmasipenerimaan')
+                                                div(style='padding: 5px 0px') Konfirmasi Penerimaan &nbsp;
+                                                    span.small(style='background-color : black;color:white;padding : 2px'): b  2
+                                            li: a(href='/pembelian/konfirmasipembayaran')
+                                                    div(style='padding: 5px 0px') Konfirmasi Pembayaran &nbsp;
+                                                        span.small(style='background-color : black;color:white;padding : 2px'): b  2
+                                            li: b Penjualan
+                                            li: a(href='/penjualan/statuspengiriman')
+                                                div(style='padding : 4px 0') Status Pengiriman &nbsp;
+                                                        span.small(style='background-color : black;color:white;padding : 2px'): b  2
+                                            li: a(href='/penjualan/konfirmasipengiriman')
+                                                div(style='padding: 5px 0px') Konfirmasi Pengiriman &nbsp;
+                                                    span.small(style='background-color : black;color:white;padding : 2px'): b  2
+                                            li: a(href='/penjualan/pesananbaru')
+                                                    div(style='padding: 5px 0px') Pesanan Baru &nbsp;
+                                                        span.small(style='background-color : black;color:white;padding : 2px'): b  2
+                                    li: a(href='/keranjang/')
+                                            i.fa.fa-shopping-cart &nbsp;
+                                            span(style='background-color : red;color:white;padding : 2px;margin: 10px 0 0 0'): b #{session.jumlahIsiCart}
                                     li: a(href='/keluar'): i.fa.fa-power-off
                                 else
                                     li

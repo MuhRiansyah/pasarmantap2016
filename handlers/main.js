@@ -11,7 +11,7 @@ var ongkir = require('../api/rajaOngkir')({
 exports.baru= function(req, res) {
 	res.render('baru',{
 	})
-}
+};
 
 
 
@@ -21,7 +21,7 @@ exports.utamaMobile = function(req, res){
 				models.Invoice.findAll({
 					attributes : ['Produk.nama','Produk.harga','Produk.gambar'],
 					limit : '3',
-					order : 'id DESC',
+					//order : 'id DESC',
 					include : models.Produk,
 					group : 'produkId',
 					order : [ [sequelize.fn('sum',sequelize.col('jumlah')),'DESC'] ]
@@ -47,34 +47,34 @@ exports.utamaMobile = function(req, res){
 }
 
 exports.utama= function(req, res){
-		async.series([
-				function(callback){
-					models.Invoice.findAll({
-						attributes : ['Produk.nama','Produk.harga','Produk.gambar'],
-						limit : '3',
-						order : 'id DESC',
-						include : models.Produk,
-						group : 'produkId',
-						order : [ [sequelize.fn('sum',sequelize.col('jumlah')),'DESC'] ]
-					}).then(function(produk) {
-						callback(null,produk);
-					})
-				},
-				function(callback){
-					models.Kategori_Produk.findAll({
-						attributes : {exclude :['deskripsi']}
-					}).then(function(kategori_produk) {
-						callback(null,kategori_produk);
-					})
-				}
-			],
-			function(err,result){
-				res.render('index',{
-					hotlist : result[0],
-					kategori_produk : result[1]
+	async.parallel([
+			function(callback){
+				models.Invoice.findAll({
+					attributes : ['Produk.nama','Produk.harga','Produk.gambar'],
+					limit : '3',
+					//order : 'id DESC',
+					include : models.Produk,
+					group : 'produkId',
+					order : [ [sequelize.fn('sum',sequelize.col('jumlah')),'DESC'] ]
+				}).then(function(produk) {
+					callback(null,produk);
+				})
+			},
+			function(callback){
+				models.Kategori_Produk.findAll({
+					attributes : {exclude :['deskripsi']}
+				}).then(function(kategori_produk) {
+					callback(null,kategori_produk);
 				})
 			}
-		)
+		],
+		function(err,result){
+			res.render('index',{
+				hotlist : result[0],
+				kategori_produk : result[1]
+			})
+		}
+	)
 };
 
 exports.berandaMobile = function(req, res){

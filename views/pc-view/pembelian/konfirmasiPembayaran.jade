@@ -1,7 +1,7 @@
 extends layoutTabPembelian
 append contentDalam
 
-    if(!daftarTransaksi)
+    if(daftarTransaksi.length == 0)
       .alert.alert-danger
        center
            h4: b Tidak ada konfirmasi
@@ -17,52 +17,89 @@ append contentDalam
             }
         .row
             each val,index in daftarTransaksi
-                //.modal-konfirmasi(tabindex='-1', role='dialog', aria-labelledby='myLargeModalLabel', aria-hidden='true')
                 .modal.fade(class='modal-konfirmasi#{index}' tabindex='-1', role='dialog', aria-labelledby='myLargeModalLabel', aria-hidden='true')
                     .modal-dialog.modal-sm
                         .modal-content
                             .modal-header
                                 h4 Konfirmasi Pembayaran
                             .modal-body(style='padding: 40px')
-                                form(method='post',action='/keranjang/tambah')
+                                form(method='post',action='/konfirmasipembayaran' enctype='multipart/form-data')
                                     style.
                                         td{height: 35px }
-                                    table(width='550px')
+                                    table(width='520px')
+                                        input(type='hidden' name='transaksiId' value='#{val.id}')
                                         tr: td(width='35%') Invoice
                                             td: each inv in val.Invoices
                                                 span=inv.id+', '
                                         tr: td Total Tagihan
-                                            td Rp 200.000
+                                            //todo: getDocumentByClass, menggunakan index karena nanti banyak total tagihan
+                                            td Rp <span class='total_tagihan'></span>
+                                            script.
+                                                document.getElementsByClassName("total_tagihan")[#{index}].innerHTML = numberFormat("#{val.total_tagihan}", ".");
                                         tr: td Tanggal Pembayaran
-                                            td: input(type='date')
+                                            td: input.form-control(type='date' name='tanggal_pembayaran' required)
                                         tr: td(colspan=2): hr
                                         tr: td(colspan=2): b Tambah Rekening Bank
                                         tr: td Nama Bank
-                                            td: select(name='')
-                                                    option(value='1') Muamalat
-                                                    option(value='1') Mandiri Syariah
+                                            td: select.form-control(name='bankId' required)
+                                                each val in daftarBank
+                                                    option(value='#{val.id}') #{val.nama}
                                         tr: td Nama Pemelik Rekening
-                                            td: input(type='text')
+                                            td: input.form-control(type='text' name='nama_pemilik_rekening' required)
                                         tr: td Nomor Rekening
-                                            td: input(type='text')
+                                            td: input.form-control(type='text' name='no_rekening' required)
                                         tr: td(colspan=2): hr
                                         tr: td Rekening Tujuan
                                             td 039393091 A/N PT Bridea Indonesia
-                                        tr: td Jumlah yang sudah dibayar
-                                            td: input(type='text')
+                                        //nanti dicari tahu manfaat field jumlah_sudah_dibayar
+                                        //script(src='/javascripts/jquery.price_format.2.0.min.js').
+                                        //script.
+                                        //    $(function () {
+                                        //        $('#jumlahDibayar').priceFormat({
+                                        //            prefix: 'Rp ',
+                                        //            thousandsSeparator: '.'
+                                        //        });
+                                        //        $('#jumlahDibayar').keyup(function(){
+                                        //            $('#nilaiJumlahDibayar').val($('#jumlahDibayar').unmask()) ;
+                                        //        });
+                                        //    });
+                                        //tr: td Jumlah yang sudah dibayar
+                                        //    td: input#jumlahDibayar(type='text' value="0" name='jumlahDibayar')
+                                        //    input#nilaiJumlahDibayar(type='hidden'  value="0" name='nilaiJumlahDibayar')
                                         tr: td Unggah Bukti Pembayaran
-                                            td: input(type='file')
-                                        tr: td Keterangan
-                                            td: input(type='text')
+                                            td
+                                                span.btn.btn-default.btn-file
+                                                    | Upload
+                                                    input#fieldPhoto.form-control(type='file', name='photo', accept='image/*', data-url='/upload-bukti-pembayaran')
+                                                    input#photoName(type='hidden', name='gambar_bukti_pembayaran' )
+                                                #fileUploads
+                                            script(src='/vendor/jquery-file-upload/js/vendor/jquery.ui.widget.js')
+                                            script(src='/vendor/jquery-file-upload/js/jquery.iframe-transport.js')
+                                            script(src='/vendor/jquery-file-upload/js/jquery.fileupload.js')
+                                            script.
+                                                $(document).ready(function () {
+                                                    //cara kerja library ini memungkinkan photo telah diupload sebelum form disubmit
+                                                    $('#fieldPhoto').fileupload({
+                                                        dataType: 'json',
+                                                        done: function (e, data) {
+                                                            $.each(data.result.files, function (index, file) {
+                                                                $('#fileUploads').append($('<div class="upload">' +
+                                                                        '<span class="glyphicon glyphicon-ok"></span>&nbsp;' +
+                                                                        file.originalName + '</div>'));
+                                                                $('#photoName').val(file.originalName);
+                                                            });
+                                                        }
+                                                    });
+                                                });
+                                        //tr: td Keterangan
+                                        //    td: input.form-control(type='text')
                                         tr: td: br
 
                                     center
-                                        input.btn.btn-primary(type='submit' value='Ya')
-                                        &nbsp
-                                        input.btn.btn-primary(type='submit' value='Tidak')
+                                        input.btn.btn-primary(type='submit' value='Konfirmasi')
 
         each val,index in daftarTransaksi
-            .row(style='border : 1px solid black;margin : 10px 0')
+            .row.alert.alert-info(style='margin : 20px 0 -10px 0')
                 p <b> Tanggal Transaksi : </b> <i> #{moment(val.tanggal).format('YYYY-MM-DD')} </i> <b> Jatuh Tempo Konfirmasi : </b> <i>#{moment(val.jatuh_tempo).format('YYYY-MM-DD')} </i>
                 p <b> Total Tagihan </b> <br/><b style='font-size : 14pt'> Rp <span class='uang'></span></b>
                 script.
@@ -71,46 +108,49 @@ append contentDalam
                 .span.pull-right: button.btn.btn-primary(data-toggle='collapse' data-target='.rincianTransaksi#{index}') Detail Transaksi
                 .span.pull-right &nbsp
                 .span.pull-right: a.btn.btn-primary(data-toggle='modal', data-target='.modal-konfirmasi#{index}')  Konfirmasi
-            .row(class='rincianTransaksi#{index}').collapse
-                // isi invoice yang dimiliki transaksi
-                - each inv in val.Invoices
-                    .row(style='margin : -10px 30px')
-                        table(border='1', width='720px')
+            //.row(class='rincianTransaksi#{index}').collapse
+            .row(class='rincianTransaksi#{index}')
+                each inv in val.Invoices
+                    .row(style='margin : -10px 20px')
+                        table(border='1', width='670px')
                             tr
                                 td(height='35px', colspan='2')
                                     span(style='font-size : 11pt')
                                         | Pembelian dari toko :
                                         a(href='/toko/#{inv.Toko.id}')  #{inv.Toko.nama}
-                                            tr
-                                td(height='70px')
-                                    span.pull-left(style='padding : 0 10px 0 10px')
-                                        img(src='/images/produk/#{inv.Produk.gambar}' width='30px')
-                                    span.pull-left
-                                        b  #{inv.Produk.nama}
-                                        br
-                                        b(style='font-size : 8pt')  #{inv.jumlah} Barang x Rp #{inv.Produk.harga}
+                            each produk in inv.Produks
+                                tr
+                                    td(height='70px')
+                                        span.pull-left(style='padding : 0 10px 0 10px')
+                                            img(src='/images/Produk/#{produk.gambar}' width='30px')
+                                        span.pull-left
+                                            b  #{produk.nama}
+                                            br
+                                            b(style='font-size : 8pt')  #{produk.jumlah} Barang x Rp #{produk.harga}
+                                    td
+                                        b  Harga Barang <br>
+                                        //TODO:   jumlah x #{inv.Produks.harga}, dibuat dalam format uang juga
+                                        | #{inv.Produks.harga}
+                            tr
                                 td
-                                    b  Harga Barang <br>
-                                    | #{inv.Produk.harga}
-                                    tr
-                                td
-                                    b  Alamat Tujuan
-                                    br
+                                    b  Alamat Tujuan<br/>
                                     b  #{inv.Penerima.nama} <br/>
-                                    | #{inv.Penerima.detail_alamat} <br/>
-                                    | #{inv.Penerima.Kecamatan.nama} - #{inv.Penerima.Kabupaten.nama}, #{inv.Penerima.kode_pos} <br/>
+                                    | #{inv.Penerima.alamat} <br/>
+                                    | #{inv.Penerima.kecamatan} - #{inv.Penerima.Kabupaten.nama}, #{inv.Penerima.Kabupaten.kode_pos} <br/>
                                     | #{inv.Penerima.Provinsi.nama}<br/>
                                     | Telp: #{inv.Penerima.telepon}
                                 td(colspan='2')
                                     b  Keterangan
                                     br
-                                    |                     -
+                                    | #{inv.keterangan}
                                     span.pull-right
-                                        a(href='#') hapus produk ini
+                                        a(href='#') hapus Produk ini
                             tr
                                 td(colspan='3')
+                                    //TODO: total pembayaran dibuat dalam format uang
                                     span.pull-right(style='padding : 10px 0px;font-size:12pt')
-                                        | Total Pembayaran <b> Rp #{inv.total_harga} </b>
+                                        | Total Pembayaran <b> Rp #{inv.nilai_sub_total} </b>
+                            br
 
         br
         br

@@ -7,17 +7,20 @@ append content
       .row
          .col-sm-1(style="float:left;padding-right:220px "): img(src='/images/#{toko.logo}')
          .col-sm-7(style="float:left")
-            .row
+            .row(style="margin-top : 27px")
                h2 #{toko.nama}
                p #{toko.deskripsi}
             .row
-               .col-sm-5
-                  a.btn.btn-primary(href='/toko/jadikanfavorit/#{toko.id}') jadikan favorit
+               if(session.tokoId != toko.id)
+                  .col-sm-5: a.btn.btn-primary(href='/toko/jadikanfavorit/#{toko.id}') jadikan favorit
+               else
+                  .col-sm-5
                .col-sm-7
                   center
                      h4 informasi toko
                      .col-sm-4 <h4>#{toko.Kabupaten.nama}</h4> lokasi
                      .col-sm-4 <h4>#{produkTerjual}</h4> produk terjual
+                     .col-sm-4 <h4>??</h4> transaksi berhasil
       .row <br/>
          .features_items
             script.
@@ -32,8 +35,12 @@ append content
             // features_items
             h2.title.text-center Produk Milik Toko #{toko.nama}
             .col-sm-1
+               style.
+                  .nav-list li {
+                     border-bottom: solid lightgray 0.5px
+                  }
             .col-sm-2(style='width:250px')
-               .left-sidebar
+               .left-sidebar(style='box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0);')
                   #accordian.panel-group.category-products
                      .panel-default
                         ul.nav.nav-list

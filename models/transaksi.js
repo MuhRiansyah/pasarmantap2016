@@ -7,7 +7,13 @@ module.exports = function(sequelize, DataTypes) {
     var Transaksi = sequelize.define("Transaksi", {
             tanggal : DataTypes.DATE,
             jatuh_tempo : DataTypes.DATE,
+            tanggal_pembayaran : DataTypes.DATE,
             total_tagihan : DataTypes.INTEGER,
+            no_rekening : DataTypes.STRING,
+            nama_pemilik_rekening : DataTypes.STRING,
+            gambar_bukti_pembayaran : DataTypes.STRING,
+            //jumlah_sudah_dibayar : DataTypes.INTEGER,
+            status : DataTypes.BOOLEAN
         }, {
             classMethods: {
                 associate: function(models) {
@@ -17,6 +23,7 @@ module.exports = function(sequelize, DataTypes) {
                             allowNull: false
                         }
                     });
+                    Transaksi.belongsTo(models.Bank);
                     Transaksi.hasMany(models.Invoice);
                 }
             }

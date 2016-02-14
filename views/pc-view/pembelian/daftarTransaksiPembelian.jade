@@ -1,0 +1,84 @@
+extends layoutTabPembelian
+append contentDalam
+          script.
+            function numberFormat(_number, _sep) {
+                _number = typeof _number != "undefined" && _number > 0 ? _number : "";
+                _number = _number.replace(new RegExp("^(\\d{" + (_number.length % 3 ? _number.length % 3 : 0) + "})(\\d{3})", "g"), "$1 $2").replace(/(\d{3})+?/gi, "$1 ").trim();
+                    if (typeof _sep != "undefined" && _sep != " ") {
+                        _number = _number.replace(/\s/g, _sep);
+                    }
+                    return _number;
+            }
+          each val,index in transaksi
+            each inv,indexInv in val.Invoices
+              .row.alert.alert-info(style='width:683px; margin : 0 0px')
+                  table( width='650px')
+
+                      tr
+                          td(height='60px'): img(src='/images/toko/logo-toko.png' width='70px' )
+                          td(style='padding-right:30px') Pembelian dari toko : <br>
+                              a(href='#') barokah
+                          td(rowspan='3')
+                              b #{inv.id} <br/>
+                              p Tanggal transaksi : <b> #{moment(val.tanggal_pembayaran).format('YYYY-MM-DD')} </b>
+                                | Total : <b>Rp <span class='totalTagihan'></span> </b>
+                              script.
+                                  document.getElementsByClassName("totalTagihan")[#{indexInv}].innerHTML = numberFormat("#{inv.nilai_sub_total}", ".");
+
+                              .alert.alert-warning
+                                  p 26 Februari 2015, 03:01 - Pesanan telah dikirim
+                                  p Pesanan anda dalam proses pengiriman oleh kurir
+                                  p Nomor Resi  : 2132193133
+                              a.btn.btn-primary(href='#'): i.fa.fa-check Sudah Terima
+                              .span.pull-right
+                                    button.btn.btn-primary(data-toggle='collapse' data-target='.rincianPemesanan#{index}')
+                                        i.fa.fa-arrow-circle-down  Detail Transaksi
+                      tr: td
+                          td
+                      tr: td
+                          td
+              br
+              .row(class='rincianPemesanan#{index}' style='margin: -17px 10px 10px 0;')
+                    table(style='border: solid 1px lightgrey', border='1', width='680px')
+                        tr
+                            td(colspan='2')
+                                b  Alamat Tujuan<br/>
+                                b  #{inv.Penerima.nama} <br/>
+                                | #{inv.Penerima.alamat} <br/>
+                                | #{inv.Penerima.kecamatan} - #{inv.Penerima.Kabupaten.nama}, #{inv.Penerima.Kabupaten.kode_pos} <br/>
+                                | #{inv.Penerima.Provinsi.nama}<br/>
+                                | Telp: #{inv.Penerima.telepon}
+                            td
+                                b Jumlah Barang
+                                p 3 barang (<span id='berat'></span> gram)
+                                script.
+                                    document.getElementById("berat").innerHTML = numberFormat("" + 200, ".");
+                            td
+                                b Ongkos Kirim
+                                p Rp <span id='ongkir'></span>
+                                script.
+                                    document.getElementById("ongkir").innerHTML = numberFormat(""+200000, ".");
+                        tr: td(colspan='4'): h5: i.fa.fa-list  Daftar Produk
+                        - each produk,indexProduk in inv.Produk
+                              tr
+                                  td(height='35px', colspan='2')
+                                      span.pull-left(style='padding : 0 10px 0 10px')
+                                          img(src='/images/produk/#{produk.gambar}' width='30px')
+                                      span.pull-left
+                                          b  #{produk.nama}
+                                          br
+                                          b(style='font-size : 8pt')  2 Barang  x Rp <span class='hargaProduk'></span>
+                                          script.
+                                              document.getElementsByClassName("hargaProduk")[#{indexProduk}].innerHTML = numberFormat(""+200000, ".");
+                                  td(height='70px'): b Keterangan
+                                    p -
+                                  td
+                                      b  Total Harga Barang <br>
+                                      //TODO:   jumlah x #{inv.Produk.harga}, dibuat dalam format uang juga
+                                      | Rp <span class='totalHargaProduk'></span>
+                                      script.
+                                            document.getElementsByClassName("totalHargaProduk")[#{indexProduk}].innerHTML = numberFormat(""+200000, ".");
+                        tr: td(colspan='4' height='40px')
+                            span(style="padding-right : 10px;font-size : 13pt").pull-right Total Pembayaran <b> Rp <span id='totalPembayaran'></span> </b>
+                          script.
+                              document.getElementById("totalPembayaran").innerHTML = numberFormat(""+200000, ".");

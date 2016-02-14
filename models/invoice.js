@@ -6,12 +6,22 @@
 
 module.exports = function(sequelize, DataTypes) {
     var Invoice = sequelize.define("Invoice", {
+            id : {
+                type : DataTypes.STRING,
+                primaryKey : true
+            },
             jumlah : DataTypes.INTEGER,
-            total_harga : DataTypes.INTEGER,
-            tanggal_pembayaran : DataTypes.DATE
+            nilai_sub_total : DataTypes.INTEGER,
+            keterangan : DataTypes.STRING
         }, {
             classMethods: {
                 associate: function(models) {
+                    Invoice.belongsToMany(models.Produk, {
+                        through: {
+                            model: models.Invoice_Produk
+                        },
+                        foreignKey: 'invoiceId'
+                    });
                     Invoice.belongsTo(models.Transaksi, {
                         onDelete: "CASCADE",
                         foreignKey: {
@@ -30,12 +40,12 @@ module.exports = function(sequelize, DataTypes) {
                             allowNull: false
                         }
                     });
-                    Invoice.belongsTo(models.Produk, {
-                        onDelete: "CASCADE",
-                        foreignKey: {
-                            allowNull: false
-                        }
-                    });
+                    //Invoice.belongsTo(models.Produk, {
+                    //    onDelete: "CASCADE",
+                    //    foreignKey: {
+                    //        allowNull: false
+                    //    }
+                    //});
                 }
             }
         }

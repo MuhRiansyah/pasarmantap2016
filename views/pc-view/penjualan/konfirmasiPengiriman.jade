@@ -5,19 +5,22 @@ append contentDalam
     p Order Anda akan otomatis kami batalkan apabila Anda melewati batas waktu respon 5 hari kerja (Senin - Jumat) setelah order diverifikasi.
   .container   
     form.form-inline
-     input.input-small(type='text', placeholder='Invoice / Nama Pembeli')   
-     label Jatuh Tempo :
-     select(name='tambahkan',style='width:100px')
-        option(value='gudang')  Pilih
-        option(value='etalase')  Transaksi Belum Selesai
-        option(value='etalase')  Transaksi Telah Selesai
-     label Kurir :        
-     select(name='tambahkan',style='width:100px')
-        option(value='gudang')  Pilih
-        option(value='etalase')  Transaksi Belum Selesai
-        option(value='etalase')  Transaksi Telah Selesai
-     input.input-small(type='submit', value='cari')
-  br   
+        table
+            tr
+                td: input.form-control(type='text', placeholder='Invoice / Nama Pembeli')
+                td Jatuh Tempo
+                td
+                    select.form-control(name='tambahkan',style='width:100px')
+                        option(value='gudang')  Pilih
+                        option(value='etalase')  Transaksi Belum Selesai
+                        option(value='etalase')  Transaksi Telah Selesai
+                //td Kurir
+                //td
+                //    select.form-control(name='tambahkan',style='width:100px')
+                //       option(value='gudang')  JNE
+                //       option(value='gudang')  POS
+                td: input.form-control(type='submit', value='cari')
+  br
   .alert.alert-danger
    center 
        h4 

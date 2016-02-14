@@ -3,15 +3,17 @@ extends tabPenjualan
 append contentDalam  
   .container   
     form.form-inline
-     input.input-small(type='text', placeholder='Invoice / Nama Pembeli')   
-     select(name='tambahkan',style='width:100px')
-        option(value='gudang')  Semua Transaksi 
-        option(value='etalase')  Transaksi Belum Selesai
-        option(value='etalase')  Transaksi Telah Selesai
-     input.input-small(type='date')
-     input.input-small(type='date')
-     input.input-small(type='submit', value='cari')
-  br   
+        table
+            tr
+                td: input.form-control(type='text', placeholder='Invoice / Nama Pembeli')
+                td
+                    select.form-control(name='tambahkan',style='width:100px')
+                        option(value='gudang')  Semua Transaksi
+                        option(value='etalase')  Transaksi Belum Selesai
+                        option(value='etalase')  Transaksi Telah Selesai
+                td: input.form-control(type='date')
+                td: input.form-control(type='submit', value='cari')
+  br
   .alert.alert-danger
    center 
        h4 

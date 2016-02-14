@@ -4,27 +4,49 @@
 var models  = require('../models');
 var sequelize = require("sequelize");
 var moment = require("moment");
-
+var formidable = require('formidable');
 module.exports = {
 
     registerRoutes: function(app,checkAuth) {
         //app.get('/pembelian/daftarpembelian',checkAuth,this.daftarPembelian);
         app.get('/pembelian/daftarpembelian',this.daftarPembelian);
+        app.get('/pembelian/daftartransaksi',this.daftarTransaksiPembelian);
         //app.get('/pembelian/konfirmasipembayaran',checkAuth,this.konfirmasiPembayaran);
         app.get('/pembelian/konfirmasipembayaran',this.konfirmasiPembayaran);
+        app.get('/pembelian/konfirmasipembayaran/sukses',this.konfirmasiPembayaranSukses);
+        app.post('/konfirmasipembayaran',this.insertKonfirmasiPembayaran);
         //app.get('/pembelian/konfirmasipenerimaan',checkAuth,this.konfirmasiPenerimaan);
         app.get('/pembelian/konfirmasipenerimaan',this.konfirmasiPenerimaan);
         //app.get('/pembelian/statuspemesanan',checkAuth,this.statusPemesanan);
         app.get('/pembelian/statuspemesanan',this.statusPemesanan);
         //app.get('/pembelian/keranjangbelanja/:id',checkAuth,this.keranjangBelanja);
         app.get('/pembelian/keranjangbelanja/:id',this.keranjangBelanja);
-        //app.get('/pembelian/konfirmasiPembelian/',checkAuth,this.konfirmasiPembelian);
-        app.get('/pembelian/konfirmasipembelian/',this.konfirmasiPembelian);
-        //app.post('/pembelian/konfirmasiPembelian/simpanbelanjaan',checkAuth,this.simpanBelanjaan);
-        app.post('/pembelian/keranjangbelanja/simpanbelanjaan',this.simpanBelanjaan);
-
     },
 
+    daftarTransaksiPembelian : function(req, res, next){
+        res.render('',{
+
+        });
+    },
+    insertKonfirmasiPembayaran : function(req, res, next){
+        //TODO: update status transaksi menjadi lunas
+        var form = new formidable.IncomingForm();
+        form.parse(req, function(err, fields){
+            //tidak apa-apa diupload dengan nama file gambar yang sama
+            models.Transaksi.update({
+                tanggal_pembayaran : fields.tanggal_pembayaran,
+                no_rekening : fields.no_rekening,
+                nama_pemilik_rekening : fields.nama_pemilik_rekening,
+                bankId : fields.bankId,
+                gambar_bukti_pembayaran : fields.gambar_bukti_pembayaran,
+                status : 1
+            },{
+                where: { id : fields.transaksiId }
+            }).then(function() {
+                res.redirect('/pembelian/konfirmasipembayaran/sukses');
+            });
+        });
+    },
     keranjangBelanja : function(req, res, next){
         models.Produk.find({
             where : {
@@ -34,7 +56,7 @@ module.exports = {
                 { model: models.Etalase, include: [
                     { model: models.Toko }
                 ]}
-            ],
+            ]
             //attributes: ['kategori','deskripsi']
         }).then(function(produk) {
             res.render('pc-view/pembelian/keranjangBelanja', {
@@ -47,39 +69,42 @@ module.exports = {
         res.send('jos');
         //redirect('/pembelian/konfirmasipembelian/');
     },
-    konfirmasiPembelian : function(req, res, next){
-
-        res.render('pc-view/pembelian/konfirmasiPembelian', {
-
-        });
-    },
     daftarPembelian : function(req, res, next){
         res.render('pc-view/pembelian/daftarPembelian', {
             tabMenu: 'Daftar Transaksi Pembelian',
         });
     },
-
+    konfirmasiPembayaranSukses : function(req, res, next){
+        res.render('pc-view/pembelian/konfirmasiPembayaranSukses', {
+        });
+    },
+    //TODO: masih eror konfirmasi pembayaran
     konfirmasiPembayaran : function(req, res, next){
         models.Transaksi.findAll({
-            where : { penggunaId : 1 },
+            where : {
+                PenggunaId : res.locals.session.penggunaId,
+                status : 0
+            },
             include: [
                 {
                     model: models.Invoice, include:
-                    [
-                        models.Toko,models.Produk,{
-                            model : models.Penerima, include :[
-                                models.Provinsi,models.Kabupaten,models.Kecamatan
-                            ]
-                        }
-                    ]
+                    [models.Toko,models.Produk,{
+                        model : models.Penerima, include :[
+                            models.Provinsi,models.Kabupaten
+                        ]
+                    }]
                 }
-            ],
+            ]
         }).then(function(transaksi) {
-            res.render('pc-view/pembelian/konfirmasiPembayaran', {
-                tabMenu: 'Konfirmasi Pembayaran',
-                daftarTransaksi : transaksi,
-                moment : moment
-            });
+                models.Bank.findAll({
+                }).then(function(bank) {
+                    res.render('pc-view/pembelian/konfirmasiPembayaran', {
+                        tabMenu: 'Konfirmasi Pembayaran',
+                        daftarTransaksi : transaksi,
+                        daftarBank : bank,
+                        moment : moment
+                    });
+                });
         })
 
     },
@@ -91,8 +116,31 @@ module.exports = {
     },
 
     statusPemesanan: function(req, res, next){
-        res.render('pc-view/pembelian/statusPemesanan', {
-            tabMenu: 'Status Pemesanan',
+        //TODO: distatus pemesanan dipilih berdasarkan invoice, bukan per transaksi
+        //TODO: satu invoice dapat memiliki banyak produk pada toko yang sama
+        //TODO: cari beberapa halaman yang melibatkan invoice
+        // karena akan ada perubahan invoice n-m ke invoice_transaksi
+        models.Transaksi.findAll({
+            where : {
+                PenggunaId : res.locals.session.penggunaId,
+                status : 1
+            },
+            include: [
+                {
+                    model: models.Invoice, include:
+                    [models.Toko,models.Produk,{
+                        model : models.Penerima, include :[
+                            models.Provinsi,models.Kabupaten
+                        ]
+                    }]
+                }
+            ]
+        }).then(function(transaksi){
+            res.render('pc-view/pembelian/statusPemesanan', {
+                tabMenu: 'Status Pemesanan',
+                moment : moment,
+                transaksi : transaksi
+            })
         });
     },
 };

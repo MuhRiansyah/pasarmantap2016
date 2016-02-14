@@ -3,30 +3,41 @@ extends ../layoutBelanja
 append content
     .col-sm-1
     .col-sm-10
+        script.
+            function numberFormat(_number, _sep) {
+                _number = typeof _number != "undefined" && _number > 0 ? _number : "";
+                _number = _number.replace(new RegExp("^(\\d{" + (_number.length % 3 ? _number.length % 3 : 0) + "})(\\d{3})", "g"), "$1 $2").replace(/(\d{3})+?/gi, "$1 ").trim();
+                if (typeof _sep != "undefined" && _sep != " ") {
+                    _number = _number.replace(/\s/g, _sep);
+                }
+                return _number;
+            }
         .row
             center(style='font-size: 13pt')  Pembayaran  >  <b> Konfirmasi Pembayaran </b>
         br
         .alert.alert-warning
-          h4 Terima kasih, Anda telah berhasil melakukan checkout pemesanan dengan memilih pembayaran transfer manual
+          b Terima kasih, Anda telah berhasil melakukan checkout pemesanan dengan memilih pembayaran transfer manual
          center
-
             .alert.alert-warning(style='width:250px')
                   p Jumlah yang harus dibayar
-                  h4 Rp 244.000
-            a.btn.btn-default Konfirmasi Pembayaran
+                  h4 Rp <span id='total_tagihan'></span>
+                script.
+                    document.getElementById("total_tagihan").innerHTML = numberFormat("#{total_tagihan}", ".");
+            a(href='/pembelian/konfirmasipembayaran').btn.btn-default Konfirmasi Pembayaran
 
          .container
           h4 <br> Agar pesanan Anda dapat diproses oleh penjual, ikuti langkah berikut ini: <br/><br/><br/>
           ol
-                li.mb-10 Transfer sejumlah <b> Rp 244.051</b> ke salah satu nomor rekening Tokopedia di bawah ini: <br/><br/>
-
+                li.mb-10 Transfer sejumlah <b> Rp <span id='total_tagihan_dibayar'></span></b> ke salah satu nomor rekening Tokopedia di bawah ini: <br/><br/>
+                script.
+                  document.getElementById("total_tagihan_dibayar").innerHTML = numberFormat("#{total_tagihan}", ".");
                 table(style='margin:0 250px')
                     tr: td(rowspan='4',width='170px') <img src='/images/muamalat.jpg'/>
                         td Muamalat <br/> Cabang Setiabudhi <br/> 372 177 3939<br/>a/n PT. Bridea Indonesia
                 br
                 li.mb-10
                   | Setelah melakukan transfer, segera lakukan
-                  |  <u> <a href='#'> Konfirmasi Pembayaran </a> </u>
+                  |  <u> <a href='/pembelian/konfirmasipembayaran'> Konfirmasi Pembayaran </a> </u>
                   | . Pembayaran tanpa melakukan konfirmasi tidak dapat kami proses lebih lanjut.
                   | <br>Pastikan Anda mengisi data yang tepat saat melakukan konfirmasi pembayaran.
                 br

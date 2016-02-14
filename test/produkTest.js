@@ -4,6 +4,7 @@
 var models = require('../models');
 var async = require('async');
 var credentials = require('../api/credentials.js');
+var moment = require("moment");
 var ongkir = require('../api/rajaOngkir')({
     key: credentials.rajaOngkir.key
 });
@@ -20,8 +21,141 @@ exports.test = function (test) {
     //getToko(test);
     //getOngkir(test);
     //pengaturanToko(test);
-    getCart(test);
+    //getCart(test);
+    //postCartToInvoice(test);
+    //konfirmasiPembayaran(test);
+    //hotlist(test);
+    statusPemesanan(test);
 };
+function statusPemesanan(test){
+    //masih salah
+    models.Transaksi.findAll({
+        where : {
+            PenggunaId : 1,
+            status : 1
+        },
+        include: [
+            {
+                model: models.Invoice, include:
+                [models.Toko,models.Produk,{
+                    model : models.Penerima, include :[
+                        models.Provinsi,models.Kabupaten
+                    ]
+                }]
+            }
+        ]
+    }).then(function(transaksi){
+        for(indexTrans in transaksi){
+            console.log(transaksi[indexTrans].id);
+            for(indexInv in transaksi[indexTrans].Invoices){
+                var invoice = transaksi[indexTrans].Invoices[indexInv];
+                console.log(invoice.id);
+                for(indexPro in invoice.Produks){
+                    var produk = invoice.Produks[indexPro];
+                    console.log(indexPro+' - '+produk.nama);
+                }
+            }
+        }
+
+        test.done();
+    });
+}
+var sequelize = require("sequelize");
+function hotlist(test){
+    async.parallel([
+            function(callback){
+                models.Invoice.findAll({
+                    attributes : ['Produk.nama','Produk.harga','Produk.gambar'],
+                    limit : '3',
+                    //order : 'id DESC',
+                    include : models.Produk,
+                    group : 'produkId',
+                    order : [ [sequelize.fn('sum',sequelize.col('jumlah')),'DESC'] ]
+                }).then(function(produk) {
+                    callback(null,produk);
+                })
+            },
+            function(callback){
+                models.Kategori_Produk.findAll({
+                    attributes : {exclude :['deskripsi']}
+                }).then(function(kategori_produk) {
+                    callback(null,kategori_produk);
+                })
+            }
+        ],
+        function(err,result){
+            //TODO: hasilnya kosong
+            console.log(result[0]);
+            test.done();
+        }
+    )
+}
+function konfirmasiPembayaran(test){
+    models.Transaksi.findAll({
+        where : { PenggunaId : 1 },
+        include: [
+            {
+                model: models.Invoice, include:
+                [models.Toko,models.Produk,{
+                    model : models.Penerima, include :[
+                        models.Provinsi,models.Kabupaten
+                    ]
+                }]
+            }
+        ]
+    }).then(function(transaksi){
+       console.log(transaksi[0].Invoices[0].Produk);
+       test.done()
+    });
+}
+function postCartToInvoice(test){
+    var cart = [];
+    cart.push({
+        produkId : 2,
+        penerimaId : 1,
+        keterangan : '-',
+        jumlah : 20,
+        nilaiSubTotal : 100040
+    });
+    cart.push({
+        produkId : 1,
+        penerimaId : 1,
+        keterangan : 'hati hati',
+        jumlah : 10,
+        nilaiSubTotal : 100000
+    });
+
+    var stack = {};
+    var now = moment();
+    var jatuh_tempo = moment(now).add(3,'days');
+        models.Transaksi.create({
+            PenggunaId : 1,
+            tanggal : moment(now).format('YYYY-MM-DD'),
+            jatuh_tempo : moment(jatuh_tempo).format('YYYY-MM-DD'),
+            total_tagihan : 100000000
+        }).then(
+            function(transaksi){
+                for(val in cart){
+                    models.Invoice.create({
+                        ProdukId : cart[val].produkId,
+                        //TODO:cara mengambil nilai transaksi yang telah dipost sebelumnya?
+                        TransaksiId : transaksi.id,
+                        TokoId : 1,
+                        PenerimaId : cart[val].penerimaId,
+                        jumlah : cart[val].jumlah,
+                        nilaiSubtotal : cart[val].nilaiSubtotal
+                    }).then(function(){
+                        console.log(val+' - '+cart.length);
+                        test.done();
+                        //if((val+2) == cart.length){
+                        //    console.log(val+' - '+cart.length)
+                        //    //habis ini di redirect ke halaman konfirmasi
+                        //    test.done();
+                        //}
+                    })
+                }
+        });
+}
 function getCart(test){
     var cart = [];
     cart.push({
