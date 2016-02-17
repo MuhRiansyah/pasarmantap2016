@@ -8,9 +8,10 @@ var moment = require("moment");
 var ongkir = require('../api/rajaOngkir')({
     key: credentials.rajaOngkir.key
 });
-
+var sequelize = require("sequelize");
 exports.test = function (test) {
-    //detailProduk(test)
+
+    //detailProduk(test);
     //jumlahTerjual(test)
     //produkMilikToko(test)
     //profilTokoAsync(test);
@@ -21,12 +22,27 @@ exports.test = function (test) {
     //getToko(test);
     //getOngkir(test);
     //pengaturanToko(test);
-    //getCart(test);
+    //deleteCart(test);
+    insertCart(test);
     //postCartToInvoice(test);
     //konfirmasiPembayaran(test);
     //hotlist(test);
-    statusPemesanan(test);
+    //statusPemesanan(test);
+    //produkMilikTokoTerjual(test);
 };
+function produkMilikTokoTerjual(test){
+    //sequelize.fn('SUM', sequelize.col('action.count'), sequelize.literal('*'), sequelize('action.actionType.value') ), 'score'
+    models.Invoice_Produk.find({
+        attributes : [[sequelize.fn('SUM',sequelize.col('jumlah_produk') ),'jumlah_produk'] ]  ,
+        include: [
+            { model: models.Produk,where : {tokoId :1}
+            }
+        ]
+    }).then(function(jumlah) {
+        console.log(jumlah.jumlah_produk);
+        test.done();
+    })
+}
 function statusPemesanan(test){
     //masih salah
     models.Transaksi.findAll({
@@ -60,35 +76,18 @@ function statusPemesanan(test){
         test.done();
     });
 }
-var sequelize = require("sequelize");
+
 function hotlist(test){
-    async.parallel([
-            function(callback){
-                models.Invoice.findAll({
-                    attributes : ['Produk.nama','Produk.harga','Produk.gambar'],
-                    limit : '3',
-                    //order : 'id DESC',
-                    include : models.Produk,
-                    group : 'produkId',
-                    order : [ [sequelize.fn('sum',sequelize.col('jumlah')),'DESC'] ]
-                }).then(function(produk) {
-                    callback(null,produk);
-                })
-            },
-            function(callback){
-                models.Kategori_Produk.findAll({
-                    attributes : {exclude :['deskripsi']}
-                }).then(function(kategori_produk) {
-                    callback(null,kategori_produk);
-                })
-            }
-        ],
-        function(err,result){
-            //TODO: hasilnya kosong
-            console.log(result[0]);
-            test.done();
-        }
-    )
+    models.Invoice_Produk.findAll({
+        attributes : ['Produk.nama','Produk.harga','Produk.gambar'],
+        limit : '3',
+        include : models.Produk,
+        group : 'produkId',
+        order : [ [sequelize.fn('sum',sequelize.col('jumlah_produk')),'DESC'] ]
+    }).then(function(produk) {
+        console.log(produk);
+        test.done();
+    })
 }
 function konfirmasiPembayaran(test){
     models.Transaksi.findAll({
@@ -156,27 +155,105 @@ function postCartToInvoice(test){
                 }
         });
 }
-function getCart(test){
+function insertCart(test){
     var cart = [];
+    var totalTagihan = [];
     cart.push({
-        produkId : 1
+        id : 11,
+        Produk : [
+            {id: 1, jumlah : 2,
+                totalHargaBarang : 20,
+                harga : 1000000
+            },
+            {id: 2, jumlah : 3,
+                totalHargaBarang : 30,
+                harga : 1000000
+            }
+        ],
+        ongkosKirim : 20,
     });
     cart.push({
-        produkId : 2
+        id : 11,
+        Produk : [
+            {id: 1, jumlah : 2,
+                totalHargaBarang : 400,
+                harga : 1000000
+            }
+        ],
+        ongkosKirim : 20,
     });
-    var cart1 = [];
-    for(val in cart){
-        cart1.push(cart[val].produkId);
+    var totalPembayaran = 0;
+
+    for(var val in cart){
+        var cartArr = cart[val];
+        totalTagihan[val] = 0;
+        for(var valPro in cartArr.Produk){
+            //todo: tidak bisa untuk hitung sebanyak n-tagihan, hanya bisa hitung persatu tagihan
+            var produkDalamTagihan = cartArr.Produk;
+            totalTagihan[val] = totalTagihan[val] +
+                parseInt( produkDalamTagihan[valPro].totalHargaBarang );
+            if(valPro == (produkDalamTagihan.length - 1) ){
+                totalTagihan[val] = totalTagihan[val]+
+                    parseInt(cartArr.ongkosKirim);
+            }
+        }
+        console.log('tagihan '+val+' - '+totalTagihan[val]);
+        totalPembayaran = totalPembayaran + totalTagihan[val];
     }
-    models.Produk.findAll({
-        where : {
-            id : {$in: cart1}
-        },
-        include: [models.Toko]
-    }).then(function(produk) {
-        console.log(produk);
+    console.log('total pembayaran : '+totalPembayaran);
+    test.done();
+}
+function deleteCart(test){
+    var stack = {};
+    var cart = [];
+
+    stack.insertCart = function(callback){
+        cart.push({
+            produk : [{id:1},{id:2}]
+        });
+        cart.push({
+            produk : [{id:18},{id:19}]
+        });
+        cart.push({
+            produk : [{id:20},{id:21}]
+        });
+        console.log('nomor 1');
+        callback(null,'');
+    };
+    stack.deletetCart = function(callback){
+        cart.splice(2,3);
+        console.log('nomor 2');
+        callback(null,'');
+    };
+    stack.printCart = function(callback){
+        for(var val in cart){
+            console.log(cart[val]);
+        }
+        callback(null,'');
+    };
+    async.series(stack,function(err){
         test.done();
     });
+
+
+    //var cart1 = [];
+    //for(val in cart){
+    //    var cartArr = cart[val].produk;
+    //    for(valPro in cartArr){
+    //        cart1.push(cartArr[valPro].id);
+    //    }
+    //}
+    //console.log(cart1);
+
+    //models.Produk.findAll({
+    //    where : {
+    //        id : {$in: cart1}
+    //    },
+    //    include: [models.Toko]
+    //}).then(function(produk) {
+    //    console.log(produk);
+    //    test.done();
+    //});
 }
 function pengaturanToko(test){
     models.Produk.findAndCountAll({
@@ -347,17 +424,34 @@ function jumlahTerjual(test){
         })
 }
 function detailProduk(test){
-    models.Toko.find({
-        include: [
-            { model: models.Produk, where : {id : '1'},as:'Produk',
-                include : [models.Kategori_Produk]
-            }
-        ],
-        attributes: {exclude : ['Toko.deskripsi'] }
-    }).then(function(Toko) {
-        console.log(Toko.Produk[0].Kategori_Produk.kategori);
-        console.log('---------');
-        console.log(Toko.Produk[0]);
+    var stack = {};
+    stack.getJumlahTerjual = function(callback){
+        models.Invoice_Produk.sum('jumlah_produk',{
+            where : {produkId :1}
+        }).then(function(jumlah_terjual) {
+            callback(null,jumlah_terjual);
+        })
+    };
+    stack.getTokoDanProduk = function(callback){
+        models.Produk.find({
+            include: [
+                { model: models.Toko,
+                    include : [models.Kabupaten] },
+                models.Kategori_Produk
+            ],
+            where : {id : 1}
+        }).then(function(toko) {
+            callback(null,toko);
+        })
+    };
+    async.parallel(stack,function(err,result){
+        console.log(result.getTokoDanProduk.Toko);
+        console.log(result.getJumlahTerjual);
         test.done();
-    })
+        //jumlah_terjual : result.getJumlahTerjual
+        //jika eror, itu karena beberapa daerah tidak bisa dilayani POS(ex:daerah lampung)
+        //cari cara error handling di node js
+        //data provinsi diambil saat masih menggunakan modal
+        //listProvinsi : result.getListProvinsi
+    });
 }

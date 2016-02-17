@@ -1,5 +1,6 @@
 extends ../layoutBelanja
 append content
+
     script(type='text/javascript').
         function numberFormat(_number, _sep) {
             _number = typeof _number != "undefined" && _number > 0 ? _number : "";
@@ -12,46 +13,44 @@ append content
     .row(style='margin : 30px 10px')
         .col-sm-4
             table
-                tr: td(colspan='4') <img src='/images/produk/#{toko.Produk[0].gambar}' width='250'>
+                tr: td(colspan='4') <img src='/images/produk/#{produk.gambar}' width='250'>
                 //daftar gambar produk
               //tr
-              //  td(height='160') <img src='/images/produk/#{toko.Produk[0].gambar}' width='80'>
-              //  td <img src='/images/produk/#{toko.Produk[0].gambar}' width='80'>
-              //  td <img src='/images/produk/#{toko.Produk[0].gambar}' width='80'>
+              //  td(height='160') <img src='/images/produk/#{produk.gambar}' width='80'>
+              //  td <img src='/images/produk/#{produk.gambar}' width='80'>
+              //  td <img src='/images/produk/#{produk.gambar}' width='80'>
         .col-sm-4
-            p <a href='/produk/daftarbykategori/#{toko.Produk[0].Kategori_Produk.id}'>#{toko.Produk[0].Kategori_Produk.kategori} </a>
-                | > <a href='/produk/detail/#{toko.Produk[0].id}'> #{toko.Produk[0].nama}</a>
+            p <a href='/produk/daftarbykategori/#{produk.Kategori_Produk.id}'>#{produk.Kategori_Produk.kategori} </a>
+                | > <a href='/produk/detail/#{produk.id}'> #{produk.nama}</a>
             table
               tr
-                td: h1=toko.Produk[0].nama
+                td: h1=produk.nama
                   | <h2> Rp <span id='uang'> </span></h2>
-                  p: a.btn.btn-primary(href='/produk/beli/#{toko.Produk[0].id}'): i.fa.fa-shopping-cart  Beli
-                  //dirubah kembali kalau cart nya udah beres
-                  //if(session.nama)
-                  //    p: a.btn.btn-primary(data-toggle='modal', data-target='.modal-beli'): i.fa.fa-shopping-cart  Beli
-                  //else
-                  //    p
-                  //        a.btn.btn-primary(disabled=true): i.fa.fa-shopping-cart  Beli
-                  //        &nbsp
-                  //        a.btn.btn-primary(href='#') Daftar Terlebih Dahulu
-                  | <a href='/produk/jadikanwishlist/#{toko.Produk[0].id}' class='btn btn-primary'>Tambahkan ke wishlist</a> <br/><br/>
+                  if(session.nama)
+                      p: a.btn.btn-primary(href='/produk/beli/#{produk.id}'): i.fa.fa-shopping-cart  Beli
+                  else
+                      p
+                          a.btn.btn-primary(disabled=true): i.fa.fa-shopping-cart  Beli
+                          &nbsp
+                          a.btn.btn-primary(href='#') Daftar Terlebih Dahulu
+                  | <a href='/produk/jadikanwishlist/#{produk.id}' class='btn btn-primary'>Tambahkan ke wishlist</a> <br/><br/>
                   | <p>Terjual : #{jumlah_terjual} buah</p>
-                  | <p>Berat : #{toko.Produk[0].berat} gr </p>
-                  if (toko.Produk[0].kondisi == 1)
+                  | <p>Berat : #{produk.berat} gr </p>
+                  if (produk.kondisi == 1)
                       | <p>Kondisi : Baru </p>
                   else
                       | <p>Kondisi : Bekas </p>
-                  | <p>Stok : #{toko.Produk[0].stok} buah </p>
+                  | <p>Stok : #{produk.stok} buah </p>
                 script.
-                  document.getElementById("uang").innerHTML = numberFormat("#{toko.Produk[0].harga}",".");
+                  document.getElementById("uang").innerHTML = numberFormat("#{produk.harga}",".");
         .col-sm-3(style='margin : 0 30px')
              h3 Informasi toko
              table
                 tr: td(rowspan='4',width='110px')
-                    a(href='/toko/profil/#{toko.id}'): img(src='/images/#{toko.logo}', width='100px')
-                tr: td: a(href='/toko/profil/#{toko.id}') #{toko.nama}
-                tr: td #{toko.Kabupaten.nama}
-                tr: td: a.btn-primary.btn(href='/produk/favorit/#{toko.id}') Jadikan Favorit
+                    a(href='/toko/profil/#{produk.Toko.id}'): img(src='/images/#{produk.Toko.logo}', width='100px')
+                tr: td: a(href='/toko/profil/#{produk.Toko.id}') #{produk.Toko.nama}
+                tr: td #{produk.Toko.Kabupaten.nama}
+                tr: td: a.btn-primary.btn(href='/produk/favorit/#{produk.Toko.id}') Jadikan Favorit
     br
     .row(style='margin : 0px 10px')
         .category-tab
@@ -64,7 +63,7 @@ append content
                   .tab-content
                       #deskripsi.tab-pane.fade.active.in
                           .col-sm-3
-                              p #{toko.Produk[0].deskripsi}
+                              p #{produk.deskripsi}
                       #review.tab-pane.fade
                           .col-sm-3
                               p review produk

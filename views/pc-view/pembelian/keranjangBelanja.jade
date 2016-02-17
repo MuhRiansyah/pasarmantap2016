@@ -23,65 +23,79 @@ append content
           style(type='text/css').
             td{ padding: 10px 10px;}
           //TODO : buat invoice dapat memiliki lebih dari 1 produk
+          a(href='/produk/beli/1') naruto &nbsp;
+          a(href='/produk/beli/2') naruto 1-20 &nbsp;
+          a(href='/produk/beli/18') iphone 7
           form(action='/keranjang/simpan' method='post')
+              //memanfaatkan index yang dimiliki cart agar produk yang dicetak sesuai index cart
               each val,index in cart
                   br
                   table(border='1', width='90%' style='margin:0 30px')
                       tr
-                          td(height='60px', colspan='2')
-                              span(style='font-size : 13pt')
-                                  | Pembelian dari toko :
-                                  a(href='toko/#{produk[index].Toko.id}')  #{produk[index].Toko.nama}
-                      each produk in
+                          td(height='60px', colspan='3')
+                              span(style='font-size : 13pt') Pembelian dari toko :
+                                  a(href='/toko/profil/#{val.Toko[0].id}')  #{val.Toko[0].nama}
+                      each valPro,indexPro in val.Produk
                           tr
-                              td(height='70px')
+                              td(height='70px' colspan='2')
                                   span.pull-left(style='padding : 0 10px 0 10px')
-                                      img(src='/images/produk/#{produk[index].gambar}' width='30px')
+                                      img(src='/images/produk/#{valPro.gambar}' width='30px')
                                   span.pull-left
-                                      b  #{produk[index].nama}
+                                      b  #{valPro.nama}
                                       br
-                                      b(style='font-size : 8pt')  #{val.jumlah} Barang  x Rp <span class='hargaProduk'></span>
+                                      b(style='font-size : 8pt')  #{valPro.jumlah} Barang  x Rp <span id='hargaProduk#{index}#{indexPro}'></span>
                                       script.
-                                          document.getElementsByClassName("hargaProduk")[#{index}].innerHTML = numberFormat("#{produk[index].harga}", ".");
+                                          document.getElementById("hargaProduk#{index}#{indexPro}").innerHTML = numberFormat("#{valPro.harga}", ".");
                                       br
-                                      a(href='#', style='font-size : 8pt') Ubah
+                                      a(href='#', style='font-size : 8pt') Ubah &nbsp;
+                                      a(href='/keranjang/hapus/#{valPro.id}', style='font-size : 8pt') Hapus
                               td
                                   b  Harga Barang <br>
-                                  | Rp <span class='totalHarga'></span>
+                                  | Rp <span id='totalHarga#{index}#{indexPro}'></span>
                                   script.
-                                      document.getElementsByClassName("totalHarga")[#{index}].innerHTML = numberFormat("#{cart[index].nilaiSubTotal}", ".");
+                                      document.getElementById("totalHarga#{index}#{indexPro}").innerHTML = numberFormat("#{valPro.totalHargaBarang}", ".");
                       tr
                           td
                               b  Alamat Tujuan
                               a(href='#', style='font-size : 11px')  Ubah <br/>
-                              b  #{penerima[index].nama} <br/>
-                              | #{penerima[index].alamat} <br/>
-                              |  <input type='hidden' name='idKecamatan' value='#{penerima[index].kecamatan}'/>
-                              |  <input type='hidden' name='idKabupaten' value='#{penerima[index].kabupatenId}'/>
-                              |  <input type='hidden' name='idProvinsi' value='#{penerima[index].provinsiId}'/>
-                              |  #{penerima[index].kecamatan} - #{penerima[index].Kabupaten.nama} - #{penerima[index].Kabupaten.kode_pos} <br/>
-                              | #{penerima[index].Provinsi.nama} <br/>
-                              | Telp: #{penerima[index].telepon}
-                          td(colspan='2')
+                              b  #{val.Penerima[0].nama} <br/>
+                              | #{val.Penerima[0].alamat} <br/>
+                              |  <input type='hidden' name='idKecamatan' value='#{val.Penerima[0].kecamatan}'/>
+                              |  <input type='hidden' name='idKabupaten' value='#{val.Penerima[0].Kabupaten.id}'/>
+                              |  <input type='hidden' name='idProvinsi' value='#{val.Penerima[0].Provinsi[0].id}'/>
+                              |  #{val.Penerima[0].kecamatan} - #{val.Penerima[0].Kabupaten[0].nama} - #{val.Penerima[0].Kabupaten[0].kodePos} <br/>
+                              | #{val.Penerima[0].Provinsi[0].nama} <br/>
+                              | Telp: #{val.Penerima[0].telepon}
+                          td
                               b  Keterangan
                               br
-                              | #{cart[index].keterangan}
+                              | #{val.keterangan}
                               span.pull-right
-                                  a(href='#') hapus
+                                  a(href='/keranjang/hapuspertagihan/#{val.id}') hapus tagihan
+                          td <b> Ongkos Kirim</b>
+                              br
+                              | Rp <span id='ongkosKirim#{index}'></span>
+                              script.
+                                  document.getElementById("ongkosKirim#{index}").innerHTML = numberFormat("#{val.ongkosKirim}", ".");
+                      tr: td(colspan='3')
+                            span.pull-right(style='padding : 10px 0px 0px 0;font-size:12pt')
+                                  | Total <b> Rp <span id='totalTagihan#{index}'></span></b>
+                                  script.
+                                      document.getElementById("totalTagihan#{index}").innerHTML = numberFormat("#{totalPerTagihan[index]}", ".");
                .row(style='width:880px') </br>
-                   span.pull-left(style='padding : 10px 20px ')
-                       a(href='#') Hapus Semua
+                   span.pull-left(style='padding : 10px 20px;margin-left:25px ')
+                       a(href='/keranjang/hapussemua') <i class='fa fa-eraser'> </i> Hapus Semua
                    //TODO: dibuat hasil penjumlahan dari seluruh isi cart
-                   span.pull-right(style='padding : 10px 0px;font-size:14pt')
+                   span.pull-right(style='padding : 10px 110px 0px 0;font-size:14pt')
                        input(name='totalPembayaran' type='hidden' value='#{totalPembayaran}')
-                       | Total Pembayaran <b> Rp <span id='totalPembayaran'></span> </b>
+                       | Total Pembayaran <b> Rp <span id='totalPembayaran'></span></b>
                        script.
                            document.getElementById("totalPembayaran").innerHTML = numberFormat("#{totalPembayaran}", ".");
                .row </br>
-                   .col-sm-10(style='margin:20px;height:90px')
-                       span.pull-left(style='padding : 10px 0px')
-                           a(href='/produk/daftarbykategori/1')  << lanjukan berbelanja
-                       span.pull-right
+                   .col-sm-11(style='margin:20px;height:90px')
+                       span.pull-left(style='margin-left : 7px')
+                           a.btn.btn-primary(href='/produk/daftarbykategori/1') < lanjukan berbelanja
+                       span.pull-right(style='margin-left : 20px')
                            input.btn.btn-inverse(type='submit', value='Konfirmasi Pembayaran >' data-url='/keranjang/simpan')
 
 

@@ -12,11 +12,7 @@ append content
                     tr
                         td <b style='font-size : 8pt'> Nama Produk </b><br> #{toko.Produk[0].nama}
                             input(type="hidden" name="produkId" value="#{toko.Produk[0].id}")
-                            input(type="hidden" name="namaProduk" value="#{toko.Produk[0].nama}")
-                            input(type="hidden" name="gambarProduk" value="#{toko.Produk[0].gambar}")
-                            input(type="hidden" name="hargaProduk" value="#{toko.Produk[0].harga}")
                             input(type="hidden" name="tokoId" value="#{toko.id}")
-                            input(type="hidden" name="namaToko" value="#{toko.nama}")
                         td &nbsp;
                         td Keterangan (Opsional)
                             textarea.form-control(style='margin: 0px; width: 208px; height: 75px;')
@@ -25,6 +21,8 @@ append content
                             input#jumlah.form-control(type='number' onkeyup="hitung()" name='jumlah' required=true value='1')
                         td(width=150) Harga Barang <br> Rp <span id='harga'></span>
                         td(width=150) Total Harga Barang <br> Rp <span id='total'></span>
+                            input#totalHarga(type='hidden' name='totalHarga')
+
                             script(type='text/javascript').
                                 function numberFormat(_number, _sep) {
                                     _number = typeof _number != "undefined" && _number > 0 ? _number : "";
@@ -36,6 +34,8 @@ append content
                                 }
 
                                 //ketika input#jumlah onchange maka dijalankan fungsi hitung
+                                var totalHarga = document.getElementById('totalHarga');
+                                totalHarga.value = #{toko.Produk[0].harga};
                                 function hitung() {
                                     var total = document.getElementById('total');
                                     var jumlah = document.getElementById('jumlah');
@@ -45,10 +45,10 @@ append content
                                     var hargaSubTotal = hasil_kali + parseInt(ongkir.value);
                                     //nilai ongkir terbaru belum diambil
                                     var subTotal = document.getElementById('subTotal');
-
+                                    var nilaiSubTotal = document.getElementById('nilaiSubTotal');
                                     subTotal.innerHTML = 'Rp ' + numberFormat(""+hargaSubTotal, ".");//untuk tampilan Rp di sub total
-                                    //var nilaiSubTotal = document.getElementById('nilaiSubTotal');
-                                    // nilaiSubTotal.value = hargaSubTotal;
+                                    nilaiSubTotal.value = hargaSubTotal;
+                                    totalHarga.value = hasil_kali;
                                     return hasil_kali;
                                 }
                                 var harga = document.getElementById('harga');
@@ -66,17 +66,6 @@ append content
                                     url: '/getpenerima/' + $('#listPenerima option:selected').val(),
                                     success: function (result) {
                                         var penerima = result.penerimaHTML;
-                                        //untuk dimasukkan ke input hidden
-                                        $('#nilaiNamaPenerima').val(""+penerima.nama);
-                                        $('#nilaiAlamat').val(""+penerima.alamat);
-                                        $('#nilaiTelepon').val(""+penerima.telepon);
-                                        $('#nilaiKodePos').val(""+penerima.Kabupaten.kode_pos);
-                                        $('#nilaiKecamatan').val(""+penerima.kecamatan);
-                                        $('#nilaiKabupatenId').val(""+penerima.Kabupaten.id);
-                                        $('#nilaiKabupatenNama').val(""+penerima.Kabupaten.nama);
-                                        $('#nilaiProvinsiId').val(""+penerima.Provinsi.id);
-                                        $('#nilaiProvinsiNama').val(""+penerima.Provinsi.nama);
-                                        //untuk ditampilkan
                                         $('#namaPenerima').html(penerima.nama);
                                         $('#alamatPenerima').html(penerima.alamat);
                                         $('#kecamatanPenerima').html(penerima.kecamatan + ' - ');
@@ -90,6 +79,7 @@ append content
                                                 //TODO: nanti digunakan untuk menghitung total biaya
                                                 $('#ongkosKirim').html('<b> Rp ' + numberFormat("" + ongkir.ongkos, ".") + '</b>');
                                                 $('#ongkir').val(""+ongkir.ongkos);
+                                                console.log($('#ongkir').val());
                                                 var subTotal = ongkir.ongkos + hitung();
                                                 $('#subTotal').html('<b> Rp ' + numberFormat("" + subTotal, ".") + '</b>')
                                             }
@@ -106,16 +96,8 @@ append content
                         br
                         br
                     .row(style='width:100%;height:90px;float:left;border : 1px solid black')
-                        input#nilaiNamaPenerima(type="hidden" name="namaPenerima" value="#{penerima[0].nama}")
-                        input#nilaiTelepon(type="hidden" name="telepon" value="#{penerima[0].telepon}")
-                        input#nilaiAlamat(type="hidden" name="alamat" value="#{penerima[0].alamat}")
-                        input#nilaiKecamatan(type="hidden" name="kecamatan" value="#{penerima[0].kecamatan}")
-                        input#nilaiProvinsiId(type="hidden" name="idProvinsi" value="#{penerima[0].Provinsi.id}")
-                        input#nilaiProvinsiNama(type="hidden" name="namaProvinsi" value="#{penerima[0].Provinsi.nama}")
-                        input#nilaiKabupatenId(type="hidden" name="idKabupaten" value="#{penerima[0].Kabupaten.id}")
-                        input#nilaiKabupatenNama(type="hidden" name="namaKabupaten" value="#{penerima[0].Kabupaten.nama}")
-                        input#nilaiKodePos(type="hidden" name="kodePos" value="#{penerima[0].Kabupaten.kode_pos}")
                         table
+                            tr: td: input#penerimaId(type='hidden' value='#{penerima[0].id}')
                             tr: td#namaPenerima #{penerima[0].nama}
                             tr: td#alamatPenerima #{penerima[0].alamat}
                             tr: td  <span id='kecamatanPenerima'> #{penerima[0].kecamatan} -</span>
@@ -132,10 +114,10 @@ append content
                 .row
                     .col-sm-5 Ongkos pengiriman &nbsp;
                         b <span id='ongkosKirim'></span>
-                        input#ongkir(type='hidden',value='#{ongkosKirim}' name='ongkosKirim')
+                        input#ongkir(type='hidden',value='#{ongkosKirim}')
                     .col-sm-3 Subtotal &nbsp;
                         b <span id='subTotal'></span>
-                        //input#nilaiSubTotal(type='hidden' name='nilaiSubTotal' value='#{subTotal}')
+                        input#nilaiSubTotal(type='hidden' name='nilaiSubTotal' value='#{subTotal}')
                         <br/><br/>
                     script.
                         //TODO:tidak bisa diubah nilainya

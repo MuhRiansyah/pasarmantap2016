@@ -3,7 +3,7 @@
  */
 var async = require('async');
 var models  = require('../models');
-
+var sequelize = require("sequelize");
 module.exports = {
 
     registerRoutes: function(app,checkAuth) {
@@ -93,13 +93,18 @@ module.exports = {
             }).then(function(etalase) {
                 callback(null,etalase);
             })
-        }
+        };
         stack.getJumlahProdukTerjual = function(callback){
-            models.Invoice.sum('jumlah',{where : {tokoId :'2'}})
-                .then(function(jumlah) {
-                callback(null,jumlah);
+            models.Invoice_Produk.find({
+                attributes : [[sequelize.fn('SUM',sequelize.col('jumlah_produk') ),'jumlah_produk'] ]  ,
+                include: [
+                    { model: models.Produk,where : {tokoId :req.params.idToko}
+                    }
+                ]
+            }).then(function(jumlah) {
+                callback(null,jumlah.jumlah_produk);
             })
-        }
+        };
         //nanti tambahkan field status pada table transaksi
         //stack.getJumlahTransaksiBerhasil = function(callback){
         //    models.Invoice.sum('jumlah',{where : {tokoId :'2'}})

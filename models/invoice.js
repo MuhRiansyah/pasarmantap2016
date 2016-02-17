@@ -10,7 +10,7 @@ module.exports = function(sequelize, DataTypes) {
                 type : DataTypes.STRING,
                 primaryKey : true
             },
-            jumlah : DataTypes.INTEGER,
+            total_berat : DataTypes.INTEGER,
             nilai_sub_total : DataTypes.INTEGER,
             keterangan : DataTypes.STRING
         }, {

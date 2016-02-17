@@ -16,15 +16,14 @@ exports.baru= function(req, res) {
 
 
 exports.utamaMobile = function(req, res){
-	async.series([
+	async.parallel([
 			function(callback){
-				models.Invoice.findAll({
+				models.Invoice_Produk.findAll({
 					attributes : ['Produk.nama','Produk.harga','Produk.gambar'],
 					limit : '3',
-					//order : 'id DESC',
 					include : models.Produk,
 					group : 'produkId',
-					order : [ [sequelize.fn('sum',sequelize.col('jumlah')),'DESC'] ]
+					order : [ [sequelize.fn('sum',sequelize.col('jumlah_produk')),'DESC'] ]
 				}).then(function(produk) {
 					callback(null,produk);
 				})
@@ -49,13 +48,12 @@ exports.utamaMobile = function(req, res){
 exports.utama= function(req, res){
 	async.parallel([
 			function(callback){
-				models.Invoice.findAll({
+				models.Invoice_Produk.findAll({
 					attributes : ['Produk.nama','Produk.harga','Produk.gambar'],
 					limit : '3',
-					//order : 'id DESC',
 					include : models.Produk,
 					group : 'produkId',
-					order : [ [sequelize.fn('sum',sequelize.col('jumlah')),'DESC'] ]
+					order : [ [sequelize.fn('sum',sequelize.col('jumlah_produk')),'DESC'] ]
 				}).then(function(produk) {
 					callback(null,produk);
 				})
@@ -79,13 +77,12 @@ exports.utama= function(req, res){
 
 exports.berandaMobile = function(req, res){
 	//mengambil daftar produk terlaris
-	models.Invoice.findAll({
+	models.Invoice_Produk.findAll({
 		attributes : ['Produk.nama','Produk.harga','Produk.gambar'],
 		limit : '3',
-		order : 'id DESC',
 		include : models.Produk,
 		group : 'produkId',
-		order : [ [sequelize.fn('sum',sequelize.col('jumlah')),'DESC'] ]
+		order : [ [sequelize.fn('sum',sequelize.col('jumlah_produk')),'DESC'] ]
 	}).then(function(produkTerlaris) {
 		//mengambil wish list
 		models.Wishlist.findAll({
@@ -125,42 +122,34 @@ exports.berandaMobile = function(req, res){
 exports.beranda = function(req, res){
 	async.series([
 			function(callback){
-				models.Invoice.findAll({
+				models.Invoice_Produk.findAll({
 					attributes : ['Produk.nama','Produk.harga','Produk.gambar'],
 					limit : '3',
-					order : 'id DESC',
 					include : models.Produk,
 					group : 'produkId',
-					order : [ [sequelize.fn('sum',sequelize.col('jumlah')),'DESC'] ]
+					order : [ [sequelize.fn('sum',sequelize.col('jumlah_produk')),'DESC'] ]
 				}).then(function(produk) {
 					callback(null,produk);
 				})
 			},
 			function(callback){
-				models.Invoice.findAll({
+				models.Invoice_Produk.findAll({
 					attributes : ['Produk.nama','Produk.harga','Produk.gambar'],
 					limit : '3',
-					order : 'id DESC',
 					include : [{model : models.Produk,where : {KategoriProdukId : 12} }],
 					group : 'produkId',
-					order : [ [sequelize.fn('sum',sequelize.col('jumlah')),'DESC'] ]
+					order : [ [sequelize.fn('sum',sequelize.col('jumlah_produk')),'DESC'] ]
 				}).then(function(produk) {
 					callback(null,produk);
 				})
-				//models.Hotlist.findAll({
-				//	where : { $and : [ { terlaris : 1 }, { KategoriProdukId : 12  } ] },
-				//}).then(function(smartphone) {
-				//	callback(null,smartphone);
-				//})
 			},
 			function(callback){
-				models.Invoice.findAll({
+				models.Invoice_Produk.findAll({
 					attributes : ['Produk.nama','Produk.harga','Produk.gambar'],
 					limit : '3',
-					order : 'id DESC',
 					include : [{model : models.Produk,where : {KategoriProdukId : 1} }],
 					group : 'produkId',
-					order : [ [sequelize.fn('sum',sequelize.col('jumlah')),'DESC'] ]
+					order : [ [sequelize.fn('sum',sequelize.col('jumlah_produk')),'DESC'] ]
 				}).then(function(produk) {
 					callback(null,produk);
 				})
@@ -181,7 +170,9 @@ exports.beranda = function(req, res){
 	)
 };
 exports.keluar = function(req, res, next) {
-	req.session.destroy();
+	delete req.session.nama ;
+	delete req.session.idPengguna;
+	delete req.session.loggedin;
 	res.redirect('/');
 };
 
@@ -231,7 +222,9 @@ exports.getOngkir = function(req, res, next){
 		models.Produk.find({
 			where:{id:req.params.idProduk}
 		}).then(function(produk){
-			ongkir.getOngkosKirim(
+			//TODO: saat pengujian selesai kembalikan lagi
+			//ongkir.getOngkosKirim(
+			ongkir.getOngkosKirimOffline(
 				toko.KabupatenId,req.params.idKotaTujuan,produk.berat,
 				function(ongkosKirim){
 					res.send({ongkos:ongkosKirim});

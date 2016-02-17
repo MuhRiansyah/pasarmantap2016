@@ -174,7 +174,6 @@ module.exports = {
 
 
     beliProduk : function(req, res, next){
-        //saat di insert ke cart, bagaimana penanganan field hidden idPenerima jika id penerimanya sendiri kosong
         var stack = {};
         stack.getPenerima = function(callback){
             models.Penerima.findAll({
@@ -206,11 +205,11 @@ module.exports = {
         };
         async.parallel(stack,function(err,result){
             var beratProduk = result.getToko.Produk[0].berat;
-            //kota asal
             var idKotaTokoPenjual = result.getToko.Kabupaten.id;
-            //kota tujuan
             var idKotaPenerima = result.getPenerima[0].Kabupaten.id;
-            ongkir.getOngkosKirim(
+            //TODO: saat pengujian selesai gunakan yang versi API ini (juga kembalikan fungsi yang ada di main.getOngkir)
+            //ongkir.getOngkosKirim(
+            ongkir.getOngkosKirimOffline(
                 idKotaTokoPenjual,idKotaPenerima,beratProduk,
                 function(ongkosKirim){
                     var subTotal = ongkosKirim + result.getToko.Produk[0].harga;
@@ -226,31 +225,22 @@ module.exports = {
         });
     },
     detailProduk : function(req, res, next){
-        //bagaimana caranya membuat form tambah penerima,disaat pengguna sudah memiliki data penerima
-        // yang bikin bingung action='' formnya mau diarahkan kemana?
-        var stack = {};
-        stack.getPenerima = function(callback){
-            models.Penerima.findAll({
-                include: [
-                    models.Provinsi,models.Kabupaten
-                ],
-                where : {penggunaId : res.locals.session.penggunaId}
-            }).then(function(penerima) {
-                callback(null,penerima);
-            })
-        };
-        stack.getJumlahTerjual = function(callback){
-            models.Invoice.sum('jumlah',{where : {produkId :req.params.id}})
-                .then(function(jumlah_terjual) {
-                    callback(null,jumlah_terjual);
-                })
-        };
-        stack.getListProvinsi = function(callback){
-            models.Provinsi.findAll().
-                then(function(provinsi) {
-                callback(null,provinsi);
-            })
-        };
+        //stack.getPenerima = function(callback){
+        //    models.Penerima.findAll({
+        //        include: [
+        //            models.Provinsi,models.Kabupaten
+        //        ],
+        //        where : {penggunaId : res.locals.session.penggunaId}
+        //    }).then(function(penerima) {
+        //        callback(null,penerima);
+        //    })
+        //};
+        //stack.getListProvinsi = function(callback){
+        //    models.Provinsi.findAll().
+        //        then(function(provinsi) {
+        //        callback(null,provinsi);
+        //    })
+        //};
         //API provinsi dari rajaongkir
         //stack.getListProvinsi = function(callback){
         //    if(Date.now() < provinsis.lastRefreshed + provinsis.refreshInterval)
@@ -261,21 +251,29 @@ module.exports = {
         //        callback(null,provinsis.listProvinsi);
         //    });
         //};
-        stack.getToko = function(callback){
-            models.Toko.find({
+        var stack = {};
+        stack.getTokoDanProduk = function(callback){
+            models.Produk.find({
                 include: [
-                    { model: models.Produk, where : {id : req.params.id},as:'Produk',
-                        include : [models.Kategori_Produk] },
-                    models.Kabupaten
+                    { model: models.Toko,
+                        include : [models.Kabupaten] },
+                    models.Kategori_Produk
                 ],
-                attributes: {exclude : ['deskripsi'] }
+                where : {id : req.params.id}
             }).then(function(toko) {
                 callback(null,toko);
             })
         };
+        stack.getJumlahTerjual = function(callback){
+            models.Invoice_Produk.sum('jumlah_produk',
+                {where : {produkId :req.params.id}})
+                .then(function(jumlah_terjual) {
+                    callback(null,jumlah_terjual);
+                })
+        };
         async.parallel(stack,function(err,result){
             res.render('pc-view/produk/detailProduk',{
-                toko : result.getToko,
+                produk : result.getTokoDanProduk,
                 jumlah_terjual : result.getJumlahTerjual
 
                 //data penerima diambil saat masih menggunakan modal

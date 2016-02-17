@@ -80,6 +80,10 @@ module.exports = function(rajaOngkirOptions){
         //            });
         //        }).end();
         //},
+        getOngkosKirimOffline : function(idKotaAsal,idKotaTujuan,beratProduk,cb){
+            cb(20000);
+        },
+        //saatpengujian selesai gunakan yang versi API ini
         getOngkosKirim : function(idKotaAsal,idKotaTujuan,beratProduk,cb){
             var options = {
                 "method": "POST",

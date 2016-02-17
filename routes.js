@@ -47,6 +47,9 @@ module.exports = function(app,mobile){
 	//route untuk data produk
 	produkController.registerRoutes(app,checkAuth);
 	app.post('/keranjang/tambah', cart.tambahCart);
+	app.get('/keranjang/hapussemua', cart.hapusSemuaProdukCart);
+	app.get('/keranjang/hapuspertagihan/:cartId', cart.hapusSemuaPertagihan);
+	app.get('/keranjang/hapus/:produkId', cart.hapusSatuProdukCart);
 	app.get('/keranjang', cart.getCart);
 	//route untuk menambah ke invoice
 	app.post('/keranjang/simpan', cart.insertCartToInvoice);
