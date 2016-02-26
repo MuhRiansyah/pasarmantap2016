@@ -97,7 +97,7 @@ exports.berandaMobile = function(req, res){
 				//harus disusun dari tabel child hingga ke parrentnya
 				models.Produk.findAll({
 					include : [
-						{ model: models.Etalase,
+						{ model: models.Toko,
 							include : [{model : models.Toko_Favorit,where : {PenggunaId : 1},required : false }]
 						}]
 					//attributes : ['Toko.Etalases.Produks.nama'],
@@ -120,54 +120,48 @@ exports.berandaMobile = function(req, res){
 };
 
 exports.beranda = function(req, res){
-	async.series([
-			function(callback){
-				models.Invoice_Produk.findAll({
-					attributes : ['Produk.nama','Produk.harga','Produk.gambar'],
-					limit : '3',
-					include : models.Produk,
-					group : 'produkId',
-					order : [ [sequelize.fn('sum',sequelize.col('jumlah_produk')),'DESC'] ]
-				}).then(function(produk) {
-					callback(null,produk);
-				})
-			},
-			function(callback){
-				models.Invoice_Produk.findAll({
-					attributes : ['Produk.nama','Produk.harga','Produk.gambar'],
-					limit : '3',
-					include : [{model : models.Produk,where : {KategoriProdukId : 12} }],
-					group : 'produkId',
-					order : [ [sequelize.fn('sum',sequelize.col('jumlah_produk')),'DESC'] ]
-				}).then(function(produk) {
-					callback(null,produk);
-				})
-			},
-			function(callback){
-				models.Invoice_Produk.findAll({
-					attributes : ['Produk.nama','Produk.harga','Produk.gambar'],
-					limit : '3',
-					include : [{model : models.Produk,where : {KategoriProdukId : 1} }],
-					group : 'produkId',
-					order : [ [sequelize.fn('sum',sequelize.col('jumlah_produk')),'DESC'] ]
-				}).then(function(produk) {
-					callback(null,produk);
-				})
-				//models.Hotlist.findAll({
-				//	where : { $and : [ { terlaris : 1 }, { KategoriProdukId : 1  } ] },
-				//}).then(function(pakaian) {
-				//	callback(null,pakaian);
-				//})
-			}
-		],
-		function(err,result){
-			res.render('pc-view/beranda',{
-				hotlist : result[0],
-				smartphone : result[1],
-				pakaian : result[2]
-			})
-		}
-	)
+	var stack = {};
+
+	stack.getHotList = function(callback){
+		models.Invoice_Produk.findAll({
+			attributes : ['Produk.nama','Produk.harga','Produk.gambar'],
+			limit : '3',
+			include : models.Produk,
+			group : 'produkId',
+			order : [ [sequelize.fn('sum',sequelize.col('jumlah_produk')),'DESC'] ]
+		}).then(function(produk) {
+			callback(null,produk);
+		})
+	};
+//stack.getSmartphoneTerlaris = function(callback){
+	//	models.Invoice_Produk.findAll({
+	//		attributes : ['Produk.nama','Produk.harga','Produk.gambar'],
+	//		limit : '3',
+	//		include : [{model : models.Produk,where : {KategoriProdukId : 12} }],
+	//		group : 'produkId',
+	//		order : [ [sequelize.fn('sum',sequelize.col('jumlah_produk')),'DESC'] ]
+	//	}).then(function(produk) {
+	//		callback(null,produk);
+	//	})
+	//};
+	//stack.getPakaianTerlaris = function(callback){
+	//	models.Invoice_Produk.findAll({
+	//		attributes : ['Produk.nama','Produk.harga','Produk.gambar'],
+	//		limit : '3',
+	//		include : [{model : models.Produk,where : {KategoriProdukId : 1} }],
+	//		group : 'produkId',
+	//		order : [ [sequelize.fn('sum',sequelize.col('jumlah_produk')),'DESC'] ]
+	//	}).then(function(produk) {
+	//		callback(null,produk);
+	//	});
+	//};
+	async.parallel(stack,function(err,result){
+		res.render('pc-view/beranda',{
+			hotlist : result.getHotList,
+			//smartphone : result[1],
+			//pakaian : result[2]
+		})
+	})
 };
 exports.keluar = function(req, res, next) {
 	delete req.session.nama ;
@@ -214,22 +208,20 @@ exports.cekloginMobile = function(req, res, next) {
 	})
 };
 //request AJAX
+//app.get('/getongkir/:idKotaTujuan/:idProduk',main.getOngkir);
+//todo: cari cara hitung total berat
 exports.getOngkir = function(req, res, next){
 	//models
 	models.Toko.find({
 		where:{id:res.locals.session.tokoId}
 	}).then(function(toko){
-		models.Produk.find({
-			where:{id:req.params.idProduk}
-		}).then(function(produk){
-			//TODO: saat pengujian selesai kembalikan lagi
-			//ongkir.getOngkosKirim(
+		//TODO: saat pengujian selesai kembalikan lagi
+		//ongkir.getOngkosKirim(
 			ongkir.getOngkosKirimOffline(
-				toko.KabupatenId,req.params.idKotaTujuan,produk.berat,
-				function(ongkosKirim){
-					res.send({ongkos:ongkosKirim});
-				});
-		});
+			toko.KabupatenId,req.params.idKotaTujuan,req.params.berat,
+			function(ongkosKirim){
+				res.send({ongkos:ongkosKirim});
+			});
 	});
 };
 

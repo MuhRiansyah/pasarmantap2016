@@ -39,7 +39,7 @@ module.exports = function(app,mobile){
 	//request AJAX
 	app.get('/getpenerima/:idPenerima', main.getPenerima);
 	app.get('/getkabupaten/:id', main.getKabupaten);
-	app.get('/getongkir/:idKotaTujuan/:idProduk',main.getOngkir);
+	app.get('/getongkir/:idKotaTujuan/:idProduk/:berat',main.getOngkir);
 
 
 	//sebelum menggunakan API
@@ -51,10 +51,10 @@ module.exports = function(app,mobile){
 	app.get('/keranjang/hapuspertagihan/:cartId', cart.hapusSemuaPertagihan);
 	app.get('/keranjang/hapus/:produkId', cart.hapusSatuProdukCart);
 	app.get('/keranjang', cart.getCart);
+	app.get('/keranjang/bersihkantransaksi', cart.bersihkanTransaksi);
 	//route untuk menambah ke invoice
 	app.post('/keranjang/simpan', cart.insertCartToInvoice);
 	app.get('/keranjang/konfirmasi', cart.konfirmasiPembelian);
-
 	//route untuk data pembelian
 	pembelianController.registerRoutes(app,checkAuth);
 	penggunaController.registerRoutes(app);
@@ -62,5 +62,15 @@ module.exports = function(app,mobile){
 	penjualanController.registerRoutes(app,checkAuth);
 	//route untuk data toko
 	tokoController.registerRoutes(app,checkAuth);
+
+	//latihan buat form dengan banyak value
+	//app.post('/test', function(req,res){
+	//	var arr = req.body.latihan;
+	//	res.send(arr[0]+' - '+arr[1]);
+	//});
+	//app.get('/latihan', function(req,res){
+	//	res.render('latihan');
+	//});
+
 
 };

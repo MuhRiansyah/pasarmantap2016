@@ -8,9 +8,9 @@ var moment = require("moment");
 var ongkir = require('../api/rajaOngkir')({
     key: credentials.rajaOngkir.key
 });
-var sequelize = require("sequelize");
 exports.test = function (test) {
 
+    //getRekomendasiToko(test);
     //detailProduk(test);
     //jumlahTerjual(test)
     //produkMilikToko(test)
@@ -23,17 +23,58 @@ exports.test = function (test) {
     //getOngkir(test);
     //pengaturanToko(test);
     //deleteCart(test);
-    insertCart(test);
-    //postCartToInvoice(test);
+    //insertCart(test);
+    //insertCartToInvoice(test);
     //konfirmasiPembayaran(test);
     //hotlist(test);
-    //statusPemesanan(test);
+    statusPemesanan(test);
     //produkMilikTokoTerjual(test);
 };
+//todo :selesaikan rekomendasi toko
+function getRekomendasiToko(test){
+    models.Invoice_Produk.findAll({
+        attributes : ['Produk.nama','Produk.harga','Produk.gambar'],
+        limit : '3',
+        include : models.Produk,
+        group : 'produkId',
+        order : [ [sequelize.fn('sum',sequelize.col('jumlah_produk')),'DESC'] ]
+    }).then(function(produkTerlaris) {
+        //mengambil wish list
+        models.Wishlist.findAll({
+            include : models.Produk
+        }).then(function(wishList) {
+            //mengambil toko favorit
+            models.Toko_Favorit.findAll({
+                include : models.Toko
+            }).then(function(tokoFavorit) {
+                //pc-view id diganti sesuai sesi
+                //mengambil produk rekomendasi toko favorit
+                //harus disusun dari tabel child hingga ke parrentnya
+                models.Produk.findAll({
+                    include : [
+                        { model: models.Toko,
+                            include : [{model : models.Toko_Favorit,where : {PenggunaId : 1},required : false }]
+                        }]
+                    //attributes : ['Toko.Etalases.Produks.nama'],
+                }).then(function(rekomendasi) {
+                    models.Kategori_Produk.findAll({
+                        attributes : {exclude :['deskripsi']}
+                    }).then(function(kategori_produk) {
+                        //console.error(kategori_produk);
+                        console.error(produkTerlaris);
+                        console.error(rekomendasi);
+                        console.error(tokoFavorit);
+                        console.error(wishList);
+                    })
+                })
+            })
+        })
+    })
+}
 function produkMilikTokoTerjual(test){
-    //sequelize.fn('SUM', sequelize.col('action.count'), sequelize.literal('*'), sequelize('action.actionType.value') ), 'score'
+    //sequelize.fn(SUM, sequelize.col(action.count), sequelize.literal(*), sequelize(action.actionType.value) ), score
     models.Invoice_Produk.find({
-        attributes : [[sequelize.fn('SUM',sequelize.col('jumlah_produk') ),'jumlah_produk'] ]  ,
+        attributes : [[sequelize.fn(SUM,sequelize.col(jumlah_produk) ),jumlah_produk] ]  ,
         include: [
             { model: models.Produk,where : {tokoId :1}
             }
@@ -45,33 +86,37 @@ function produkMilikTokoTerjual(test){
 }
 function statusPemesanan(test){
     //masih salah
-    models.Transaksi.findAll({
+    models.Transaksi.find({
         where : {
             PenggunaId : 1,
-            status : 1
+            status_tampil : 1
         },
         include: [
             {
+                //todo: order sesuai tanggal status
                 model: models.Invoice, include:
-                [models.Toko,models.Produk,{
-                    model : models.Penerima, include :[
-                        models.Provinsi,models.Kabupaten
-                    ]
-                }]
+                [
+                    { model:models.Status,order : ['waktu']}
+                    ,models.Toko,models.Produk,
+                    {model : models.Penerima, include :[models.Provinsi,models.Kabupaten]}
+                ]
             }
         ]
     }).then(function(transaksi){
-        for(indexTrans in transaksi){
-            console.log(transaksi[indexTrans].id);
-            for(indexInv in transaksi[indexTrans].Invoices){
-                var invoice = transaksi[indexTrans].Invoices[indexInv];
-                console.log(invoice.id);
-                for(indexPro in invoice.Produks){
-                    var produk = invoice.Produks[indexPro];
-                    console.log(indexPro+' - '+produk.nama);
-                }
-            }
-        }
+        var indexInvoice = transaksi.Invoices[0].Statuses.length;
+        console.log(transaksi.Invoices[0].Statuses[indexInvoice-1].pesan);
+        //console.log(transaksi.Invoices[0].Statuses[0].pesan);
+        //for(indexTrans in transaksi){
+        //    console.log(transaksi[indexTrans].id);
+        //    for(indexInv in transaksi[indexTrans].Invoices){
+        //        var invoice = transaksi[indexTrans].Invoices[indexInv];
+        //        console.log(invoice.id);
+        //        for(indexPro in invoice.Produks){
+        //            var produk = invoice.Produks[indexPro];
+        //            console.log(indexPro+ - +produk.nama);
+        //        }
+        //    }
+        //}
 
         test.done();
     });
@@ -79,11 +124,11 @@ function statusPemesanan(test){
 
 function hotlist(test){
     models.Invoice_Produk.findAll({
-        attributes : ['Produk.nama','Produk.harga','Produk.gambar'],
-        limit : '3',
+        attributes : [Produk.nama,Produk.harga,Produk.gambar],
+        limit : 3,
         include : models.Produk,
-        group : 'produkId',
-        order : [ [sequelize.fn('sum',sequelize.col('jumlah_produk')),'DESC'] ]
+        group : produkId,
+        order : [ [sequelize.fn(sum,sequelize.col(jumlah_produk)),DESC] ]
     }).then(function(produk) {
         console.log(produk);
         test.done();
@@ -112,25 +157,25 @@ function postCartToInvoice(test){
     cart.push({
         produkId : 2,
         penerimaId : 1,
-        keterangan : '-',
+        keterangan : '',
         jumlah : 20,
         nilaiSubTotal : 100040
     });
     cart.push({
         produkId : 1,
         penerimaId : 1,
-        keterangan : 'hati hati',
+        keterangan : '',
         jumlah : 10,
         nilaiSubTotal : 100000
     });
 
     var stack = {};
     var now = moment();
-    var jatuh_tempo = moment(now).add(3,'days');
+    var jatuh_tempo = moment(now).add(3,days);
         models.Transaksi.create({
             PenggunaId : 1,
-            tanggal : moment(now).format('YYYY-MM-DD'),
-            jatuh_tempo : moment(jatuh_tempo).format('YYYY-MM-DD'),
+            tanggal : moment(now).format(YYYY-MM-DD),
+            jatuh_tempo : moment(jatuh_tempo).format(YYYY-MM-DD),
             total_tagihan : 100000000
         }).then(
             function(transaksi){
@@ -144,16 +189,97 @@ function postCartToInvoice(test){
                         jumlah : cart[val].jumlah,
                         nilaiSubtotal : cart[val].nilaiSubtotal
                     }).then(function(){
-                        console.log(val+' - '+cart.length);
+                        console.log(val+ - +cart.length);
                         test.done();
                         //if((val+2) == cart.length){
-                        //    console.log(val+' - '+cart.length)
+                        //    console.log(val+ - +cart.length)
                         //    //habis ini di redirect ke halaman konfirmasi
                         //    test.done();
                         //}
                     })
                 }
         });
+}
+function insertCartToInvoice(test){
+
+
+    var moment = require("moment");
+    var now = moment();
+    var jatuh_tempo = moment(now).add(3,'days');
+    var cart = [];
+    cart.push({
+        id : 11,
+        Produk : [
+            {id: 1, jumlah : 10,
+                totalHargaBarang : 200,
+                harga : 20
+            },
+            {id: 18, jumlah : 100,
+                totalHargaBarang : 200,
+                harga : 20
+            }
+        ],
+        total_berat : 20,
+        Toko : [{id : 1}],
+        Penerima :[{id : 11}],
+        ongkosKirim : 10,
+        keterangan : ''
+    });
+    cart.push({
+        id : 111,
+        Produk : [
+            {id: 2, jumlah : 10,
+                totalHargaBarang : 200,
+                harga : 20
+            }
+        ],
+        total_berat : 10,
+        Toko : [{id : 1}],
+        Penerima :[{id : 11}],
+        ongkosKirim : 10,
+        keterangan : ''
+    });
+    models.Transaksi.create({
+        PenggunaId : 1,
+        tanggal : moment(now).format('YYYY-MM-DD'),
+        jatuh_tempo : moment(jatuh_tempo).format('YYYY-MM-DD'),
+        //total tagihan didapatkan dari form req.body.totalPembayaran
+        total_tagihan : 1000000
+    }).then(function(transaksi){
+        //total per satu tagihan didapatkan dari array form req.body.req.body.totalPerTagihan
+        var totalPerTagihan = [100,1000];
+        var date = new Date();
+        var sql = '';
+        for(var val in cart){
+            //raw query
+            var idInvoice = 'INV/'+Date.now()+'/'+date.getMilliseconds();
+            sql = sql +  "INSERT INTO invoices " +
+                "(id ,transaksiId ,tokoId ," +
+                "penerimaId,total_berat," +
+                "total_harga,keterangan)"+
+                "VALUES "+
+                "( '"+idInvoice+"', "+transaksi.id+","+cart[val].Toko[0].id+"," +
+                ""+cart[val].Penerima[0].id+","+cart[val].total_berat+", " +
+                ""+totalPerTagihan[val]+", '"+cart[val].keterangan+"');";
+
+            for(var valPro in cart[val].Produk){
+                var arrProduk = cart[val].Produk;
+
+                sql = sql + "INSERT INTO invoice_produks " +
+                    "(invoiceId,produkId,jumlah_produk)"+
+                    "VALUES('"+idInvoice+"',"+arrProduk[valPro].id+","
+                    +arrProduk[valPro].jumlah+");";
+                if( val == (cart.length-1) && valPro == (arrProduk.length-1) ){
+                    console.log(sql);
+                    models.sequelize.query(sql)
+                        .then(function(){
+                            test.done();
+                        });
+                }
+            }
+        }
+    });
+
 }
 function insertCart(test){
     var cart = [];
@@ -197,10 +323,9 @@ function insertCart(test){
                     parseInt(cartArr.ongkosKirim);
             }
         }
-        console.log('tagihan '+val+' - '+totalTagihan[val]);
+        console.log(tagihan +val+ - +totalTagihan[val]);
         totalPembayaran = totalPembayaran + totalTagihan[val];
     }
-    console.log('total pembayaran : '+totalPembayaran);
     test.done();
 }
 function deleteCart(test){
@@ -217,12 +342,14 @@ function deleteCart(test){
         cart.push({
             produk : [{id:20},{id:21}]
         });
-        console.log('nomor 1');
         callback(null,'');
     };
     stack.deletetCart = function(callback){
         cart.splice(2,3);
-        console.log('nomor 2');
+        callback(null,'');
+    };
+    stack.deletetCart = function(callback){
+        cart.splice(2,3);
         callback(null,'');
     };
     stack.printCart = function(callback){
@@ -258,29 +385,36 @@ function deleteCart(test){
 function pengaturanToko(test){
     models.Produk.findAndCountAll({
         include : models.Etalase,
-        group   : 'etalaseId',
-        where   : {tokoId:'1'}
+        group   : etalaseId,
+        where   : {tokoId:1}
     }).then(function(produk){
         console.log(produk.count);
         console.log(produk.rows);
-        console.log(produk.rows[0].Etalase.nama+' - '+produk.count[0].count);
-        console.log(produk.rows[1].Etalase.nama+' - '+produk.count[1].count);
+        console.log(produk.rows[0].Etalase.nama+ - +produk.count[0].count);
+        console.log(produk.rows[1].Etalase.nama+ - +produk.count[1].count);
         test.done()
     });
 }
 function getOngkir(test){
+    ongkir.getOngkosKirim(
+        100,44,1000,
+        function(ongkosKirim){
+            console.error(ongkosKirim);
+            test.done();
+        });
+}
+function getOngkir1(test){
     models.Toko.find({
-        where:{id:'1'}
+        where:{id:1}
     }).then(function(toko){
         models.Produk.find({
-            where:{id:'1'}
+            where:{id:1}
         }).then(function(produk){
             console.log(produk.berat);
             console.log(toko.KabupatenId);
             ongkir.getOngkosKirim(
-                toko.KabupatenId,'1',produk.berat,
+                toko.KabupatenId,1,produk.berat,
                 function(ongkosKirim){
-                    console.log('============')
                     console.log(ongkosKirim);
                     test.done();
                 });
@@ -290,7 +424,7 @@ function getOngkir(test){
 function getToko(test){
     models.Toko.find({
         include: [
-            { model: models.Produk, where : {id : '1'},as:'Produk',
+            { model: models.Produk, where : {id : 1},as:Produk,
                 include : [models.Kategori_Produk] },
             models.Kabupaten
         ]
@@ -309,8 +443,8 @@ function kategoriProdukMilikToko(test){
             TokoId : 1
         },
         include: [models.Kategori_Produk],
-        attributes: ['Kategori_Produk.id','Kategori_Produk.kategori'],
-        group : 'Kategori_Produk.id',
+        attributes: [Kategori_Produk.id,Kategori_Produk.kategori],
+        group : Kategori_Produk.id,
     }).then(function(result){
         console.log(result);
         test.done();
@@ -322,7 +456,7 @@ function daftarProduk(test){
             TokoId : 1
         },
         include: [models.Kategori_Produk,models.Etalase],
-        attributes: {exclude : ['tokoId','EtalaseId'] }
+        attributes: {exclude : [tokoId,EtalaseId] }
     }).then(function(produk){
         console.log(produk);
         test.done();
@@ -334,7 +468,7 @@ function getPenerima(test){
             models.Provinsi,models.Kabupaten
         ],
         //nanti diganti session pengguna
-        where : {penggunaId : '1'}
+        where : {penggunaId : 1}
     }).then(function(penerima) {
         console.log(penerima.Kabupaten.nama);
         test.done();
@@ -345,7 +479,7 @@ function insertProvinsi(test){
     stack.insertProvinsi = function(callback){
         models.Provinsi.create({
             id : 3222,
-            nama : 'kendari',
+            nama : kendari,
         }).then(function() {
             models.Provinsi.findAndCountAll()
                 .then(function(result){
@@ -357,7 +491,7 @@ function insertProvinsi(test){
     stack.insertKabupaten = function(callback){
         models.Kabupaten.create({
             id : 221,
-            nama : 'kendari'
+            nama : kendari
         }).then(function() {
             models.Provinsi.findAndCountAll()
                 .then(function(result){
@@ -376,11 +510,11 @@ function profilTokoAsync(test){
     stack.getToko = function(callback){
         models.Toko.find({
             include: [
-                { model: models.Produk,as:'Produk',where : {etalaseId :'1'},
+                { model: models.Produk,as:Produk,where : {etalaseId :1},
                     include : models.Etalase
                 }
             ],
-            where : { id : '1' }
+            where : { id : 1 }
         }).then(function(toko) {
             callback(null,toko);
         })
@@ -400,13 +534,13 @@ function profilTokoAsync(test){
 function produkMilikToko(test){
     models.Toko.find({
         include: [
-            { model: models.Produk,as:'Produk',where : {etalaseId :'1'},
+            { model: models.Produk,as:Produk,where : {etalaseId :1},
                 include : models.Etalase
             }
         ],
-        where : { id : '1' }
+        where : { id : 1 }
     }).then(function(toko) {
-        models.Invoice.sum('jumlah',{where : {tokoId :'2'}})
+        models.Invoice.sum(jumlah,{where : {tokoId :2}})
             .then(function(produkTerjual){
             //console.log(toko.Produk[0].Etalase.nama);
             console.log(produkTerjual);
@@ -417,7 +551,7 @@ function produkMilikToko(test){
     })
 }
 function jumlahTerjual(test){
-    models.Invoice.sum('jumlah',{where : {produkId :'1'}})
+    models.Invoice.sum(jumlah,{where : {produkId :1}})
         .then(function(jumlah_terjual) {
             console.log(jumlah_terjual);
             test.done();
@@ -426,7 +560,7 @@ function jumlahTerjual(test){
 function detailProduk(test){
     var stack = {};
     stack.getJumlahTerjual = function(callback){
-        models.Invoice_Produk.sum('jumlah_produk',{
+        models.Invoice_Produk.sum(jumlah_produk,{
             where : {produkId :1}
         }).then(function(jumlah_terjual) {
             callback(null,jumlah_terjual);

@@ -7,7 +7,8 @@ body {
   font-size: 10pt;  
   position: relative;
   font-weight:400px;
-  background: rgba(233, 233, 233, 0.61)
+  /*background: whitesmoke*/
+  background: white
 }
 .btn-file {
   position: relative;
@@ -109,7 +110,8 @@ a#scrollUp i{
   position: fixed;
   margin : 0 auto;
   width: 100%;
-  background-color: whitesmoke;
+  /*background-color: whitesmoke;*/
+  background-color: white;
   padding : 15px 0;
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0), 0 6px 20px 0 rgba(0, 0, 0, 0.1);
   z-index: 99;
@@ -1036,7 +1038,7 @@ h2.title {
   -moz-border-left-colors: none;
   -moz-border-right-colors: none;
   -moz-border-top-colors: none;
-  background-color: #FE980F;
+  background: rgb(61, 119, 187);
   border:0px;
   color: #FFFFFF;
   cursor: default;

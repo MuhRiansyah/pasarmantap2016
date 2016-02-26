@@ -1,8 +1,7 @@
 extends ../layoutBelanja
 
 append content
-  .col-sm-1
-  .col-sm-10
+  .col-sm-11(style="margin-left:50px")
      .row
         center(style='font-size: 13pt') <b > Pembayaran </b>  >  Konfirmasi Pembayaran
       br
@@ -25,6 +24,7 @@ append content
           //TODO : buat invoice dapat memiliki lebih dari 1 produk
           a(href='/produk/beli/1') naruto &nbsp;
           a(href='/produk/beli/2') naruto 1-20 &nbsp;
+          a(href='/produk/beli/11') Batik couple
           a(href='/produk/beli/18') iphone 7
           form(action='/keranjang/simpan' method='post')
               //memanfaatkan index yang dimiliki cart agar produk yang dicetak sesuai index cart
@@ -32,28 +32,31 @@ append content
                   br
                   table(border='1', width='90%' style='margin:0 30px')
                       tr
-                          td(height='60px', colspan='3')
+                          td(height='60px', colspan='4')
                               span(style='font-size : 13pt') Pembelian dari toko :
                                   a(href='/toko/profil/#{val.Toko[0].id}')  #{val.Toko[0].nama}
                       each valPro,indexPro in val.Produk
                           tr
-                              td(height='70px' colspan='2')
+                              td(height='70px' colspan='2' width="65%")
                                   span.pull-left(style='padding : 0 10px 0 10px')
                                       img(src='/images/produk/#{valPro.gambar}' width='30px')
                                   span.pull-left
                                       b  #{valPro.nama}
                                       br
-                                      b(style='font-size : 8pt')  #{valPro.jumlah} Barang  x Rp <span id='hargaProduk#{index}#{indexPro}'></span>
+                                      b(style='font-size : 8pt')  #{valPro.jumlah} Barang  (<span id='beratSatuProduk#{index}#{indexPro}'></span> kg) x
+                                       | Rp <span id='hargaProduk#{index}#{indexPro}'></span>
                                       script.
                                           document.getElementById("hargaProduk#{index}#{indexPro}").innerHTML = numberFormat("#{valPro.harga}", ".");
+                                          document.getElementById("beratSatuProduk#{index}#{indexPro}").innerHTML = #{valPro.beratProduk} / 1000;
                                       br
-                                      a(href='#', style='font-size : 8pt') Ubah &nbsp;
+                                      //nanti dibuat fitur ubah pemesanan per produk
+                                      //a(href='#', style='font-size : 8pt') Ubah &nbsp;
                                       a(href='/keranjang/hapus/#{valPro.id}', style='font-size : 8pt') Hapus
-                              td
+                              td(colspan='2')
                                   b  Harga Barang <br>
                                   | Rp <span id='totalHarga#{index}#{indexPro}'></span>
                                   script.
-                                      document.getElementById("totalHarga#{index}#{indexPro}").innerHTML = numberFormat("#{valPro.totalHargaBarang}", ".");
+                                      document.getElementById("totalHarga#{index}#{indexPro}").innerHTML = numberFormat("#{valPro.totalHarga}", ".");
                       tr
                           td
                               b  Alamat Tujuan
@@ -72,21 +75,27 @@ append content
                               | #{val.keterangan}
                               span.pull-right
                                   a(href='/keranjang/hapuspertagihan/#{val.id}') hapus tagihan
+                          td <b> Total Berat </b>
+                              br
+                              | <span id='totalBerat#{index}'></span> kg
+                              input(type='hidden' name='totalBeratPerTagihan' value='#{totalBeratPerTagihan[index]}')
+                              script.
+                                  document.getElementById("totalBerat#{index}").innerHTML = #{totalBeratPerTagihan[index]}/1000;
                           td <b> Ongkos Kirim</b>
                               br
                               | Rp <span id='ongkosKirim#{index}'></span>
                               script.
                                   document.getElementById("ongkosKirim#{index}").innerHTML = numberFormat("#{val.ongkosKirim}", ".");
-                      tr: td(colspan='3')
+                      tr: td(colspan='4')
                             span.pull-right(style='padding : 10px 0px 0px 0;font-size:12pt')
                                   | Total <b> Rp <span id='totalTagihan#{index}'></span></b>
+                                  input(name='totalPerTagihan' type='hidden' value='#{totalPerTagihan[index]}')
                                   script.
                                       document.getElementById("totalTagihan#{index}").innerHTML = numberFormat("#{totalPerTagihan[index]}", ".");
                .row(style='width:880px') </br>
                    span.pull-left(style='padding : 10px 20px;margin-left:25px ')
                        a(href='/keranjang/hapussemua') <i class='fa fa-eraser'> </i> Hapus Semua
-                   //TODO: dibuat hasil penjumlahan dari seluruh isi cart
-                   span.pull-right(style='padding : 10px 110px 0px 0;font-size:14pt')
+                   span.pull-right(style='padding : 10px 35px 0px 0;font-size:14pt')
                        input(name='totalPembayaran' type='hidden' value='#{totalPembayaran}')
                        | Total Pembayaran <b> Rp <span id='totalPembayaran'></span></b>
                        script.

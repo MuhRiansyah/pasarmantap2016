@@ -83,7 +83,7 @@ module.exports = {
         models.Transaksi.findAll({
             where : {
                 PenggunaId : res.locals.session.penggunaId,
-                status : 0
+                status_tampil : 1
             },
             include: [
                 {
@@ -116,26 +116,24 @@ module.exports = {
     },
 
     statusPemesanan: function(req, res, next){
-        //TODO: distatus pemesanan dipilih berdasarkan invoice, bukan per transaksi
-        //TODO: satu invoice dapat memiliki banyak produk pada toko yang sama
-        //TODO: cari beberapa halaman yang melibatkan invoice
-        // karena akan ada perubahan invoice n-m ke invoice_transaksi
         models.Transaksi.findAll({
             where : {
                 PenggunaId : res.locals.session.penggunaId,
-                status : 1
+                status_tampil : 1
             },
             include: [
                 {
+                    //todo: order sesuai tanggal status
                     model: models.Invoice, include:
-                    [models.Toko,models.Produk,{
-                        model : models.Penerima, include :[
-                            models.Provinsi,models.Kabupaten
-                        ]
-                    }]
+                    [
+                        { model:models.Status,order : ['waktu']}
+                        ,models.Toko,models.Produk,
+                        {model : models.Penerima, include :[models.Provinsi,models.Kabupaten]}
+                    ]
                 }
             ]
         }).then(function(transaksi){
+            //res.send(transaksi);
             res.render('pc-view/pembelian/statusPemesanan', {
                 tabMenu: 'Status Pemesanan',
                 moment : moment,

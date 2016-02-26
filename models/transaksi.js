@@ -13,7 +13,7 @@ module.exports = function(sequelize, DataTypes) {
             nama_pemilik_rekening : DataTypes.STRING,
             gambar_bukti_pembayaran : DataTypes.STRING,
             //jumlah_sudah_dibayar : DataTypes.INTEGER,
-            status : DataTypes.BOOLEAN
+            status_tampil : DataTypes.INTEGER
         }, {
             classMethods: {
                 associate: function(models) {

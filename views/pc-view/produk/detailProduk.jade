@@ -40,7 +40,6 @@ append content
                       | <p>Kondisi : Baru </p>
                   else
                       | <p>Kondisi : Bekas </p>
-                  | <p>Stok : #{produk.stok} buah </p>
                 script.
                   document.getElementById("uang").innerHTML = numberFormat("#{produk.harga}",".");
         .col-sm-3(style='margin : 0 30px')
@@ -58,8 +57,8 @@ append content
               .col-sm-8
                   ul.nav.nav-tabs
                       li: a(href='#deskripsi' data-toggle='tab') Deskripsi Produk
-                      li: a(href='#review' data-toggle='tab') Review
-                      li: a(href='#diskusi' data-toggle='tab') Diskusi Produk
+                      //li: a(href='#review' data-toggle='tab') Review
+                      //li: a(href='#diskusi' data-toggle='tab') Diskusi Produk
                   .tab-content
                       #deskripsi.tab-pane.fade.active.in
                           .col-sm-3

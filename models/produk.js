@@ -9,7 +9,6 @@ module.exports = function(sequelize, DataTypes) {
             nama : DataTypes.STRING,
             harga : DataTypes.INTEGER,
             berat : DataTypes.INTEGER,
-            stok : DataTypes.INTEGER,
             gambar : DataTypes.STRING,
             kondisi : DataTypes.INTEGER,// bekas, baru
             deskripsi : DataTypes.STRING
@@ -22,6 +21,7 @@ module.exports = function(sequelize, DataTypes) {
                         },
                         foreignKey: 'produkId'
                     });
+
                     Produk.belongsTo(models.Kategori_Produk, {
                         onDelete: "CASCADE",
                         foreignKey: {

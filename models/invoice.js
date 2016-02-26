@@ -11,7 +11,8 @@ module.exports = function(sequelize, DataTypes) {
                 primaryKey : true
             },
             total_berat : DataTypes.INTEGER,
-            nilai_sub_total : DataTypes.INTEGER,
+            ongkos_kirim : DataTypes.INTEGER,
+            total_harga : DataTypes.INTEGER,
             keterangan : DataTypes.STRING
         }, {
             classMethods: {
@@ -22,6 +23,13 @@ module.exports = function(sequelize, DataTypes) {
                         },
                         foreignKey: 'invoiceId'
                     });
+                    Invoice.belongsToMany(models.Status, {
+                        through: {
+                            model: models.Invoice_Status
+                        },
+                        foreignKey: 'invoiceId'
+                    });
+
                     Invoice.belongsTo(models.Transaksi, {
                         onDelete: "CASCADE",
                         foreignKey: {
