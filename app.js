@@ -1,4 +1,4 @@
-var express = require('express');
+ var express = require('express');
 var path = require('path');
 
 var logger = require('morgan');
@@ -11,6 +11,10 @@ var session = require('express-session');
 
 var jqupload = require('jquery-file-upload-middleware');
 var app = express();
+
+app.get('/paginasi', function(req, res, next){
+   res.render('pagination');
+});
 
 // jQuery File Upload endpoint middleware
 app.use('/upload', function(req, res, next){
@@ -91,20 +95,66 @@ app.use(session({
 }));
 
 app.use(function(req,res,next){
-  //diset session selalu aktif
+
+  //ini digunakan untuk mendapatkan jumlah barang belanjaan dikeranjang
   var cart = req.session.cart || (req.session.cart = []);
-  var session = {
-      penggunaId : 1,
-      tokoId : 1,
-      namaToko : 'Barokah',
-      nama : 'muh riansyah',
-      loggedin : "true",
-      jumlahIsiCart : cart.length
-  };
+  //lingkungan produksi
   //res.locals.session = req.session;
+  //lingkungan development
+  var session = {
+    penggunaId : 1,
+    nama : 'riansyah',
+    tokoId : 1,
+    namaToko : 'barokah',
+    loggedIn : 'true',
+    cart : cart
+  };
   res.locals.session = session;
+
   next();
 });
+app.get('/sesi',function(req,res){
+   res.render('latihan')
+});
+
+//app.use(function(req,res,next){
+//    //buat penanganan untuk login
+//    var cart = req.session.cart || (req.session.cart = []);
+//    var session = {
+//        //untuk lingkungan produksi, data pengguna dan toko diambil dari models.Pengguna dan models.toko di handler main.js
+//        //penggunaId : 1,
+//        ////tokoId : 1,
+//        //namaToko : 'Barokah',
+//        //nama : 'muh riansyah',
+//        //loggedIn : "true",
+//        jumlahIsiCart : cart.length
+//    };
+//
+//    if(!req.session.loggedIn){
+//      //locals.session harus dihapus jika sudah keluar
+//      delete res.locals.session;
+//      delete req.session;
+//      session = {loggedIn : 'false'};
+//    }else{
+//      session = {loggedIn : 'true'};
+//      //session = {
+//      //  //untuk lingkungan produksi, data pengguna dan toko diambil dari models.Pengguna dan models.toko di handler main.js
+//      //  penggunaId : 1,
+//      //  nama : 'muh riansyah',
+//      //  tokoId : 1,
+//      //  namaToko : 'rr',
+//      //  jumlahIsiCart : cart.length
+//      //};
+//    }
+//    //todo: jumlah cart gimana caranya dimasukkan ?
+//    //untuk lingkungan development, ini dibuat tidak aktif
+//    //data dari models.Pengguna dan toko disimpan di req.session
+//    //res.locals.session = req.session;
+//
+//    res.locals.session = session;
+//    next();
+//});
+
 
 // create "admin" subdomain...this should appear
 // before all your other routes

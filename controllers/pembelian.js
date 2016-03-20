@@ -8,24 +8,39 @@ var formidable = require('formidable');
 module.exports = {
 
     registerRoutes: function(app,checkAuth) {
-        //app.get('/pembelian/daftarpembelian',checkAuth,this.daftarPembelian);
-        app.get('/pembelian/daftarpembelian',this.daftarPembelian);
-        app.get('/pembelian/daftartransaksi',this.daftarTransaksiPembelian);
-        //app.get('/pembelian/konfirmasipembayaran',checkAuth,this.konfirmasiPembayaran);
-        app.get('/pembelian/konfirmasipembayaran',this.konfirmasiPembayaran);
+        app.get('/pembelian/daftartransaksi',checkAuth,this.daftarTransaksiPembelian);
+        app.get('/pembelian/konfirmasipembayaran',checkAuth,this.konfirmasiPembayaran);
         app.get('/pembelian/konfirmasipembayaran/sukses',this.konfirmasiPembayaranSukses);
-        app.post('/konfirmasipembayaran',this.insertKonfirmasiPembayaran);
-        //app.get('/pembelian/konfirmasipenerimaan',checkAuth,this.konfirmasiPenerimaan);
-        app.get('/pembelian/konfirmasipenerimaan',this.konfirmasiPenerimaan);
-        //app.get('/pembelian/statuspemesanan',checkAuth,this.statusPemesanan);
-        app.get('/pembelian/statuspemesanan',this.statusPemesanan);
-        //app.get('/pembelian/keranjangbelanja/:id',checkAuth,this.keranjangBelanja);
-        app.get('/pembelian/keranjangbelanja/:id',this.keranjangBelanja);
+        app.get('/pembelian/konfirmasipenerimaan',checkAuth,this.konfirmasiPenerimaan);
+        app.get('/pembelian/statuspemesanan',checkAuth,this.statusPemesanan);
     },
 
     daftarTransaksiPembelian : function(req, res, next){
-        res.render('',{
-
+        models.Transaksi.findAll({
+            where : {
+                //pembeliId : res.locals.session.penggunaId,
+                //testing seolah ini pengguna dengan userid 2, kalau sudah fix dikembalikan lagi berdasarkan session
+                pembeliId : 2,
+                status_tampil : 1
+            },
+            include: [models.Pengguna,
+                {
+                    //todo: order sesuai tanggal status
+                    model: models.Invoice, include:
+                    [
+                        { model:models.Status,order : ['waktu']}
+                        ,models.Toko,models.Produk,
+                        {model : models.Penerima, include :[models.Provinsi,models.Kabupaten]}
+                    ]
+                }
+            ]
+        }).then(function(transaksi){
+            //res.send(transaksi);
+            res.render('pc-view/pembelian/daftarTransaksiPembelian', {
+                tabMenu: 'Daftar Transaksi Pembelian',
+                moment : moment,
+                transaksi : transaksi
+            })
         });
     },
     insertKonfirmasiPembayaran : function(req, res, next){
@@ -47,23 +62,23 @@ module.exports = {
             });
         });
     },
-    keranjangBelanja : function(req, res, next){
-        models.Produk.find({
-            where : {
-                id : req.params.id
-            },
-            include: [
-                { model: models.Etalase, include: [
-                    { model: models.Toko }
-                ]}
-            ]
-            //attributes: ['kategori','deskripsi']
-        }).then(function(produk) {
-            res.render('pc-view/pembelian/keranjangBelanja', {
-               produk : produk
-            });
-        })
-    },
+    // keranjangBelanja : function(req, res, next){
+    //     models.Produk.find({
+    //         where : {
+    //             id : req.params.id
+    //         },
+    //         include: [
+    //             { model: models.Etalase, include: [
+    //                 { model: models.Toko }
+    //             ]}
+    //         ]
+    //         //attributes: ['kategori','deskripsi']
+    //     }).then(function(produk) {
+    //         res.render('pc-view/pembelian/keranjangBelanja', {
+    //            produk : produk
+    //         });
+    //     })
+    // },
     simpanBelanjaan : function(req, res, next){
         //buat sesi untuk menyimpan data belanjaan pembeli, nanti sesinya didestroy kalau udah disimpan ke database
         res.send('jos');
@@ -80,12 +95,15 @@ module.exports = {
     },
     //TODO: masih eror konfirmasi pembayaran
     konfirmasiPembayaran : function(req, res, next){
+        //transaksi yang ditampilkan hanya status_tampil = 1
+        //jika transaksi telah dibatalkan,maka status_tampil = 0
+        //jika transaksi telah berhasil(usai),maka status_tampil = 2
         models.Transaksi.findAll({
             where : {
-                PenggunaId : res.locals.session.penggunaId,
+                pembeliId : res.locals.session.penggunaId,
                 status_tampil : 1
             },
-            include: [
+            include: [models.Pengguna,
                 {
                     model: models.Invoice, include:
                     [models.Toko,models.Produk,{
@@ -118,10 +136,12 @@ module.exports = {
     statusPemesanan: function(req, res, next){
         models.Transaksi.findAll({
             where : {
-                PenggunaId : res.locals.session.penggunaId,
+                //pembeliId : res.locals.session.penggunaId,
+                //testing seolah ini pengguna dengan userid 2, kalau sudah fix dikembalikan lagi berdasarkan session
+                pembeliId : 2,
                 status_tampil : 1
             },
-            include: [
+            include: [models.Pengguna,
                 {
                     //todo: order sesuai tanggal status
                     model: models.Invoice, include:

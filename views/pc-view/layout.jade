@@ -7,6 +7,8 @@ html(lang='en')
     link(href='/stylesheets/main.css', rel='stylesheet')
     script(src='/javascripts/jquery-1.11.3.min.js')
     script(src='/javascripts/bootstrap-3.3.5.min.js')
+    link(href='/stylesheets/dataTables.bootstrap.css', rel='stylesheet')
+    script(src='/javascripts/datatables.min.js')
   body
     include ../header
   section <br/>
@@ -31,7 +33,7 @@ html(lang='en')
                     li: a(href='/toko/pengaturan') Pengaturan Toko
                     li.nav-header: h5: b Profil Saya
                     //li: a(href='/pemberitahuan') Pemberitahuan
-                    li: a(href='/pembelian/daftarpembelian') Pembelian
+                    li: a(href='/pembelian/daftartransaksi') Pembelian
                     li: a(href='/toko/favorit') Toko Favorit
                     li: a(href='/produk/wishlist') Wish List
                     li: a(href='/pengguna/pengaturan-profil') Pengaturan

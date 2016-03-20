@@ -157,35 +157,43 @@ exports.beranda = function(req, res){
 	//};
 	async.parallel(stack,function(err,result){
 		res.render('pc-view/beranda',{
-			hotlist : result.getHotList,
+			hotlist : result.getHotList
 			//smartphone : result[1],
 			//pakaian : result[2]
 		})
 	})
 };
+//sebenarnya yang harus di delete adalah sesi yang ada di res.locals.session
 exports.keluar = function(req, res, next) {
-	delete req.session.nama ;
-	delete req.session.idPengguna;
-	delete req.session.loggedin;
+	delete req.session.nama;
+	delete req.session.penggunaId;
+	delete req.session.tokoId;
+	delete req.session.namaToko;
+	delete req.session.loggedIn;
+	delete req.session.cart;
 	res.redirect('/');
 };
 
 exports.ceklogin = function(req, res, next) {
 	//buat session jika berhasil login
 	models.Pengguna.find({
-		attributes: ['nama'],
 		where : {
 			$and : [ { sandi : req.body.sandi}, { email : req.body.email } ]
-		}
+		},
+		include : models.Toko
 	}).then(function(pengguna) {
 		if(pengguna){
+			req.session.penggunaId =  pengguna.id;
 			req.session.nama =  pengguna.nama;
-			req.session.idPengguna =  pengguna.id;
-			req.session.loggedin = "true";
+			req.session.tokoId =  pengguna.tokoId;
+			req.session.namaToko =  pengguna.Toko.nama;
+			req.session.loggedIn =  'true';
 			res.redirect('/pc-view/beranda');
 		}else{
-			//buat pesan gagal
-			res.send('gagal masuk')
+			res.send('<body onload="notifGagal()">' +
+				'<script>' +
+					'function notifGagal(){ alert("Email dan Sandi Salah"); location.href="/"; } ' +
+				'</script></body>')
 		}
 	})
 };
@@ -251,6 +259,7 @@ exports.getKabupaten = function(req, res, next) {
 		res.send({listArr:kabupatenHTML});
 	})
 }
+
 //fungsi ini sebelum menggunakan API, data kecamatan didapatkan dari database local
 //exports.getKecamatan = function(req, res, next) {
 //	models.Kecamatan.findAll({

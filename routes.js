@@ -9,7 +9,8 @@ var cart = require('./handlers/cart.js');
 
 
 function checkAuth(req, res, next) {
-	if (!req.session.loggedin) {
+	//nanti yang di destroy local sessionya
+	if (!res.locals.session.penggunaId) {
 		res.send('kamu tidak dapat mengakses halaman ini kembali ke <a href="/">halaman login</a>');
 	} else {
 		next();
@@ -25,9 +26,32 @@ module.exports = function(app,mobile){
 	mobile.get('/detailproduk/:id', produkController.detailProdukMobile);
 
 
+
+
+	app.get('/tes-sesi', function(req,res){
+		//todo: error disini, cannot set property penggunaId undefined
+		req.session.penggunaId =  1;
+		req.session.nama =  'r';
+		req.session.tokoId =  1;
+		req.session.namaToko =  'toko';
+		req.session.loggedIn =  'true';
+		res.redirect('/sesi');
+	});
+	app.get('/hapus-sesi', function(req,res){
+		//tidak bisa mendelete req.session
+		delete req.session.nama;
+		delete req.session.penggunaId;
+		delete req.session.tokoId;
+		delete req.session.namaToko;
+		delete req.session.loggedIn;
+		delete req.session.cart;
+		res.redirect('/sesi');
+	});
+
 	// route untuk halaman tanpa controller (halaman main)
 	app.get('/', main.utama);
 	app.post('/ceklogin', main.ceklogin);
+	//di pindah ke halaman app.js, dikarenakan ada res.locals.session ingin dicek menggunakan variabel statusLogin
 	app.get('/keluar', main.keluar);
 
 	//setelah login

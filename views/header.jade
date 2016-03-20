@@ -9,7 +9,8 @@ append header
                     .col-sm-1
                     .col-sm-1(style='padding-left : 20px')
                         .logo
-                            if (session.nama)
+                            //nanti diganti session.nama dengan mengecek status login, ke halaman app.js bagian pengeseatan session
+                            if (session.loggedIn)
                                 a(href='/pc-view/beranda'): img(src='/images/logoPasarMantap.png', width='120px')
                             else
                                 a(href='/'): img(src='/images/logoPasarMantap.png', width='120px')
@@ -55,7 +56,7 @@ append header
                                                     option(value='13') Sepatu
                                             input.btn.btn-default(type='submit', value='cari')
 
-                                if (session.nama)
+                                if (session.loggedIn)
                                     li: a(href='/pengguna/profil/'+session.penggunaId)=session.nama
                                     li.dropdown
                                         a.dropdown-toggle(href='#', data-toggle='dropdown')
@@ -67,26 +68,27 @@ append header
                                             li(style="padding-left :15px"): b Pembelian
                                             li: a(href='/pembelian/statuspemesanan')
                                                 div(style='padding : 4px 0') Status Pemesanan &nbsp;
-                                                        span.small(style='background-color : black;color:white;padding : 2px'): b  2
+                                                        //todo: rencana kedepan , tambahkan notif jika ada pembelian baru
+                                                        //span.small(style='background-color : black;color:white;padding : 2px'): b  2
                                             li: a(href='/pembelian/konfirmasipenerimaan')
                                                 div(style='padding: 5px 0px') Konfirmasi Penerimaan &nbsp;
-                                                    span.small(style='background-color : black;color:white;padding : 2px'): b  2
+                                                    //span.small(style='background-color : black;color:white;padding : 2px'): b  2
                                             li: a(href='/pembelian/konfirmasipembayaran')
                                                     div(style='padding: 5px 0px') Konfirmasi Pembayaran &nbsp;
-                                                        span.small(style='background-color : black;color:white;padding : 2px'): b  2
+                                                        //span.small(style='background-color : black;color:white;padding : 2px'): b  2
                                             li: b Penjualan
                                             li: a(href='/penjualan/statuspengiriman')
                                                 div(style='padding : 4px 0') Status Pengiriman &nbsp;
-                                                        span.small(style='background-color : black;color:white;padding : 2px'): b  2
+                                                        //span.small(style='background-color : black;color:white;padding : 2px'): b  2
                                             li: a(href='/penjualan/konfirmasipengiriman')
                                                 div(style='padding: 5px 0px') Konfirmasi Pengiriman &nbsp;
-                                                    span.small(style='background-color : black;color:white;padding : 2px'): b  2
+                                                    //span.small(style='background-color : black;color:white;padding : 2px'): b  2
                                             li: a(href='/penjualan/pesananbaru')
                                                     div(style='padding: 5px 0px') Pesanan Baru &nbsp;
-                                                        span.small(style='background-color : black;color:white;padding : 2px'): b  2
+                                                        //span.small(style='background-color : black;color:white;padding : 2px'): b  2
                                     li: a(href='/keranjang/')
                                             i.fa.fa-shopping-cart &nbsp;
-                                            span(style='background-color : red;color:white;padding : 2px;margin: 10px 0 0 0'): b #{session.jumlahIsiCart}
+                                            span(style='background-color : red;color:white;padding : 2px;margin: 10px 0 0 0'): b=(session.cart).length
                                     li: a(href='/keluar'): i.fa.fa-power-off
                                 else
                                     li

@@ -29,10 +29,11 @@ append content
          .col-sm-6
              input#harga.form-control(type='text', name='harga',required)
              input#nilaiHarga(type='hidden', name='nilaiHarga')
-     .form-group
-         label.col-sm-3.control-label.pull-left Stok
-         .col-sm-6
-             input.form-control(type='number', name='stok',required)
+     //todo: rencana kedepan menambahkan stok
+     //.form-group
+     //    label.col-sm-3.control-label.pull-left Stok
+     //    .col-sm-6
+     //        input.form-control(type='number', name='stok',required)
      .form-group
         label.col-sm-3.control-label.pull-left Berat(gram)
         .col-sm-6
@@ -89,9 +90,7 @@ append content
                     });
                 }
             });
-            $('#submit').click(function(){
-                alert('penambahan produk berhasil');
-            });
+            //$('#submit').click(function(){ alert('penambahan produk berhasil'); });
         });
 
 

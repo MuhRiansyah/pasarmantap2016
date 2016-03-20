@@ -1,6 +1,7 @@
 /**
  * Created by riansyahPC on 1/4/2016.
  */
+var sequelize = require("sequelize");
 var models = require('../models');
 var async = require('async');
 var credentials = require('../api/credentials.js');
@@ -9,12 +10,13 @@ var ongkir = require('../api/rajaOngkir')({
     key: credentials.rajaOngkir.key
 });
 exports.test = function (test) {
-
+    //login(test);
+    daftarProdukAjax(test);
     //getRekomendasiToko(test);
     //detailProduk(test);
     //jumlahTerjual(test)
     //produkMilikToko(test)
-    //profilTokoAsync(test);
+    //profilToko(test);
     //getPenerima(test);
     //daftarProduk(test);
     //kategoriProdukMilikToko(test);
@@ -27,9 +29,75 @@ exports.test = function (test) {
     //insertCartToInvoice(test);
     //konfirmasiPembayaran(test);
     //hotlist(test);
-    statusPemesanan(test);
+    //statusPemesanan(test);
     //produkMilikTokoTerjual(test);
+    //pesananBaru(test);
 };
+function daftarProdukAjax(test){
+    models.Produk.findAll({
+        offset: 0, limit: 5
+    }).then(function(listProduk) {
+        var produkHTML = [];
+        for(var val in listProduk){
+            produkHTML[val] = "<td>" +
+                listProduk[val].nama+"</td>";
+        }
+        produkHTML = "<tr>"+produkHTML+"</tr>";
+        console.log(produkHTML);
+        test.done();
+    });
+}
+function login(test){
+    models.Pengguna.find({
+        attributes: ['nama'],
+        where : {
+            $and : [ { sandi : 'biji'}, { email : 'rian@yahoo.com' } ]
+        },
+        include : models.Toko
+    }).then(function(pengguna) {
+       console.log(pengguna.nama);
+       console.log(pengguna.Toko.nama);
+       test.done();
+    });
+}
+//todo:status nomor 2 berarti lagi diverifikasi pembayarannya
+//status nomor 3 penjual telah mengkonfirmasi pesanan yang dilakukan
+//tangkap dulu status tiap  invoice_statuses lalu cek nomornya
+function pesananBaru(test){
+    models.Transaksi.findAll({
+        where : {
+            penjualId : 1,
+            status_tampil : 1
+        },
+        include: [models.Pengguna,
+            {
+                model: models.Invoice, include:
+                [
+                    models.Toko,
+                    { model:models.Status,where : {id : 3 }},
+                    { model : models.Penerima, include :[models.Provinsi,models.Kabupaten]}
+                ]
+            }
+        ]
+    }).then(function(transaksi){
+        //var indexInvoice = transaksi.Invoices[0].Statuses.length;
+        //console.log(transaksi.Invoices[0].Statuses[indexInvoice-1].id);
+        //console.log(transaksi.Invoices[0].Statuses[0].pesan);
+        for(indexTrans in transaksi){
+            //invoice yang sama dicetak 2 kali, karena banyak status tiap invoice
+            for(indexInv in transaksi[indexTrans].Invoices){
+                var invoice = transaksi[indexTrans].Invoices[indexInv];
+                //var indexInvoice = invoice.Statuses.length;
+                console.log(invoice.id);
+                for(indexStatus in transaksi[indexTrans].Invoices[indexInv].Statuses){
+                    var status = transaksi[indexTrans].Invoices[indexInv].Statuses[indexStatus];
+                    console.log(status.pesan);
+                }
+            }
+        }
+        test.done();
+    });
+}
 //todo :selesaikan rekomendasi toko
 function getRekomendasiToko(test){
     models.Invoice_Produk.findAll({
@@ -85,13 +153,12 @@ function produkMilikTokoTerjual(test){
     })
 }
 function statusPemesanan(test){
-    //masih salah
     models.Transaksi.find({
         where : {
-            PenggunaId : 1,
+            pembeliId : 1,
             status_tampil : 1
         },
-        include: [
+        include: [models.Pengguna,
             {
                 //todo: order sesuai tanggal status
                 model: models.Invoice, include:
@@ -103,20 +170,20 @@ function statusPemesanan(test){
             }
         ]
     }).then(function(transaksi){
-        var indexInvoice = transaksi.Invoices[0].Statuses.length;
-        console.log(transaksi.Invoices[0].Statuses[indexInvoice-1].pesan);
+        //var indexInvoice = transaksi.Invoices[0].Statuses.length;
+        //console.log(transaksi.Invoices[0].Statuses[indexInvoice-1].pesan);
         //console.log(transaksi.Invoices[0].Statuses[0].pesan);
-        //for(indexTrans in transaksi){
-        //    console.log(transaksi[indexTrans].id);
-        //    for(indexInv in transaksi[indexTrans].Invoices){
-        //        var invoice = transaksi[indexTrans].Invoices[indexInv];
-        //        console.log(invoice.id);
-        //        for(indexPro in invoice.Produks){
-        //            var produk = invoice.Produks[indexPro];
-        //            console.log(indexPro+ - +produk.nama);
-        //        }
-        //    }
-        //}
+        for(indexTrans in transaksi){
+            //console.log(transaksi[indexTrans].id);
+            for(indexInv in transaksi[indexTrans].Invoices){
+                var invoice = transaksi[indexTrans].Invoices[indexInv];
+                console.log(invoice.id);
+                //for(indexPro in invoice.Produks){
+                //    var produk = invoice.Produks[indexPro];
+                //    console.log(indexPro+ - +produk.nama);
+                //}
+            }
+        }
 
         test.done();
     });
@@ -505,27 +572,40 @@ function insertProvinsi(test){
     });
 
 }
-function profilTokoAsync(test){
+function profilToko(test){
     var stack = {};
-    stack.getToko = function(callback){
-        models.Toko.find({
-            include: [
-                { model: models.Produk,as:Produk,where : {etalaseId :1},
-                    include : models.Etalase
-                }
-            ],
-            where : { id : 1 }
-        }).then(function(toko) {
-            callback(null,toko);
-        })
-    }
-    stack.getEtalase = function(callback){
-        models.Etalase.find().then(function(etalase) {
-            callback(null,etalase);
-        })
-    }
+    //stack.getToko = function(callback){
+    //    models.Toko.find({
+    //        include: [
+    //            { model: models.Produk,as:Produk,where : {etalaseId :1},
+    //                include : models.Etalase
+    //            }
+    //        ],
+    //        where : { id : 1 }
+    //    }).then(function(toko) {
+    //        callback(null,toko);
+    //    })
+    //};
+    //stack.getEtalase = function(callback){
+    //    models.Etalase.find().then(function(etalase) {
+    //        callback(null,etalase);
+    //    })
+    //};
+    stack.getJumlahTransaksiBerhasil = function(callback){
+        models.Transaksi.findAndCountAll({
+            where : {penjualId :'1',status_tampil :'1'}
+        }).then(function(jumlah) {
+            callback(null,jumlah);
+        });
+        //models.Transaksi.findAll({
+        //    attributes: [[sequelize.fn('COUNT', sequelize.col('id')), 'jumlah']],
+        //    where : {penjualId :'1',status_tampil :'1'}
+        //}).then(function(jumlah) {
+        //    callback(null,jumlah);
+        //});
+    };
     async.series(stack,function(err,result){
-        console.log(result.getToko.Produk[0].Etalase.nama);
+        console.log(result.getJumlahTransaksiBerhasil.count);
         test.done();
     });
 

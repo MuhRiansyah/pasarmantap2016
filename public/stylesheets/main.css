@@ -6,9 +6,9 @@ body {
   font-family: 'Roboto', sans-serif;
   font-size: 10pt;  
   position: relative;
-  font-weight:400px;
-  /*background: whitesmoke*/
-  background: white
+
+  background: #fcfcfc
+  /*background: white*/
 }
 .btn-file {
   position: relative;
@@ -110,8 +110,8 @@ a#scrollUp i{
   position: fixed;
   margin : 0 auto;
   width: 100%;
-  /*background-color: whitesmoke;*/
-  background-color: white;
+  background-color: #fcfcfc;
+  /*background-color: white;*/
   padding : 15px 0;
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0), 0 6px 20px 0 rgba(0, 0, 0, 0.1);
   z-index: 99;

@@ -1,0 +1,18 @@
+//
+   Created by riansyahPC on 11/27/2015.
+
+extends layoutBelanja
+append content
+   .col-sm-1
+   .col-sm-9
+      .row
+         .col-sm-2: img(src='/images/default-user-photo.png')
+         .col-sm-10
+            table.table
+               if(session.penggunaId == penerima.Pengguna.id)
+                  tr: td: button.btn.btn-danger ubah
+               tr: td: b #{penerima.Pengguna.nama}
+               tr: td  Email : #{penerima.Pengguna.email}
+               tr: td  Telepon : #{penerima.Pengguna.telepon}
+               tr: td  Tanggal lahir : #{moment(penerima.Pengguna.tanggal_lahir).format('YYYY-MM-DD')}
+               tr: td  Lokasi : #{penerima.alamat} - #{penerima.kecamatan}, #{penerima.Kabupaten.nama},#{penerima.Provinsi.nama}

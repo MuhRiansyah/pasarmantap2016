@@ -1,20 +1,35 @@
 extends tabPenjualan  
   
 append contentDalam
-  .alert.alert-warning
-        p Order Anda akan otomatis kami batalkan apabila Anda melewati batas waktu respon (3 hari) setelah order diverifikasi.
   //.container
     form.form-inline
-     input.input-small(type='text', placeholder='Invoice / Nama Pembeli')   
+     input.input-small(type='text', placeholder='Invoice / Nama Pembeli')
      label Jatuh Tempo Respon :
      select(name='tambahkan',style='width:100px')
         option(value='gudang')  Pilih
         option(value='etalase')  Transaksi Belum Selesai
         option(value='etalase')  Transaksi Telah Selesai
      input.input-small(type='submit', value='cari')
-  .alert.alert-danger
+  if(transaksi.length == 0)
+    .alert.alert-danger
        center: h4: b Tidak ada daftar pemesanan
-  //.alert.alert-warning
-    p Tips: Dengan menjadi Gold Merchant Tokopedia, Anda akan mendapat satu akun Admin Toko Gratis. Admin Toko yang Anda tunjuk bisa membantu Anda dalam mengelola pesanan. Pelajari selengkapnya di sini.        
+  else
+    each val,index in transaksi
+        each inv,indexInv in val.Invoices
+            .row.alert.alert-info(style='width:683px; margin : 5px 0px')
+                table( width='650px')
+                    tr
+                        td(height='60px' width='20%' ): img(src='/images/toko/logo-toko.png' width='70px' style="margin-top:-10px")
+                        td(rowspan='3') <h4> Pembelian oleh : #{val.Pengguna.nama} - <b> #{inv.id} </b></h4>
+                            p Tanggal transaksi : <b> #{moment(val.tanggal).format('YYYY-MM-DD')} </b>
+                                i.fa.fa-question-circle(style="cursor: pointer" title="Pesanan Anda akan otomatis dibatalkan apabila penjual tidak merespon dalam waktu yang ditentukan.")
+                                small  Jatuh tempo respon :
+                                    span(style="background-color:blue;color : white;padding:2px") besok
+                                p
+                                    a.btn.btn-primary(href='#'): i.fa.fa-check Terima Pesanan
+                                    &nbsp;
+                                    a.btn.btn-primary(href='#'): i.fa.fa-eraser Tolak Pesanan
+                    //ini untuk rowspan
+                    tr: td
+                        td
 
-            

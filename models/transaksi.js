@@ -19,10 +19,18 @@ module.exports = function(sequelize, DataTypes) {
                 associate: function(models) {
                     Transaksi.belongsTo(models.Pengguna, {
                         onDelete: "CASCADE",
-                        foreignKey: {
-                            allowNull: false
-                        }
+                        foreignKey: 'pembeliId'
                     });
+                    Transaksi.belongsTo(models.Pengguna, {
+                        onDelete: "CASCADE",
+                        foreignKey: 'penjualId'
+                    });
+                    //Transaksi.belongsTo(models.Pengguna, {
+                    //    onDelete: "CASCADE",
+                    //    foreignKey: {
+                    //        allowNull: false
+                    //    }
+                    //});
                     Transaksi.belongsTo(models.Bank);
                     Transaksi.hasMany(models.Invoice);
                 }

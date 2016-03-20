@@ -10,9 +10,14 @@ module.exports = {
     registerRoutes: function(app) {
         //menampilkan orang lain
         app.get('/pengguna/profil/:id', this.profil);
-        app.get('/pengguna/pengaturan-profil', this.profil);
+        app.get('/pengguna/pengaturan-profil', this.pengaturanProfil);
     },
 
+    pengaturanProfil : function(req, res, next) {
+        res.render('pc-view/profilPengguna',{
+
+        });
+    },
     profil : function(req, res, next) {
         var moment  = require('moment');
         var stack = {};
@@ -29,11 +34,12 @@ module.exports = {
             })
         };
         stack.getJumlahProdukTerjual = function(callback){
-            //perbaki ! bukan pakai params.id nya pengguna,pakai paramater idn-ya toko,gunakan include ke toko
-            models.Invoice.sum('jumlah',{where : {tokoId :req.params.id}})
-                .then(function(jumlah) {
-                    callback(null,jumlah);
-                })
+            //todo: perbaki ! bukan pakai params.id nya pengguna,pakai paramater idn-ya toko,gunakan include ke toko
+            //models.Invoice.sum('jumlah',{where : {tokoId :req.params.id}})
+            //    .then(function(jumlah) {
+            //        callback(null,jumlah);
+            //    })
+            callback(null,100);
         };
         async.parallel(stack,function(err,result){
             res.render('pc-view/profilPengguna',{

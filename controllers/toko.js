@@ -105,23 +105,24 @@ module.exports = {
                 callback(null,jumlah.jumlah_produk);
             })
         };
-        //nanti tambahkan field status pada table transaksi
-        //stack.getJumlahTransaksiBerhasil = function(callback){
-        //    models.Invoice.sum('jumlah',{where : {tokoId :'2'}})
-        //        .then(function(jumlah) {
-        //        callback(null,jumlah);
-        //    })
-        //}
+        stack.getJumlahTransaksiBerhasil = function(callback){
+            models.Transaksi.findAndCountAll({
+                where : {penjualId :'1',status_tampil :'2'}
+            }).then(function(jumlah) {
+                callback(null,jumlah);
+            });
+        };
         async.parallel(stack,function(err,result){
             if(!req.params.idEtalase){
                 var namaEtalase = 'Semua Etalase';
             }else{
                 var namaEtalase = result.getProdukMilikEtalase.Produk[0].Etalase.nama;
             }
-            res.render('pc-view/toko/etalase',{
+            res.render('pc-view/toko/daftarProdukPerEtalase',{
                 toko : result.getProdukMilikEtalase,
                 etalase : result.getEtalase,
                 produkTerjual : result.getJumlahProdukTerjual,
+                jumlahTransaksiBerhasil : result.getJumlahTransaksiBerhasil.count,
                 namaEtalase : namaEtalase
             });
         });

@@ -37,6 +37,7 @@ module.exports = {
         app.post('/produk/insert',this.insertProduk);
         //app.get('/produk/daftar',checkAuth,this.daftarProduk);
         app.get('/produk/daftar',this.daftarProduk);
+        //app.get('/produk/daftar/:dari',this.daftarProdukAjax);
         //app.get('/produk/wishlist',checkAuth,this.getWishList);
         app.get('/produk/wishlist',this.getWishList);
     },
@@ -84,7 +85,7 @@ module.exports = {
                 models.Produk.create({
                     nama : fields.nama,
                     harga : fields.nilaiHarga,
-                    stok : fields.stok,
+                    //stok : fields.stok,
                     berat : fields.berat,
                     gambar : fields.gambar,
                     kondisi : fields.kondisi,
@@ -94,7 +95,11 @@ module.exports = {
                     EtalaseId : etalase.id,
                     TokoId : res.locals.session.tokoId
                 }).then(function() {
-                    res.redirect('/produk/tambah');
+                    res.send('<body onload="notif()">' +
+                        '<script>' +
+                        'function notif(){ alert("penambahan produk berhasil"); location.href="/produk/tambah"; } ' +
+                        '</script></body>');
+                    //res.redirect('/produk/tambah');
                 });
             });
         });
@@ -325,6 +330,18 @@ module.exports = {
             })
     },
 
+    daftarProdukAjax : function(req, res, next){
+        models.Produk.findAll({
+            offset: req.params.dari, limit: 5
+        }).then(function(listProduk) {
+            var produkHTML = [];
+            for(var val in listProduk){
+                produkHTML[val] = "<td>" +
+                    listProduk[val].nama+"</td>";
+            }
+            res.send({produkHTML:produkHTML});
+        });
+    },
     daftarProduk : function(req, res, next){
         async.parallel([
                 function(callback){

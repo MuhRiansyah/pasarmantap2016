@@ -3,7 +3,7 @@ extends ../layoutBelanja
 append content
   .col-sm-11(style="margin-left:50px")
      .row
-        center(style='font-size: 13pt') <b > Pembayaran </b>  >  Konfirmasi Pembayaran
+        center(style='font-size: 13pt') <b > Keranjang Belanja </b>  >  Konfirmasi Pembelian
       br
      .container
       h5 Isi keranjang belanja saya
@@ -22,10 +22,10 @@ append content
           style(type='text/css').
             td{ padding: 10px 10px;}
           //TODO : buat invoice dapat memiliki lebih dari 1 produk
-          a(href='/produk/beli/1') naruto &nbsp;
-          a(href='/produk/beli/2') naruto 1-20 &nbsp;
-          a(href='/produk/beli/11') Batik couple
-          a(href='/produk/beli/18') iphone 7
+          //a(href='/produk/beli/1') naruto &nbsp;
+          //a(href='/produk/beli/2') naruto 1-20 &nbsp;
+          //a(href='/produk/beli/11') Batik couple
+          //a(href='/produk/beli/18') iphone 7
           form(action='/keranjang/simpan' method='post')
               //memanfaatkan index yang dimiliki cart agar produk yang dicetak sesuai index cart
               each val,index in cart
@@ -97,15 +97,15 @@ append content
                        a(href='/keranjang/hapussemua') <i class='fa fa-eraser'> </i> Hapus Semua
                    span.pull-right(style='padding : 10px 35px 0px 0;font-size:14pt')
                        input(name='totalPembayaran' type='hidden' value='#{totalPembayaran}')
-                       | Total Pembayaran <b> Rp <span id='totalPembayaran'></span></b>
+                       | Total Pembelian <b> Rp <span id='totalPembelian'></span></b>
                        script.
-                           document.getElementById("totalPembayaran").innerHTML = numberFormat("#{totalPembayaran}", ".");
+                           document.getElementById("totalPembayaran").innerHTML = numberFormat("#{totalPembelian}", ".");
                .row </br>
                    .col-sm-11(style='margin:20px;height:90px')
                        span.pull-left(style='margin-left : 7px')
                            a.btn.btn-primary(href='/produk/daftarbykategori/1') < lanjukan berbelanja
                        span.pull-right(style='margin-left : 20px')
-                           input.btn.btn-inverse(type='submit', value='Konfirmasi Pembayaran >' data-url='/keranjang/simpan')
+                           input.btn.btn-inverse(type='submit', value='Konfirmasi Pembelian >' data-url='/keranjang/simpan')
 
 
 
