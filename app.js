@@ -98,19 +98,19 @@ app.use(function(req,res,next){
 
   //ini digunakan untuk mendapatkan jumlah barang belanjaan dikeranjang
   var cart = req.session.cart || (req.session.cart = []);
-  //lingkungan produksi
-  //res.locals.session = req.session;
-  //lingkungan development
-  var session = {
-    penggunaId : 1,
-    nama : 'riansyah',
-    tokoId : 1,
-    namaToko : 'barokah',
-    loggedIn : 'true',
-    cart : cart
-  };
-  res.locals.session = session;
-
+  //lingkungan produksi menggunakan session dari request session setelah login
+  res.locals.session = req.session;
+  // ------ lingkungan development ----- //
+  //var session = {
+  //  penggunaId : 1,
+  //  nama : 'riansyah',
+  //  tokoId : 1,
+  //  namaToko : 'barokah',
+  //  loggedIn : 'true',
+  //  cart : cart
+  //};
+  //res.locals.session = session;
+  // ------ lingkungan development ----- //
   next();
 });
 app.get('/sesi',function(req,res){

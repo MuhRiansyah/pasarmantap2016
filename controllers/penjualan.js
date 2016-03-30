@@ -15,7 +15,8 @@ module.exports = {
     daftarPenjualan : function(req, res, next){
         models.Transaksi.findAll({
             where : {
-                penjualId : res.locals.session.penggunaId,
+                //todo : pakai tokoId atau penjualId??
+                tokoId : res.locals.session.tokoId,
                 status_tampil : 1
             },
             include: [models.Pengguna,

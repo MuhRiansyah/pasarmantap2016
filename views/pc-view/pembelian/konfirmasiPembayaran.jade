@@ -96,7 +96,7 @@ append contentDalam
                                         tr: td: br
 
                                     center
-                                        input.btn.btn-primary(type='submit' value='Konfirmasi')
+                                        input.btn.btn-primary(type='submit' value='Konfirmasi' )
         each val,index in daftarTransaksi
             .row.alert.alert-info(style='margin : 20px 0 -10px 0')
                 p <b> Tanggal Transaksi : </b> <i> #{moment(val.tanggal).format('YYYY-MM-DD')} </i> <b> Jatuh Tempo Konfirmasi : </b> <i>#{moment(val.jatuh_tempo).format('YYYY-MM-DD')} </i>

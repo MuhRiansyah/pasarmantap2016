@@ -7,14 +7,14 @@ append header
             .container
                 .row
                     .col-sm-1
-                    .col-sm-1(style='padding-left : 20px')
+                    .col-sm-1(style='padding-left : 20px;margin-top : 5px')
                         .logo
                             //nanti diganti session.nama dengan mengecek status login, ke halaman app.js bagian pengeseatan session
                             if (session.loggedIn)
                                 a(href='/pc-view/beranda'): img(src='/images/logoPasarMantap.png', width='120px')
                             else
                                 a(href='/'): img(src='/images/logoPasarMantap.png', width='120px')
-                    .col-sm-9(style='margin-left : 70px;margin-top : 15px')
+                    .col-sm-10(style="margin-left : 240px;margin-top : -40px")
                         //a(href='/keranjang/bersihkantransaksi') bersihkan transaksi
                         .mainmenu
                             ul.nav.navbar-nav
@@ -36,12 +36,12 @@ append header
                                             li: a(href='/produk/daftarbykategori/12') Tablet & Smartphone
                                             li: a(href='/produk/daftarbykategori/13') Sepatu
                                 li
-                                    form(action='/cekPencarian', method='get')
+                                    form(action='/produk/cari/' method='post')
                                         div.input-group.custom-search-form(style='width:450px')
-                                            input.form-control(type='text', placeholder='Cari Produk')
+                                            input.form-control(type='text' name='cariNamaProduk' placeholder='Cari Produk')
                                             span.input-group-btn
-                                                select.form-control(name='pilihan' style='width:200px')
-                                                    option  Semua Kategori
+                                                select.form-control(name='kategoriProdukId' style='width:200px')
+                                                    option(value='0') Semua Kategori
                                                     option(value='1')  Pakaian
                                                     option(value='2') Buku
                                                     option(value='3') Mainan & Hobi
@@ -58,44 +58,49 @@ append header
 
                                 if (session.loggedIn)
                                     li: a(href='/pengguna/profil/'+session.penggunaId)=session.nama
-                                    li.dropdown
-                                        a.dropdown-toggle(href='#', data-toggle='dropdown')
-                                            i.fa.fa-bell
-                                            i.fa.fa-caret-down
-                                        style.
-                                            .dropdown-menu li{ border-bottom: solid lightgray 0.5px}
-                                        ul.dropdown-menu
-                                            li(style="padding-left :15px"): b Pembelian
-                                            li: a(href='/pembelian/statuspemesanan')
-                                                div(style='padding : 4px 0') Status Pemesanan &nbsp;
-                                                        //todo: rencana kedepan , tambahkan notif jika ada pembelian baru
-                                                        //span.small(style='background-color : black;color:white;padding : 2px'): b  2
-                                            li: a(href='/pembelian/konfirmasipenerimaan')
-                                                div(style='padding: 5px 0px') Konfirmasi Penerimaan &nbsp;
-                                                    //span.small(style='background-color : black;color:white;padding : 2px'): b  2
-                                            li: a(href='/pembelian/konfirmasipembayaran')
-                                                    div(style='padding: 5px 0px') Konfirmasi Pembayaran &nbsp;
-                                                        //span.small(style='background-color : black;color:white;padding : 2px'): b  2
-                                            li: b Penjualan
-                                            li: a(href='/penjualan/statuspengiriman')
-                                                div(style='padding : 4px 0') Status Pengiriman &nbsp;
-                                                        //span.small(style='background-color : black;color:white;padding : 2px'): b  2
-                                            li: a(href='/penjualan/konfirmasipengiriman')
-                                                div(style='padding: 5px 0px') Konfirmasi Pengiriman &nbsp;
-                                                    //span.small(style='background-color : black;color:white;padding : 2px'): b  2
-                                            li: a(href='/penjualan/pesananbaru')
-                                                    div(style='padding: 5px 0px') Pesanan Baru &nbsp;
-                                                        //span.small(style='background-color : black;color:white;padding : 2px'): b  2
+                                    //todo: rencana kedepan menggunakan notifikasi mengenai penjualan dan pembelian terkini
+                                    //li.dropdown
+                                    //    a.dropdown-toggle(href='#', data-toggle='dropdown')
+                                    //        i.fa.fa-bell
+                                    //        i.fa.fa-caret-down
+                                    //    style.
+                                    //        .dropdown-menu li{ border-bottom: solid lightgray 0.5px}
+                                    //    ul.dropdown-menu
+                                    //        li(style="padding-left :15px"): b Pembelian
+                                    //        li: a(href='/pembelian/statuspemesanan')
+                                    //            div(style='padding : 4px 0') Status Pemesanan &nbsp;
+                                    //                    //todo: rencana kedepan , tambahkan notif jika ada pembelian baru
+                                    //                    //span.small(style='background-color : black;color:white;padding : 2px'): b  2
+                                    //        li: a(href='/pembelian/konfirmasipenerimaan')
+                                    //            div(style='padding: 5px 0px') Konfirmasi Penerimaan &nbsp;
+                                    //                //span.small(style='background-color : black;color:white;padding : 2px'): b  2
+                                    //        li: a(href='/pembelian/konfirmasipembayaran')
+                                    //                div(style='padding: 5px 0px') Konfirmasi Pembayaran &nbsp;
+                                    //                    //span.small(style='background-color : black;color:white;padding : 2px'): b  2
+                                    //        li: b Penjualan
+                                    //        li: a(href='/penjualan/statuspengiriman')
+                                    //            div(style='padding : 4px 0') Status Pengiriman &nbsp;
+                                    //                    //span.small(style='background-color : black;color:white;padding : 2px'): b  2
+                                    //        li: a(href='/penjualan/konfirmasipengiriman')
+                                    //            div(style='padding: 5px 0px') Konfirmasi Pengiriman &nbsp;
+                                    //                //span.small(style='background-color : black;color:white;padding : 2px'): b  2
+                                    //        li: a(href='/penjualan/pesananbaru')
+                                    //                div(style='padding: 5px 0px') Pesanan Baru &nbsp;
+                                    //                    //span.small(style='background-color : black;color:white;padding : 2px'): b  2
                                     li: a(href='/keranjang/')
                                             i.fa.fa-shopping-cart &nbsp;
                                             span(style='background-color : red;color:white;padding : 2px;margin: 10px 0 0 0'): b=(session.cart).length
-                                    li: a(href='/keluar'): i.fa.fa-power-off
+                                    li: a(href='/keluar'): i.fa.fa-power-off  Log Out
+                                        p &nbsp
                                 else
                                     li
-                                        a(href='#')
-                                            i.fa.fa-user
-                                            |  Daftar
-                                    li
+                                        form(method='post',style='padding : 20px',action='/ceklogin')
+                                            input(name='email', type='text', placeholder='Email' style='width:120px')
+                                            input(name='sandi',type='password', placeholder='Sandi' style='width:110px')
+                                            input.btn-primary(type='submit' value='Masuk')
+                                            p belum punya akun? silahkan
+                                                a(href='#'): u daftar
+                                    //li
                                         a.dropdown(href='#', data-toggle='dropdown')
                                             i.fa.fa-sign-in
                                             |  Masuk

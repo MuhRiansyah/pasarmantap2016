@@ -9,9 +9,12 @@ var moment = require("moment");
 var ongkir = require('../api/rajaOngkir')({
     key: credentials.rajaOngkir.key
 });
+var test =null ;
+(test) ? console.log('benar') : console.log('salah')
 exports.test = function (test) {
+
     //login(test);
-    daftarProdukAjax(test);
+    //daftarProdukAjax(test);
     //getRekomendasiToko(test);
     //detailProduk(test);
     //jumlahTerjual(test)

@@ -24,6 +24,7 @@ module.exports = {
         //ada daftar produk untuk penjual ada untuk pembelian
 
         //fitur untuk pembeli
+        app.post('/produk/cari/',this.postCariProduk);
         app.get('/produk/daftarbykategori/:idKategori',this.daftarByKategori);
         app.get('/produk/detail/:id',this.detailProduk);
         //nanti menggunakan otentifikasi
@@ -32,14 +33,25 @@ module.exports = {
         app.post('/produk/tambahpenerima/insert/',this.insertPenerima);
 
         //fitur untuk penjual
-        //app.get('/produk/tambah',checkAuth,this.tambahProduk);
-        app.get('/produk/tambah',this.formTambahProduk);
-        app.post('/produk/insert',this.insertProduk);
-        //app.get('/produk/daftar',checkAuth,this.daftarProduk);
-        app.get('/produk/daftar',this.daftarProduk);
-        //app.get('/produk/daftar/:dari',this.daftarProdukAjax);
-        //app.get('/produk/wishlist',checkAuth,this.getWishList);
-        app.get('/produk/wishlist',this.getWishList);
+        app.get('/produk/tambah',checkAuth,this.formTambahProduk);
+        app.post('/produk/insert',checkAuth,this.insertProduk);
+        app.get('/produk/daftar',checkAuth,this.daftarProduk);
+        //app.get('/produk/daftar/:dari',this.daftarProdukAjax); ->rencana kedepan tidak semua produk di load
+        app.get('/produk/wishlist',checkAuth,this.getWishList);
+    },
+    postCariProduk : function(req,res,next){
+        models.Produk.findAll({
+            where : {
+                nama : {$like: '%'+req.body.cariNamaProduk+'%'},
+                kategoriProdukId :  (req.body.kategoriProdukId=='0') ?  {$not : 0} : req.body.kategoriProdukId
+            },
+            attributes: {exclude : ['EtalaseId'] }
+        }).then(function(daftar_produk) {
+            res.render('pc-view/produk/cariProduk',{
+                katakunci : req.body.cariNamaProduk,
+                daftar_produk : daftar_produk
+            })
+        })
     },
     formTambahPenerima : function(req,res,next){
         models.Provinsi.findAll().then(function(provinsi) {

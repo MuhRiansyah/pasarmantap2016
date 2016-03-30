@@ -8,8 +8,9 @@ var async  = require('async');
 module.exports = {
 
     registerRoutes: function(app) {
-        //menampilkan orang lain
+        //fitur orang lain atau pengguna jika ingin mengubah profil
         app.get('/pengguna/profil/:id', this.profil);
+        //fitur pengguna
         app.get('/pengguna/pengaturan-profil', this.pengaturanProfil);
     },
 

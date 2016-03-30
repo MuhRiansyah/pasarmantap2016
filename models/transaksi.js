@@ -21,9 +21,13 @@ module.exports = function(sequelize, DataTypes) {
                         onDelete: "CASCADE",
                         foreignKey: 'pembeliId'
                     });
-                    Transaksi.belongsTo(models.Pengguna, {
+                    //Transaksi.belongsTo(models.Pengguna, {
+                    //    onDelete: "CASCADE",
+                    //    foreignKey: 'penjualId'
+                    //});
+                    Transaksi.belongsTo(models.Toko, {
                         onDelete: "CASCADE",
-                        foreignKey: 'penjualId'
+                        foreignKey: 'tokoId'
                     });
                     //Transaksi.belongsTo(models.Pengguna, {
                     //    onDelete: "CASCADE",

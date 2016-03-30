@@ -7,8 +7,10 @@ var sequelize = require("sequelize");
 module.exports = {
 
     registerRoutes: function(app,checkAuth) {
+        //fitur pembeli
         app.get('/toko/profil/:idToko/:idEtalase', this.profilToko);
         app.get('/toko/profil/:idToko/', this.profilToko);
+        //fitur penjual
         app.get('/toko/buka/', this.bukaToko);
         app.get('/toko/favorit/', this.getTokoFavorit);
         app.get('/toko/jadikanfavorit/:idToko', this.insertTokoFavorit);

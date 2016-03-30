@@ -34,6 +34,7 @@ append content
                       tr
                           td(height='60px', colspan='4')
                               span(style='font-size : 13pt') Pembelian dari toko :
+                                  input(type='hidden' name='tokoId' value='#{val.Toko[0].id}')
                                   a(href='/toko/profil/#{val.Toko[0].id}')  #{val.Toko[0].nama}
                       each valPro,indexPro in val.Produk
                           tr
@@ -105,7 +106,7 @@ append content
                        span.pull-left(style='margin-left : 7px')
                            a.btn.btn-primary(href='/produk/daftarbykategori/1') < lanjukan berbelanja
                        span.pull-right(style='margin-left : 20px')
-                           input.btn.btn-inverse(type='submit', value='Konfirmasi Pembelian >' data-url='/keranjang/simpan')
+                           input.btn.btn-inverse(type='submit', value='Konfirmasi Pembelian >' name='btnKonfirmasi' data-url='/keranjang/simpan')
 
 
 

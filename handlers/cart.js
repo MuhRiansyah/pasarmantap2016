@@ -147,16 +147,17 @@ exports.getCart1 = function(req, res, next) {
     res.send(html);
 };
 
-//app.get('/keranjang/', cart.getCart);
-//kenapa ini yang di run terlebih dahulu?
+//dari url : app.get('/keranjang/', cart.getCart);
 exports.getCart = function(req, res, next) {
     var totalPembayaran = 0;
     var totalPerTagihan = [];
     var totalBeratPerTagihan = [];
-    //var cart = req.session.cart || (req.session.cart = []);
-    var cart = [];
-    cart.push({"id":1455937532273,"Produk":[{"id":"1","jumlah":"10","beratProduk":"100","totalBerat":1000,"totalHarga":135000,"nama":"naruto","harga":"13500","gambar":"naruto.jpg"},{"id":"2","jumlah":"100","beratProduk":"100","totalHarga":1350000,"totalBerat":10000,"nama":"naruto 1 - 20","harga":"13500","gambar":"narutos.jpg"}],"Toko":[{"id":"1","nama":"barokah","idKotaAsalToko":"44"}],"Penerima":[{"id":"1","nama":"Riansyah","alamat":"Jln Anawai No 44","kecamatan":"wua-wua","Provinsi":[{"id":"1","nama":"Bali"}],"Kabupaten":[{"id":"2","nama":"Aceh Barat Daya","kodePos":"23764"}],"telepon":"039393939312"}],"keterangan":"-","ongkosKirim":"20000","totalPerTagihan":0,"nilaiSubTotal":0},{"id":1455937559303,"Produk":[{"id":"18","jumlah":"5","beratProduk":"400","totalBerat":2000,"totalHarga":100000000,"nama":"iphone 7","harga":"20000000","gambar":"iphone3.png"}],"Toko":[{"id":"2","nama":"jaya","idKotaAsalToko":"1"}],"Penerima":[{"id":"1","nama":"Riansyah","alamat":"Jln Anawai No 44","kecamatan":"wua-wua","Provinsi":[{"id":"1","nama":"Bali"}],"Kabupaten":[{"id":"2","nama":"Aceh Barat Daya","kodePos":"23764"}],"telepon":"039393939312"}],"keterangan":"-","ongkosKirim":"20000","totalPerTagihan":0,"nilaiSubTotal":0})
-    req.session.cart = cart;
+
+    var cart = req.session.cart || (req.session.cart = []);
+    //untuk pengujian lepas komentar dibawah ini, lalu var cart diatas
+    //var cart = [];
+    //cart.push({"id":1455937532273,"Produk":[{"id":"1","jumlah":"10","beratProduk":"100","totalBerat":1000,"totalHarga":135000,"nama":"naruto","harga":"13500","gambar":"naruto.jpg"},{"id":"2","jumlah":"100","beratProduk":"100","totalHarga":1350000,"totalBerat":10000,"nama":"naruto 1 - 20","harga":"13500","gambar":"narutos.jpg"}],"Toko":[{"id":"1","nama":"barokah","idKotaAsalToko":"44"}],"Penerima":[{"id":"1","nama":"Riansyah","alamat":"Jln Anawai No 44","kecamatan":"wua-wua","Provinsi":[{"id":"1","nama":"Bali"}],"Kabupaten":[{"id":"2","nama":"Aceh Barat Daya","kodePos":"23764"}],"telepon":"039393939312"}],"keterangan":"-","ongkosKirim":"20000","totalPerTagihan":0,"nilaiSubTotal":0},{"id":1455937559303,"Produk":[{"id":"18","jumlah":"5","beratProduk":"400","totalBerat":2000,"totalHarga":100000000,"nama":"iphone 7","harga":"20000000","gambar":"iphone3.png"}],"Toko":[{"id":"2","nama":"jaya","idKotaAsalToko":"1"}],"Penerima":[{"id":"1","nama":"Riansyah","alamat":"Jln Anawai No 44","kecamatan":"wua-wua","Provinsi":[{"id":"1","nama":"Bali"}],"Kabupaten":[{"id":"2","nama":"Aceh Barat Daya","kodePos":"23764"}],"telepon":"039393939312"}],"keterangan":"-","ongkosKirim":"20000","totalPerTagihan":0,"nilaiSubTotal":0})
+    //req.session.cart = cart;
 
     for(var val in cart){
         var cartArr = cart[val];
@@ -175,7 +176,7 @@ exports.getCart = function(req, res, next) {
         }
         totalPembayaran = totalPembayaran + totalPerTagihan[val];
     }
-    //res.send(cart);
+
     res.render('pc-view/pembelian/keranjangBelanja', {
         totalBeratPerTagihan : totalBeratPerTagihan,
         totalPerTagihan : totalPerTagihan,
@@ -183,14 +184,14 @@ exports.getCart = function(req, res, next) {
         cart : cart
     });
 };
-//app.post('/keranjang/konfirmasi', cart.konfirmasiPembelian);
+//dari url : app.post('/keranjang/konfirmasi', cart.konfirmasiPembelian);
 exports.konfirmasiPembelian = function(req, res, next){
     res.render('pc-view/pembelian/konfirmasiPembelian', {
         total_tagihan : req.session.total_tagihan
     });
 };
 
-//app.post('/keranjang/simpan', cart.insertCartToInvoice);
+//dari url : app.post('/keranjang/simpan', cart.insertCartToInvoice);
 exports.insertCartToInvoice = function(req, res, next) {
     var moment = require("moment");
     var now = moment();
@@ -199,7 +200,8 @@ exports.insertCartToInvoice = function(req, res, next) {
     var sql = '';
     //res.send(cart);
     models.Transaksi.create({
-        PenggunaId : res.locals.session.penggunaId,
+        pembeliId : res.locals.session.penggunaId,
+        tokoId : req.body.tokoId,
         tanggal : moment(now).format('YYYY-MM-DD'),
         jatuh_tempo : moment(jatuh_tempo).format('YYYY-MM-DD'),
         total_tagihan : req.body.totalPembayaran
