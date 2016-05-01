@@ -27,7 +27,7 @@ append content
                 td: h1=produk.nama
                   | <h2> Rp <span id='uang'> </span></h2>
                   if(session.nama)
-                      p: a.btn.btn-primary(href='/produk/beli/#{produk.id}'): i.fa.fa-shopping-cart  Beli
+                      p: a.btn.btn-primary(href='/produk/beli/#{produk.id}')#btnBeliProduk: i.fa.fa-shopping-cart  Beli
                   else
                       p
                           a.btn.btn-primary(disabled=true): i.fa.fa-shopping-cart  Beli
@@ -49,7 +49,7 @@ append content
                     a(href='/toko/profil/#{produk.Toko.id}'): img(src='/images/#{produk.Toko.logo}', width='100px')
                 tr: td: a(href='/toko/profil/#{produk.Toko.id}') #{produk.Toko.nama}
                 tr: td #{produk.Toko.Kabupaten.nama}
-                tr: td: a.btn-primary.btn(href='/produk/favorit/#{produk.Toko.id}') Jadikan Favorit
+                tr: td: a.btn-primary.btn(href='/toko/favorit/#{produk.Toko.id}') Jadikan Favorit
     br
     .row(style='margin : 0px 10px')
         .category-tab
@@ -61,7 +61,7 @@ append content
                       //li: a(href='#diskusi' data-toggle='tab') Diskusi Produk
                   .tab-content
                       #deskripsi.tab-pane.fade.active.in
-                          .col-sm-3
+                          div
                               p #{produk.deskripsi}
                       #review.tab-pane.fade
                           .col-sm-3

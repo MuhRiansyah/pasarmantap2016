@@ -97,11 +97,11 @@ append content
                    span.pull-left(style='padding : 10px 20px;margin-left:25px ')
                        a(href='/keranjang/hapussemua') <i class='fa fa-eraser'> </i> Hapus Semua
                    span.pull-right(style='padding : 10px 35px 0px 0;font-size:14pt')
-                       input(name='totalPembayaran' type='hidden' value='#{totalPembayaran}')
-                       | Total Pembelian <b> Rp <span id='totalPembelian'></span></b>
+                       | Total Pembelian <b> Rp <span id='total_pembelian'></span></b>
+                       input(name='total_pembelian' type='hidden' value='#{total_pembelian}')
                        script.
-                           document.getElementById("totalPembayaran").innerHTML = numberFormat("#{totalPembelian}", ".");
-               .row </br>
+                           document.getElementById("total_pembelian").innerHTML = numberFormat("#{total_pembelian}", ".");
+              .row </br>
                    .col-sm-11(style='margin:20px;height:90px')
                        span.pull-left(style='margin-left : 7px')
                            a.btn.btn-primary(href='/produk/daftarbykategori/1') < lanjukan berbelanja

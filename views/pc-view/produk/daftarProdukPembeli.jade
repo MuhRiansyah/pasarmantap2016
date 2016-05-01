@@ -35,10 +35,10 @@ append content
     else
       each value,n in daftar_produk
         div(style='width:160px;height:270px;float:left')
-            |<a href='/produk/detail/#{value.id}'>
-            | <img src='/images/produk/#{value.gambar}', style='height: 150px;width:140px'/> <br/> </a>
+            |<a href='/produk/detail/#{value.id}' >
+            | <img src='/images/produk/#{value.gambar}', id='detailProduk#{n}', style='height: 150px;width:140px'/> <br/> </a>
             | <h4> Rp <span class='uang'> </h4>
             | <a href='/produk/detail/#{value.id}'> #{value.nama} </a><br/>
-            | <i class='fa fa-dribbble'></i>  jakarta <br/><a href='#'> Barokah Clothing</a>
+            | <i class='fa fa-flag'></i>  #{value.Toko.Kabupaten.nama} <br/><a href='#'> #{value.Toko.nama} </a>
             script.
                 document.getElementsByClassName("uang")[#{n}].innerHTML = numberFormat("#{value.harga}",".");

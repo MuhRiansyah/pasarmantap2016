@@ -26,7 +26,7 @@ append content
     else
       each value,n in daftar_produk
         div(style='width:150px;height:270px;float:left')
-            |<a href='/detailproduk/#{value.id}'>
+            |<a href='/detailproduk/#{value.id}' id='detailProduk#{n}'>
             | <img src='/images/produk/#{value.gambar}', style='height: 150px;width:140px'/> <br/> </a>
             | <h4> Rp <span class='uang'> </h4>
             | <a href='/detailproduk/#{value.id}'> #{value.nama} </a><br/>

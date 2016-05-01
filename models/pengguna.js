@@ -5,11 +5,11 @@
 
 module.exports = function(sequelize, DataTypes) {
     var Pengguna = sequelize.define("Pengguna", {
-            nama : DataTypes.STRING,
             email : DataTypes.STRING,
             sandi : DataTypes.STRING,
-            tanggal_lahir : DataTypes.DATE,
-            telepon : DataTypes.STRING,
+            nama : DataTypes.STRING,
+            jenis_kelamin : DataTypes.INTEGER,
+            foto : DataTypes.STRING
         }, {
             classMethods: {
                 associate: function(models) {

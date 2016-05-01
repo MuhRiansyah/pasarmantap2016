@@ -8,11 +8,10 @@ var credentials = require('../api/credentials.js');
 var ongkir = require('../api/rajaOngkir')({
     key: credentials.rajaOngkir.key
 });
-
+//dari url app.post('/keranjang/tambah', cart.tambahCart);
 exports.tambahCart = function(req, res, next) {
     var cart = req.session.cart || (req.session.cart = []);
-    //TODO: cek juga jika produk dikirim untuk penerima yang beda walaupun dibeli dari toko yang sama
-    var status = 0;
+    var isSameInvoice = 0; //jika nilainya 0 berarti membuat invoice baru
     for(var val in cart){
         if(
             req.body.tokoId == cart[val].Toko[0].id &&
@@ -20,9 +19,6 @@ exports.tambahCart = function(req, res, next) {
         ){
             var totalHarga = parseInt(req.body.jumlah) * parseInt(req.body.hargaProduk);
             var totalBerat = parseInt(req.body.jumlah) * parseInt(req.body.beratProduk);
-            //todo: mengecek berapa total seluruh berat yang ada pada 1 tagihan?
-
-
             cart[val].Produk.push({
                 id: req.body.produkId, jumlah : req.body.jumlah || 0,
                 beratProduk : req.body.beratProduk || 0,
@@ -32,8 +28,8 @@ exports.tambahCart = function(req, res, next) {
                 harga : req.body.hargaProduk,
                 gambar : req.body.gambarProduk
             });
-            status = 1;
-            //todo:masalah internet yang terlalu lama jadi keburu diredirect sebelum beres
+            isSameInvoice = 1;
+            //jika eror:masalah internet yang terlalu lama jadi keburu diredirect sebelum beres
 
             var totalBeratPerTagihan = 0;
             for(var valPro in cart[val].Produk){
@@ -41,7 +37,7 @@ exports.tambahCart = function(req, res, next) {
             }
             //todo: diganti saat sudah bisa online
             //ongkir.getOngkosKirim(
-                ongkir.getOngkosKirimOffline(
+            ongkir.getOngkosKirimOffline(
                 //idKotaAsalToko,idKotaPenerima,berat,
                 cart[val].Toko[0].idKotaAsalToko,
                 cart[val].Penerima[0].Kabupaten[0].id,
@@ -49,13 +45,15 @@ exports.tambahCart = function(req, res, next) {
                 function(ongkosKirim){
                     cart[val].ongkosKirim = ''+ongkosKirim;
                     //console.error(val+' - '+cart[val].ongkosKirim);
+                    console.error('---- dalam 1 invoice ada banyak produk----');
+                    console.error(JSON.stringify(cart));
                     res.redirect('/keranjang');
-                });
+                }
+            );
         }
     }
-
-    if(status == 0){
-
+    //membuat invoice baru
+    if(isSameInvoice == 0){
         var totalHarga = parseInt(req.body.jumlah) * parseInt(req.body.hargaProduk);
         var totalBerat = parseInt(req.body.jumlah) * parseInt(req.body.beratProduk);
 
@@ -89,6 +87,8 @@ exports.tambahCart = function(req, res, next) {
             totalPerTagihan : 0,
             nilaiSubTotal : 0
         });
+        console.error('---- buat invoice baru ----');
+        console.error(JSON.stringify(cart));
         res.redirect('/keranjang');
     }
 
@@ -123,24 +123,7 @@ exports.hapusSatuProdukCart = function(req, res, next) {
     }
     res.redirect('/keranjang/');
 };
-exports.bersihkanTransaksi = function(req, res, next) {
-    models.Invoice_Produk
-        .destroy({
-            where : {}
-        }).then(function(){
-            models.Invoice
-                .destroy({
-                    where : {}
-                }).then(function(){
-                    models.Transaksi
-                        .destroy({
-                            where : {}
-                        }).then(function(){
-                            res.redirect('/keranjang');
-                        });
-                });
-        });
-};
+
 exports.getCart1 = function(req, res, next) {
     var cart = req.session.cart || (req.session.cart = []);
     var html = JSON.stringify(cart)+"<br> <a href='/produk/daftarbykategori/1'>belanja lagi</a>";
@@ -149,7 +132,7 @@ exports.getCart1 = function(req, res, next) {
 
 //dari url : app.get('/keranjang/', cart.getCart);
 exports.getCart = function(req, res, next) {
-    var totalPembayaran = 0;
+    var totalPembelian = 0;
     var totalPerTagihan = [];
     var totalBeratPerTagihan = [];
 
@@ -174,23 +157,23 @@ exports.getCart = function(req, res, next) {
                     parseInt(cartArr.ongkosKirim);
             }
         }
-        totalPembayaran = totalPembayaran + totalPerTagihan[val];
+        totalPembelian = totalPembelian + totalPerTagihan[val];
     }
 
     res.render('pc-view/pembelian/keranjangBelanja', {
         totalBeratPerTagihan : totalBeratPerTagihan,
         totalPerTagihan : totalPerTagihan,
-        totalPembayaran : totalPembayaran,
+        total_pembelian : totalPembelian,
         cart : cart
     });
 };
 //dari url : app.post('/keranjang/konfirmasi', cart.konfirmasiPembelian);
 exports.konfirmasiPembelian = function(req, res, next){
     res.render('pc-view/pembelian/konfirmasiPembelian', {
-        total_tagihan : req.session.total_tagihan
+        total_pembelian : req.session.total_pembelian
     });
 };
-
+//todo: buat 1 transaksi sama 1 invoice
 //dari url : app.post('/keranjang/simpan', cart.insertCartToInvoice);
 exports.insertCartToInvoice = function(req, res, next) {
     var moment = require("moment");
@@ -198,49 +181,47 @@ exports.insertCartToInvoice = function(req, res, next) {
     var jatuh_tempo = moment(now).add(3,'days');
     var cart = req.session.cart;
     var sql = '';
-    //res.send(cart);
-    models.Transaksi.create({
-        pembeliId : res.locals.session.penggunaId,
-        tokoId : req.body.tokoId,
-        tanggal : moment(now).format('YYYY-MM-DD'),
-        jatuh_tempo : moment(jatuh_tempo).format('YYYY-MM-DD'),
-        total_tagihan : req.body.totalPembayaran
-    }).then(function(transaksi){
-        var totalPerTagihan = req.body.totalPerTagihan;
-        var totalBeratPerTagihan = req.body.totalBeratPerTagihan;
-        var date = new Date();
+    var tokoArr = req.body.tokoId;
+    var totalPerTagihan = req.body.totalPerTagihan;
+    var totalBeratPerTagihan = req.body.totalBeratPerTagihan;
 
-        //var html = JSON.stringify(cart)+' - '+JSON.stringify(totalPerTagihan);
-        //res.send(html);
-        for(var val in cart){
-
-            var idInvoice = 'INV/'+Date.now()+'/'+Math.floor(Math.random() * 10000);
-
-            sql = sql +  "INSERT INTO invoices " +
-                "(id ,transaksiId ,tokoId ," +
-                "penerimaId,total_berat,ongkos_kirim," +
-                "total_harga,keterangan)"+
-                "VALUES "+
-                "( '"+idInvoice+"', "+transaksi.id+","+cart[val].Toko[0].id+"," +
-                ""+cart[val].Penerima[0].id+","+totalBeratPerTagihan[val]+", " +
-                ""+cart[val].ongkosKirim+","+
-                ""+totalPerTagihan[val]+", '"+cart[val].keterangan+"');";
-
-            for(var valPro in cart[val].Produk){
-                var arrProduk = cart[val].Produk;
-                sql = sql + "INSERT INTO invoice_produks " +
-                    "(invoiceId,produkId,jumlah_produk)"+
-                    "VALUES('"+idInvoice+"',"+arrProduk[valPro].id+","
-                    +arrProduk[valPro].jumlah+");";
-            }
+    for (var countCart in cart) {
+        var invoiceKode = 'INV/'+Date.now()+'/'+Math.floor(Math.random() * 10000) ;
+        var invoiceId = invoiceKode.replace(/[/]/g,"");
+        models.Invoice.create({
+            id : invoiceId,
+            kode : invoiceKode,
+            tanggal : moment(now).format('YYYY-MM-DD'),
+            jatuh_tempo : moment(jatuh_tempo).format('YYYY-MM-DD'),
+            total_pembelian : req.body.total_pembelian,//eror disini, jika ada 2 pembelian toko
+            status_tampil : 1,
+            pembeliId : res.locals.session.penggunaId,
+            TokoId : tokoArr[countCart],
+            //todo-eror : total berat dan total harga jika ada 2 invoice jadi bagus, jika cuman 1 invoice,cuman diambil 1 digit
+            PenerimaId : cart[countCart].Penerima[0].id,
+            total_berat : (cart.length > 1) ? totalBeratPerTagihan[countCart] : totalBeratPerTagihan ,
+            ongkos_kirim : cart[countCart].ongkosKirim,
+            total_harga : (cart.length > 1) ? totalPerTagihan[countCart] : totalPerTagihan,
+            keterangan : cart[countCart].keterangan,
+        }).then(function(invoice){
+            models.Invoice_Status.create({
+                invoiceId : invoice.id,
+                statusId : 0,
+                waktu : moment(now).format('YYYY-MM-DD HH:mm')
+            })
+        })
+        var cartProduk = cart[countCart].Produk
+        for(var countPro in cartProduk){
+            sql = sql + "INSERT INTO invoice_produks " +
+                "(invoiceId,produkId,jumlah_produk)"+
+                "VALUES('"+invoiceId+"',"+cartProduk[countPro].id+","
+                +cartProduk[countPro].jumlah+");";
         }
+    }
+    models.sequelize.query(sql)
+        .then(function(){
+            req.session.total_pembelian = req.body.total_pembelian;
+            res.redirect('/keranjang/konfirmasi');
+        });
 
-    }).then(function(){
-        //res.send(sql);
-        models.sequelize.query(sql)
-            .then(function(){
-                req.session.total_tagihan = req.body.totalPembayaran;
-                res.redirect('/keranjang/konfirmasi');
-            });
-    });
 };

@@ -23,21 +23,30 @@ module.exports = {
     registerRoutes: function(app,checkAuth) {
         //ada daftar produk untuk penjual ada untuk pembelian
 
-        //fitur untuk pembeli
+        //fitur untuk non-pengguna-pembeli
         app.post('/produk/cari/',this.postCariProduk);
         app.get('/produk/daftarbykategori/:idKategori',this.daftarByKategori);
         app.get('/produk/detail/:id',this.detailProduk);
-        //nanti menggunakan otentifikasi
-        app.get('/produk/beli/:idProduk',this.beliProduk);
-        app.get('/produk/tambahpenerima/:idProduk/',this.formTambahPenerima);
-        app.post('/produk/tambahpenerima/insert/',this.insertPenerima);
+        //fitur untuk pengguna-pembeli
+        app.get('/produk/beli/:idProduk',checkAuth,this.beliProduk);
+        app.get('/produk/tambahpenerima/:idProduk/',checkAuth,this.formTambahPenerima);
+        app.post('/produk/tambahpenerima/insert/',checkAuth,this.insertPenerima);
 
-        //fitur untuk penjual
+        //fitur untuk pengguna-penjual
         app.get('/produk/tambah',checkAuth,this.formTambahProduk);
         app.post('/produk/insert',checkAuth,this.insertProduk);
         app.get('/produk/daftar',checkAuth,this.daftarProduk);
+        app.get('/produk/jadikanwishlist/',checkAuth,this.jadikanWishlist);
         //app.get('/produk/daftar/:dari',this.daftarProdukAjax); ->rencana kedepan tidak semua produk di load
         app.get('/produk/wishlist',checkAuth,this.getWishList);
+    },
+    jadikanWishlist : function(req,res,next){
+        models.Wishlist.create({
+            produkId : req.body.produkId,
+            penggunaId : res.session.locals.penggunaId
+        }).then(function() {
+           res.redirect('/produk/wishlist')
+        });
     },
     postCariProduk : function(req,res,next){
         models.Produk.findAll({
@@ -126,7 +135,7 @@ module.exports = {
         })
     },
     daftarByKategori : function(req, res, next){
-        async.series([
+        async.parallel([
                 function(callback){
                     models.Kategori_Produk.find({
                         where : {
@@ -142,7 +151,11 @@ module.exports = {
                         where : {
                             KategoriProdukId : req.params.idKategori
                         },
-                        attributes: {exclude : ['EtalaseId'] }
+                        attributes: {exclude : ['EtalaseId'] },
+                        include: [{
+                            model: models.Toko, include :
+                                models.Kabupaten
+                        }]
                     }).then(function(daftar_produk) {
                         callback(null,daftar_produk);
                     })

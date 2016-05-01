@@ -1,31 +1,11 @@
 extends tabPenjualan
 
 append contentDalam
-      //todo: untuk rencana pengembangan
-      //.alert.alert-warning
-      //  p Order Anda akan otomatis kami batalkan apabila Anda melewati batas waktu respon 5 hari kerja (Senin - Jumat) setelah order diverifikasi.
-      //.container
-      //  form.form-inline
-      //      table
-      //          tr
-      //              td: input.form-control(type='text', placeholder='Invoice / Nama Pembeli')
-      //              td Jatuh Tempo
-      //              td
-      //                  select.form-control(name='tambahkan',style='width:100px')
-      //                      option(value='gudang')  Pilih
-      //                      option(value='etalase')  Transaksi Belum Selesai
-      //                      option(value='etalase')  Transaksi Telah Selesai
-                    //td Kurir
-                    //td
-                    //    select.form-control(name='tambahkan',style='width:100px')
-                    //       option(value='gudang')  JNE
-                    //       option(value='gudang')  POS
-                    td: input.form-control(type='submit', value='cari')
-      if(transaksi.length == 0)
+      if(Invoice.length == 0)
           .alert.alert-danger
               center: h4: b Tidak ada daftar pemesanan
       else
-          script.
+          script(type='text/javascript').
               function numberFormat(_number, _sep) {
                   _number = typeof _number != "undefined" && _number > 0 ? _number : "";
                   _number = _number.replace(new RegExp("^(\\d{" + (_number.length % 3 ? _number.length % 3 : 0) + "})(\\d{3})", "g"), "$1 $2").replace(/(\d{3})+?/gi, "$1 ").trim();
@@ -40,33 +20,33 @@ append contentDalam
                   th(width='20%') Pengiriman
                   th(width='15%') Kurir POS
                   th(width='5%') Aksi
-              each val,index in transaksi
-                each inv,indexInv in val.Invoices
+                each inv,indexInv in Invoice
                     .modal.fade(class='modal-detail#{index}#{indexInv}' tabindex='-1', role='dialog', aria-labelledby='myLargeModalLabel', aria-hidden='true')
                             .modal-dialog.modal-sm
                                 .modal-content
                                     .modal-body(style='padding: 40px')
-                                        p='rian'
+                                        p='??'
                     tr
-                        td
-                            b=val.Pengguna.nama
-                            p=inv.id
-                            p: i.fa.fa-question-circle(style="cursor: pointer"
-                                title="Pesanan Anda akan otomatis dibatalkan " +
-                                "apabila penjual tidak merespon dalam waktu " +
-                                "yang ditentukan."): b='jatuh tempo : ' + 4 + ' hari lagi'
-                        td
-                            p: small='a/n '+inv.Penerima.nama
-                                | <br/> #{inv.Penerima.alamat} <br/>
-                                | #{inv.Penerima.kecamatan} - #{inv.Penerima.Kabupaten.nama}, #{inv.Penerima.Provinsi.nama}
-                            p: i.fa.fa-eye: a(href='#' data-toggle='modal' data-target='.modal-detail#{index}#{indexInv}')  detail transaksi
-                        td
-                            p: small: b jasa pengiriman - Reguler
-                            p: input.form-control.input-sm(type='text' placeholder='masukkan no resi')
-                            p: small: b
-                                | ongkos kirim Rp <span id='ongkosKirim#{index}#{indexInv}'></span>
-                            script.
-                                document.getElementById("ongkosKirim#{index}#{indexInv}").innerHTML = numberFormat("#{inv.ongkos_kirim}", ".");
-                        td
-                            p: a(href='#') konfirmasi
-                            p: a(href='#') batal
+                        form(method='post' action='/penjualan/konfirmasipengiriman/update')
+                            td
+                                b=inv.Pengguna.nama
+                                input(type='hidden' name='invoiceId' value=inv.id)
+                                p=inv.kode
+                                p: i.fa.fa-question-circle(style="cursor: pointer"
+                                    title="Pesanan Anda akan otomatis dibatalkan " +
+                                    "apabila penjual tidak merespon dalam waktu " +
+                                    "yang ditentukan."): b='jatuh tempo : ' + 4 + 'xxx hari lagi'
+                            td
+                                p: small='a/n '+inv.Penerima.nama
+                                    | <br/> #{inv.Penerima.alamat} <br/>
+                                    | #{inv.Penerima.kecamatan} - #{inv.Penerima.Kabupaten.nama}, #{inv.Penerima.Provinsi.nama}
+                                p: i.fa.fa-eye: a(href='#' data-toggle='modal' data-target='.modal-detail#{index}#{indexInv}')  detail transaksi
+                            td
+                                p: small: b jasa pengiriman - Reguler
+                                p: input#noresi.form-control.input-sm(name='noresi' type='number' placeholder='masukkan no resi' required=true)
+                                p: small: b
+                                    | ongkos kirim Rp <span id='ongkosKirim#{index}#{indexInv}'></span>
+                            td
+                                input(type='hidden' value='#{inv.id}')
+                                p: input.btn.btn-primary(type='submit' value='konfirmasi' required=true)
+                                p: a.btn.btn-danger(href='/penjualan/konfirmasipengiriman/batal/#{inv.id}') batal

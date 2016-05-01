@@ -5,11 +5,14 @@
 
 module.exports = function(sequelize, DataTypes) {
     var Bank = sequelize.define("Bank", {
+            kode : {
+                type : DataTypes.STRING,
+                primaryKey : true
+            },
             nama : DataTypes.STRING
         }, {
             classMethods: {
                 associate: function(models) {
-                    Bank.hasMany(models.Transaksi);
                 }
             }
         }

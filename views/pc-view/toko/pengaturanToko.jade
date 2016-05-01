@@ -55,20 +55,55 @@ append content
                 }
             });
         });
-    //.row(style='width:700px')
-    //    h4 Daftar Etalase
-    //    table.table
-    //        each val,index in produk.rows
-    //            tr: td: <b> #{val.Etalase.nama} </b><br/>
-    //                small Total Produk : <b>#{produk.count[index].count}</b>
-    //                //TODO:fasililas ubah etalase
-    //                td: a(href='#') ubah
     .row(style='width:700px')
+        .modal.fade(class='modal-tambah' tabindex='-1', role='dialog', aria-labelledby='myLargeModalLabel', aria-hidden='true')
+            .modal-dialog.modal-sm
+                .modal-content
+                    .modal-header
+                        h4 Penambahan etalase
+                    .modal-body(style='padding: 40px')
+                        form(method='post' action='/toko/tambah-etalase')
+                            table(width='520px')
+                                tr: td(width='35%') Nama Etalase
+                                    td: input(type='text' name='namaEtalase' required).form-control
+                                tr: td(width='35%') Produk yang ditambahkan ke etalase
+                                        i.fa.fa-question-circle(style="cursor: pointer" title="jika ingin menambah lebih dari 1 produk, lakukan dihalaman daftar produk")
+                                    td
+                                        select(name='produkKeEtalase' required).form-control
+                                            each val,index in produkKeEtalase
+                                                option(value='#{val.id}')=val.nama
+                                tr: td: br
+                            center
+                                input.btn.btn-primary(type='submit' value='simpan' )
+        if((produk.rows).length !=0)
+            each val,index in produk.rows
+                .modal.fade(class='modal-ubah#{index}' tabindex='-1', role='dialog', aria-labelledby='myLargeModalLabel', aria-hidden='true')
+                    .modal-dialog.modal-sm
+                        .modal-content
+                            .modal-header
+                                h4 Pengubahan etalase
+                            .modal-body(style='padding: 40px')
+                                form(method='post' action='/toko/ubah-etalase')
+                                    table(width='520px')
+                                        tr: td(width='35%') Nama Etalase
+                                                input(value='#{val.Etalase.id}' type='hidden' name='etalaseId')
+                                            td: input(value='#{val.Etalase.nama}' type='text' name='namaEtalase').form-control
+                                        tr: td: br
+                                    center
+                                        input.btn.btn-primary(type='submit' value='ubah etalase' )
         h4 Daftar Etalase
+        p: a.btn.btn-primary(data-toggle='modal' data-target='.modal-tambah'): i.fa.fa-plus &nbsp; tambah etalase
         table.table
-            tr: td: <b> Macbook Air </b><br/>
-                small Total Produk : 10 </b>
-                td: a(href='#') ubah
-            tr: td: <b> Komik </b><br/>
-                small Total Produk : 10 </b>
-                td: a(href='#') ubah
+            if((produk.rows).length ==0)
+                p: b tidak ada etalase yang terdaftar
+            else
+                each val,index in produk.rows
+                    tr: td: <b> #{val.Etalase.nama} </b><br/>
+                        small Total Produk : <b>#{(produk.count[index].count) ? produk.count[index].count : 1}</b>
+                        td: u: a(data-toggle='modal' data-target='.modal-ubah#{index}') ubah
+        //    tr: td: <b> Macbook Air </b><br/>
+        //        small Total Produk : 10 </b>
+        //        td: a(href='#') ubah
+        //    tr: td: <b> Komik </b><br/>
+        //        small Total Produk : 10 </b>
+        //        td: a(href='#') ubah

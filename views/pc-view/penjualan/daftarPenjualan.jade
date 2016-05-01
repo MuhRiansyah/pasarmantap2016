@@ -9,26 +9,11 @@ append contentDalam
                     }
                     return _number;
             }
-          //todo: rencana ke depan, pencarian invoice tertentu
-          //.container
-          //  form.form-inline
-          //      table
-          //          tr
-          //              td: input.form-control(type='text', placeholder='Invoice / Nama Pembeli')
-          //              td
-          //                  select.form-control(name='tambahkan',style='width:100px')
-          //                      option(value='gudang')  Semua Transaksi
-          //                      option(value='etalase')  Transaksi Belum Selesai
-          //                      option(value='etalase')  Transaksi Telah Selesai
-          //              td: input.form-control(type='date')
-          //              td: input.form-control(type='submit', value='cari')
-          //br
-          if (transaksi.length == 0)
+          if (Invoice.length == 0)
             .alert.alert-danger
                 center: h4: b Tidak ada daftar pemesanan
           else
-              each val,index in transaksi
-                each inv,indexInv in val.Invoices
+                each inv,indexInv in Invoice
                   .row.alert.alert-info(style='width:683px; margin : 0 0px;padding:5px')
                       table( width='650px')
                           tr
@@ -37,7 +22,7 @@ append contentDalam
                                   a(href='#') barokah
                               td(rowspan='3')
                                   b #{inv.id} <br/>
-                                  p Tanggal transaksi : <b> #{moment(val.tanggal).format('YYYY-MM-DD')} </b>
+                                  p Tanggal transaksi : <b> #{moment(inv.tanggal).format('YYYY-MM-DD')} </b>
                                     | Total : <b>Rp <span id='totalTagihan#{indexInv}'></span> </b>
                                     i.fa.fa-question-circle(style="cursor: pointer" title="Pesanan Anda akan otomatis dibatalkan apabila penjual tidak merespon dalam waktu yang ditentukan.")
                                     //todo: dihitung

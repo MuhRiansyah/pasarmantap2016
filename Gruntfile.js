@@ -4,7 +4,7 @@ module.exports = function(grunt) {
     grunt.initConfig({
         nodeunit: {
             //all : ['./test/*Test.js'], semua kelas ditest
-            testProduk : ['./test/produkTest.js'],
+            testProduk : ['./test/gruntProdukTest.js'],
         }
     });
 

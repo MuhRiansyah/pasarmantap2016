@@ -19,11 +19,11 @@ append header
                         .mainmenu
                             ul.nav.navbar-nav
                                 li.dropdown
-                                    a(href='#')
+                                    a(href='#')#kategori
                                         | Kategori
                                         i.fa.fa-angle-down
                                     ul.sub-menu(role='menu',style='width:250px')
-                                            li: a(href='/produk/daftarbykategori/1') Pakaian
+                                            li: a(href='/produk/daftarbykategori/1')#pakaian Pakaian
                                             li: a(href='/produk/daftarbykategori/2') Buku
                                             li: a(href='/produk/daftarbykategori/3') Mainan & Hobi
                                             li: a(href='/produk/daftarbykategori/5') Software
@@ -42,7 +42,7 @@ append header
                                             span.input-group-btn
                                                 select.form-control(name='kategoriProdukId' style='width:200px')
                                                     option(value='0') Semua Kategori
-                                                    option(value='1')  Pakaian
+                                                    option(value='1') Pakaian
                                                     option(value='2') Buku
                                                     option(value='3') Mainan & Hobi
                                                     option(value='5') Software
@@ -57,6 +57,7 @@ append header
                                             input.btn.btn-default(type='submit', value='cari')
 
                                 if (session.loggedIn)
+                                    li(style="padding: 0px 0 0 10px "): img(src='/images/pengguna/#{session.fotoPengguna}' width='25' )
                                     li: a(href='/pengguna/profil/'+session.penggunaId)=session.nama
                                     //todo: rencana kedepan menggunakan notifikasi mengenai penjualan dan pembelian terkini
                                     //li.dropdown
@@ -94,20 +95,9 @@ append header
                                         p &nbsp
                                 else
                                     li
-                                        form(method='post',style='padding : 20px',action='/ceklogin')
+                                        form(method='post' action='/ceklogin')
                                             input(name='email', type='text', placeholder='Email' style='width:120px')
                                             input(name='sandi',type='password', placeholder='Sandi' style='width:110px')
                                             input.btn-primary(type='submit' value='Masuk')
-                                            p belum punya akun? silahkan
-                                                a(href='#'): u daftar
-                                    //li
-                                        a.dropdown(href='#', data-toggle='dropdown')
-                                            i.fa.fa-sign-in
-                                            |  Masuk
-                                        div.dropdown-menu
-                                            form(method='post',style='padding : 20px',action='/ceklogin')
-                                                p: input(name='email', type='text', placeholder='Email')
-                                                p: input(name='sandi',type='password', placeholder='Sandi')
-                                                p: input.btn.btn-primary(type='submit' value='Masuk')
-
-
+                                            p belum punya akun? silahkan &nbsp;
+                                                a(href='/pengguna/registrasi'): u daftar

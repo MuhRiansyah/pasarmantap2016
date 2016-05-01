@@ -45,6 +45,20 @@ app.use('/upload-gambar-toko', function(req, res, next){
     }
   })(req, res, next);
 });
+app.use('/upload-gambar-pengguna', function(req, res, next){
+  var now = Date.now();
+  jqupload.fileHandler({
+    // gimana cara ganti nama file gambar jadi waktu sekarang (misalkan jadi : 20151020101.png)
+    uploadDir: function(){
+      //return __dirname + '/public/uploads/' + now;
+      return __dirname + '/public/images/pengguna/';
+    },
+    uploadUrl: function(){
+      //return '/uploads/' + now;
+      return '/images/toko/';
+    }
+  })(req, res, next);
+});
 app.use('/upload-bukti-pembayaran', function(req, res, next){
   var now = Date.now();
   jqupload.fileHandler({
@@ -59,18 +73,6 @@ app.use('/upload-bukti-pembayaran', function(req, res, next){
     }
   })(req, res, next);
 });
-
-//API mengambil kabupaten, membutuhkan koneksi internet stabil
-//app.get('/getkabupaten/:province_id',function(req, res, next) {
-//  ongkir.getListKabupaten(req.params.province_id,function(listKabupaten){
-//    var kabupatenHTML = [];
-//    for(var val in listKabupaten){
-//      kabupatenHTML[val] = "<option value="+listKabupaten[val].city_id+">" +
-//          listKabupaten[val].city_name+"</option>";
-//    }
-//    res.send({listArr:kabupatenHTML});
-//  });
-//});
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -103,6 +105,7 @@ app.use(function(req,res,next){
   // ------ lingkungan development ----- //
   //var session = {
   //  penggunaId : 1,
+  //  fotoPengguna : 'default-user-photo.png',
   //  nama : 'riansyah',
   //  tokoId : 1,
   //  namaToko : 'barokah',
@@ -117,44 +120,6 @@ app.get('/sesi',function(req,res){
    res.render('latihan')
 });
 
-//app.use(function(req,res,next){
-//    //buat penanganan untuk login
-//    var cart = req.session.cart || (req.session.cart = []);
-//    var session = {
-//        //untuk lingkungan produksi, data pengguna dan toko diambil dari models.Pengguna dan models.toko di handler main.js
-//        //penggunaId : 1,
-//        ////tokoId : 1,
-//        //namaToko : 'Barokah',
-//        //nama : 'muh riansyah',
-//        //loggedIn : "true",
-//        jumlahIsiCart : cart.length
-//    };
-//
-//    if(!req.session.loggedIn){
-//      //locals.session harus dihapus jika sudah keluar
-//      delete res.locals.session;
-//      delete req.session;
-//      session = {loggedIn : 'false'};
-//    }else{
-//      session = {loggedIn : 'true'};
-//      //session = {
-//      //  //untuk lingkungan produksi, data pengguna dan toko diambil dari models.Pengguna dan models.toko di handler main.js
-//      //  penggunaId : 1,
-//      //  nama : 'muh riansyah',
-//      //  tokoId : 1,
-//      //  namaToko : 'rr',
-//      //  jumlahIsiCart : cart.length
-//      //};
-//    }
-//    //todo: jumlah cart gimana caranya dimasukkan ?
-//    //untuk lingkungan development, ini dibuat tidak aktif
-//    //data dari models.Pengguna dan toko disimpan di req.session
-//    //res.locals.session = req.session;
-//
-//    res.locals.session = session;
-//    next();
-//});
-
 
 // create "admin" subdomain...this should appear
 // before all your other routes
@@ -162,13 +127,6 @@ var mobile = express.Router();
 app.use(require('vhost')('m.*', mobile));
 
 require('./routes.js')(app,mobile);
-
-////level pelanggan
-//var pelanggan = require('./routes/pelanggan');
-// app.use('/pelanggan',checkAuth, pelanggan); yang normal
-
-
-
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

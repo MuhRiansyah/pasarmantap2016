@@ -17,8 +17,11 @@ append content
                     p Total yang Anda Konfirmasi
                     h3 Rp <span id='uang'></span>
                     script.
-                        document.getElementById("uang").innerHTML = numberFormat(""+#{session.total_tagihan},".");
+                        document.getElementById("uang").innerHTML = numberFormat(""+#{total_harga},".");
                     p Pembayaran Anda akan diverifikasi oleh pasarmantap dalam 1 x 24 jam dan akan diteruskan kepada penjual.
-                    p klik <a href='/pembelian/statuspemesanan'>disini</a> untuk memantau status pemesanan Anda.
+                    p klik status pemesanan untuk memantau status pemesanan Anda.
+
+                    form(action='/pembelian/konfirmasipembayaran/sukses/post' method='post')
+                        input.btn.btn-danger(type='submit' value='Status Pemesanan')
         br
         br

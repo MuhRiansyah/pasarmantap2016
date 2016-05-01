@@ -125,7 +125,7 @@ append content
                     a(href='/toko/#{toko.nama}'): img(src='/images/#{toko.logo}', width='100px')
                 tr: td: a(href='#') #{toko.nama}
                 tr: td #{toko.Kabupaten.nama}
-                tr: td: a.btn-primary.btn(href='produk/favorit/#{toko.id}') Jadikan Favorit
+                tr: td: a.btn-primary.btn(href='/toko/favorit/#{toko.id}') Jadikan Favorit
 
     br
     .row
@@ -139,7 +139,7 @@ append content
                       li: a(href='#diskusi' data-toggle='tab') Diskusi Produk
                   .tab-content
                       #deskripsi.tab-pane.fade.active.in
-                          .col-sm-3
+                          div
                               p #{toko.Produk[0].deskripsi}
                       #review.tab-pane.fade
                           .col-sm-3

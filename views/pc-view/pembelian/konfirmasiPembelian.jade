@@ -20,17 +20,17 @@ append content
          center
             .alert.alert-warning(style='width:250px')
                   p Jumlah yang harus dibayar
-                  h4 Rp <span id='total_tagihan'></span>
+                  h4 Rp <span id='total_pembelian'></span>
                 script.
-                    document.getElementById("total_tagihan").innerHTML = numberFormat("#{total_tagihan}", ".");
-            a(href='/pembelian/konfirmasipembayaran').btn.btn-default Konfirmasi Pembayaran
+                    document.getElementById("total_pembelian").innerHTML = numberFormat("#{total_pembelian}", ".");
+            a(href='/pembelian/konfirmasipembayaran' name='btnKonfirmasiPembayaran').btn.btn-default Konfirmasi Pembayaran
 
          .container
           h4 <br> Agar pesanan Anda dapat diproses oleh penjual, ikuti langkah berikut ini: <br/><br/><br/>
           ol
-                li.mb-10 Transfer sejumlah <b> Rp <span id='total_tagihan_dibayar'></span></b> ke salah satu nomor rekening Pasarmantap di bawah ini: <br/><br/>
+                li.mb-10 Transfer sejumlah <b> Rp <span id='total_pembelian_dibayar'></span></b> ke salah satu nomor rekening Pasarmantap di bawah ini: <br/><br/>
                 script.
-                  document.getElementById("total_tagihan_dibayar").innerHTML = numberFormat("#{total_tagihan}", ".");
+                  document.getElementById("total_pembelian_dibayar").innerHTML = numberFormat("#{total_pembelian}", ".");
                 table(style='margin:0 250px')
                     tr: td(rowspan='4',width='170px') <img src='/images/muamalat.jpg'/>
                         td Muamalat <br/> Cabang Setiabudhi <br/> 372 177 3939<br/>a/n PT. Bridea Indonesia

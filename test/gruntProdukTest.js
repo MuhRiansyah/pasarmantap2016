@@ -9,10 +9,11 @@ var moment = require("moment");
 var ongkir = require('../api/rajaOngkir')({
     key: credentials.rajaOngkir.key
 });
-var test =null ;
-(test) ? console.log('benar') : console.log('salah')
-exports.test = function (test) {
+//var test ='1' ;
+//(test) ? console.log('benar') : console.log('salah')
 
+exports.test = function (test) {
+    //insertBanyakProduk(test);
     //login(test);
     //daftarProdukAjax(test);
     //getRekomendasiToko(test);
@@ -36,6 +37,89 @@ exports.test = function (test) {
     //produkMilikTokoTerjual(test);
     //pesananBaru(test);
 };
+//updateBanyakProduk();
+function updateBanyakProduk(){
+    for(var n=1;n<=10;n++) {
+        console.log('tahapan ' + n);
+        models.Produk.update({gambar : 'blazer-' + n+'.jpg'},{
+            where: {nama: 'blazer-' + n}
+        });
+        //models.Produk.update({KategoriProdukId : 11},{
+        //    where: {nama: 'mac-' + n}
+        //});
+    }
+}
+function insertBanyakProduk(){
+    for(var n=1;n<=10;n++){
+        console.log('tahapan '+n);
+        models.Produk.create({
+           nama : 'lenovo-'+n,
+           harga : 3900000,
+           berat : 400,
+           gambar : 'hplenovo-'+n+'.jpg',
+           kondisi : 1,
+           deskripsi : 'hp yang bagus',
+           KategoriProdukId : 12,
+           EtalaseId : 0,
+           TokoId : 1
+        });
+        //models.Produk.create({
+        //   nama : 'baju-'+n,
+        //   harga : 550000,
+        //   berat : 700,
+        //   gambar : 'baju-'+n+'.jpg',
+        //   kondisi : 1,
+        //   deskripsi : 'blazer yang bagus',
+        //   KategoriProdukId : 1,
+        //   EtalaseId : 0,
+        //   TokoId : 2
+        //});
+        //models.Produk.create({
+        //   nama : 'buku-'+n,
+        //   harga : 190000,
+        //   berat : 400,
+        //   gambar : 'buku-'+n+'.jpg',
+        //   kondisi : 1,
+        //   deskripsi : 'hp yang bagus',
+        //   KategoriProdukId : 2,
+        //   EtalaseId : 0,
+        //   TokoId : 2
+        //});
+        //models.Produk.create({
+        //   nama : 'iphone-'+n,
+        //   harga : 13900000,
+        //   berat : 400,
+        //   gambar : 'iphone-'+n+'.jpg',
+        //   kondisi : 1,
+        //   deskripsi : 'hp yang bagus',
+        //   KategoriProdukId : 12,
+        //   EtalaseId : 0,
+        //   TokoId : 3
+        //});
+        //models.Produk.create({
+        //   nama : 'mac-'+n,
+        //   harga : 21000000,
+        //   berat : 400,
+        //   gambar : 'mac-'+n+'.jpg',
+        //   kondisi : 1,
+        //   deskripsi : 'hp yang bagus',
+        //   KategoriProdukId : 12,
+        //   EtalaseId : 0,
+        //   TokoId : 3
+        //});
+        //models.Produk.create({
+        //   nama : 'sepatu-'+n,
+        //   harga : 4900000,
+        //   berat : 400,
+        //   gambar : 'sepatu-'+n+'.jpg',
+        //   kondisi : 1,
+        //   deskripsi : 'hp yang bagus',
+        //   KategoriProdukId : 12,
+        //   EtalaseId : 0,
+        //   TokoId : 4
+        //});
+    }
+}
 function daftarProdukAjax(test){
     models.Produk.findAll({
         offset: 0, limit: 5
@@ -102,6 +186,7 @@ function pesananBaru(test){
     });
 }
 //todo :selesaikan rekomendasi toko
+//getRekomendasiToko();
 function getRekomendasiToko(test){
     models.Invoice_Produk.findAll({
         attributes : ['Produk.nama','Produk.harga','Produk.gambar'],
@@ -142,17 +227,19 @@ function getRekomendasiToko(test){
         })
     })
 }
-function produkMilikTokoTerjual(test){
+//produkMilikTokoTerjual();
+function produkMilikTokoTerjual(){
     //sequelize.fn(SUM, sequelize.col(action.count), sequelize.literal(*), sequelize(action.actionType.value) ), score
     models.Invoice_Produk.find({
-        attributes : [[sequelize.fn(SUM,sequelize.col(jumlah_produk) ),jumlah_produk] ]  ,
+        attributes : [[sequelize.fn('SUM',sequelize.col('jumlah_produk') ),'jumlah_produk'] ]  ,
         include: [
             { model: models.Produk,where : {tokoId :1}
             }
         ]
     }).then(function(jumlah) {
         console.log(jumlah.jumlah_produk);
-        test.done();
+        //tidak pakai grunt
+        //test.done();
     })
 }
 function statusPemesanan(test){
@@ -271,8 +358,6 @@ function postCartToInvoice(test){
         });
 }
 function insertCartToInvoice(test){
-
-
     var moment = require("moment");
     var now = moment();
     var jatuh_tempo = moment(now).add(3,'days');

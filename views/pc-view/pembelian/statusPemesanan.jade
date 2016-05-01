@@ -9,21 +9,20 @@ append contentDalam
                     }
                     return _number;
             }
-          if (transaksi.length == 0)
+          if (Invoice.length == 0)
             .alert.alert-danger
                 center: h4: b Tidak ada daftar pemesanan
           else
-              each val,index in transaksi
-                each inv,indexInv in val.Invoices
+                each inv,indexInv in Invoice
                   .row.alert.alert-info(style='width:683px; margin : 0 0px;height:240px')
                       table( width='650px')
                           tr
                               td(height='60px' width='10%' ): img(src='/images/toko/logo-toko.png' width='70px' style="margin-top:-10px")
                               td(width='22%') Pembelian dari toko : <br>
-                                  a(href='#') barokah
+                                  a(href='/toko/#{inv.Toko.id}')  #{inv.Toko.nama}
                               td(rowspan='3')
-                                  b #{inv.id} <br/>
-                                  p Tanggal transaksi : <b> #{moment(val.tanggal).format('YYYY-MM-DD')} </b>
+                                  b #{inv.kode} <br/>
+                                  p Tanggal transaksi : <b> #{moment(inv.tanggal).format('YYYY-MM-DD')} </b>
                                     | Total : <b>Rp <span id='totalTagihan#{indexInv}'></span> </b>
                                     br
                                     i.fa.fa-question-circle(style="cursor: pointer" title="Pesanan Anda akan otomatis dibatalkan apabila penjual tidak merespon dalam waktu yang ditentukan.")
@@ -35,14 +34,18 @@ append contentDalam
 
                                   .alert.alert-warning
                                       p #{moment(inv.Statuses[(inv.Statuses.length-1)].waktu).format('YYYY-MM-DD, hh:mm')} - #{inv.Statuses[(inv.Statuses.length-1)].pesan}
-                                      //todo: nomor resi di generate
-                                      p Nomor Resi  : 2132193133
-                                  if(inv.Statuses[(inv.Statuses.length-1)].pesan == 4)
-                                      a.btn.btn-primary(href='#'): i.fa.fa-check Lacak
-                                  else if(inv.Statuses[(inv.Statuses.length-1)].pesan == 5)
-                                      a.btn.btn-primary(href='#'): i.fa.fa-check Sudah Terima
+                                      if(inv.Statuses[(inv.Statuses.length-1)].id == 4)
+                                          p Nomor Resi  : #{inv.no_resi}
+
 
                                   .span.pull-right
+                                       if(inv.Statuses[(inv.Statuses.length - 1)].id == 4)
+                                            //a.btn.btn-primary(href='#'): i.fa.fa-check Lacak
+                                       else if(inv.Statuses[(inv.Statuses.length - 1)].id == 5)
+                                            //todo: perubahan status ke-5 di halaman verifikasi
+                                            //nanti pihak kurir menghubungi pihak pasarmantap
+                                            a.btn.btn-primary(href='#'): i.fa.fa-check Sudah Terima
+                                        &nbsp;
                                         button.btn.btn-primary(data-toggle='collapse' data-target='.rincianPemesanan#{indexInv}')
                                             i.fa.fa-arrow-circle-down  Detail Transaksi
                           //ini untuk rowspan

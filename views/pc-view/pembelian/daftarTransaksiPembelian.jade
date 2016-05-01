@@ -9,35 +9,20 @@ append contentDalam
                     }
                     return _number;
             }
-          //todo: rencana ke depan, pencarian invoice tertentu
-          //.container
-          //  form.form-inline
-          //      table
-          //          tr
-          //              td: input.form-control(type='text', placeholder='Invoice / Nama Pembeli')
-          //              td
-          //                  select.form-control(name='tambahkan',style='width:100px')
-          //                      option(value='gudang')  Semua Transaksi
-          //                      option(value='etalase')  Transaksi Belum Selesai
-          //                      option(value='etalase')  Transaksi Telah Selesai
-          //              td: input.form-control(type='date')
-          //              td: input.form-control(type='submit', value='cari')
-          //br
-          if (transaksi.length == 0)
+          if (Invoice.length == 0)
             .alert.alert-danger
                 center: h4: b Tidak ada daftar pemesanan
           else
-              each val,index in transaksi
-                each inv,indexInv in val.Invoices
+                each inv,indexInv in Invoice
                   .row.alert.alert-info(style='width:683px; margin : 0 0px;height:240px')
                       table( width='650px')
                           tr
                               td(height='60px' width='10%' ): img(src='/images/toko/logo-toko.png' width='70px' style="margin-top:-10px")
                               td(width='22%') Pembelian dari toko : <br>
-                                  a(href='#') barokah
+                                  a(href='/toko/#{inv.Toko.id}')  #{inv.Toko.nama}
                               td(rowspan='3')
-                                  b #{inv.id} <br/>
-                                  p Tanggal transaksi : <b> #{moment(val.tanggal).format('YYYY-MM-DD')} </b>
+                                  b #{inv.kode} <br/>
+                                  p Tanggal transaksi : <b> #{moment(inv.tanggal).format('YYYY-MM-DD')} </b>
                                     | Total : <b>Rp <span id='totalTagihan#{indexInv}'></span> </b>
                                     br
                                     i.fa.fa-question-circle(style="cursor: pointer" title="Pesanan Anda akan otomatis dibatalkan apabila penjual tidak merespon dalam waktu yang ditentukan.")
@@ -50,7 +35,7 @@ append contentDalam
                                   .alert.alert-warning
                                       p #{moment(inv.Statuses[(inv.Statuses.length-1)].waktu).format('YYYY-MM-DD, hh:mm')} - #{inv.Statuses[(inv.Statuses.length-1)].pesan}
                                       //todo: nomor resi di generate
-                                      p Nomor Resi  : 2132193133
+                                      p Nomor Resi  : 2132193133 (nanti di generate)
                                   if(inv.Statuses[(inv.Statuses.length-1)].pesan == 4)
                                       a.btn.btn-primary(href='#'): i.fa.fa-check Lacak
                                   else if(inv.Statuses[(inv.Statuses.length-1)].pesan == 5)

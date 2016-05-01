@@ -18,9 +18,6 @@ module.exports = function(sequelize, DataTypes) {
 
                     });
                     Etalase.hasMany(models.Produk);
-                    Etalase.belongsTo(models.Toko_Favorit, {
-                        foreignKey: 'TokoId'
-                    });
                 }
             }
         }

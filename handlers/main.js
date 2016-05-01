@@ -45,7 +45,7 @@ exports.utamaMobile = function(req, res){
 	)
 }
 
-exports.utama= function(req, res){
+exports.utama = function(req, res){
 	async.parallel([
 			function(callback){
 				models.Invoice_Produk.findAll({
@@ -88,31 +88,13 @@ exports.berandaMobile = function(req, res){
 		models.Wishlist.findAll({
 			include : models.Produk
 		}).then(function(wishList) {
-			//mengambil toko favorit
-			models.Toko_Favorit.findAll({
-				include : models.Toko
-			}).then(function(tokoFavorit) {
-				//pc-view id diganti sesuai sesi
-				//mengambil produk rekomendasi toko favorit
-				//harus disusun dari tabel child hingga ke parrentnya
-				models.Produk.findAll({
-					include : [
-						{ model: models.Toko,
-							include : [{model : models.Toko_Favorit,where : {PenggunaId : 1},required : false }]
-						}]
-					//attributes : ['Toko.Etalases.Produks.nama'],
-				}).then(function(rekomendasi) {
-					models.Kategori_Produk.findAll({
-						attributes : {exclude :['deskripsi']}
-					}).then(function(kategori_produk) {
-						res.render('mobile/pc-view/beranda',{
-							kategori_produk : kategori_produk,
-							hotlist : produkTerlaris,
-							rekomendasiTokoFavorit : rekomendasi,
-							tokoFavorit : tokoFavorit,
-							wishList : wishList
-						})
-					})
+			models.Kategori_Produk.findAll({
+				attributes : {exclude :['deskripsi']}
+			}).then(function(kategori_produk) {
+				res.render('mobile/pc-view/beranda',{
+					kategori_produk : kategori_produk,
+					hotlist : produkTerlaris,
+					wishList : wishList
 				})
 			})
 		})
@@ -125,7 +107,7 @@ exports.beranda = function(req, res){
 	stack.getHotList = function(callback){
 		models.Invoice_Produk.findAll({
 			attributes : ['Produk.nama','Produk.harga','Produk.gambar'],
-			limit : '3',
+			limit : '6',
 			include : models.Produk,
 			group : 'produkId',
 			order : [ [sequelize.fn('sum',sequelize.col('jumlah_produk')),'DESC'] ]
@@ -185,8 +167,12 @@ exports.ceklogin = function(req, res, next) {
 		if(pengguna){
 			req.session.penggunaId =  pengguna.id;
 			req.session.nama =  pengguna.nama;
-			req.session.tokoId =  pengguna.tokoId;
-			req.session.namaToko =  pengguna.Toko.nama;
+			req.session.foto =  pengguna.foto;
+			//saat pendaftaran awal tokoId di set 0
+			if(pengguna.TokoId != 0){
+				req.session.namaToko =  pengguna.Toko.nama;
+			}
+			req.session.tokoId =  pengguna.TokoId;
 			req.session.loggedIn =  'true';
 			res.redirect('/pc-view/beranda');
 		}else{

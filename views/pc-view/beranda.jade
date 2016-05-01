@@ -17,16 +17,20 @@ append content
               each value,index in hotlist
                 .col-sm-4
                   table(style='font-size:9pt')
-                      tr: td(colspan='2'): a(href='/produk/detail/#{value.Produk.id}'): img(src='/images/produk/#{value.Produk.gambar}', width='200px',height='180px')
-                      tr: td(width='110px'): b: a(href='/produk/detail/#{value.Produk.id}') #{value.Produk.nama}
+                      tr: td(colspan='2'): a(href='/produk/detail/#{value.Produk.id}'): img(src='/images/produk/#{value.Produk.gambar}',
+                            width='170px' height='150px')
+                      tr: td(width='70px'): b: a(href='/produk/detail/#{value.Produk.id}') #{value.Produk.nama}
                           td Harga Rp <span class='uang'> </span>
                           script.
                             document.getElementsByClassName("uang")[#{index}].innerHTML = numberFormat("#{value.Produk.harga}", ".");
-            br
-            br
-            br
-            .features_items
-              h2.title.text-center Rekomendasi Dari Toko Favorit
+                  br
+                  br
+            //todo: rencana kedepan, rekomendasi toko favorit
+            //br
+            //br
+            //br
+            //.features_items
+            //  h2.title.text-center Rekomendasi Dari Toko Favorit
 
             //.features_items
             //  // features_items

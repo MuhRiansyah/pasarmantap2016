@@ -4,29 +4,50 @@ var produkController = require('./controllers/produk.js');
 var penjualanController = require('./controllers/penjualan.js');
 var tokoController = require('./controllers/toko.js');
 var penggunaController = require('./controllers/pengguna.js');
+var adminController = require('./controllers/admin.js');
 var main = require('./handlers/main.js');
 var cart = require('./handlers/cart.js');
 
-
-function checkAuth(req, res, next) {
-	//nanti yang di destroy local sessionya
-	if (!res.locals.session.penggunaId) {
-		res.send('kamu tidak dapat mengakses halaman ini kembali ke <a href="/">halaman login</a>');
-	} else {
-		next();
-	}
-};
-
 module.exports = function(app,mobile){
+	app.get('/', main.utama);
+	app.post('/ceklogin', main.ceklogin);
+	//tampilan administrasi admin
+	adminController.registerRoutes(app,checkAuth);
 
+	//tampilan administrasi pengguna
+	app.get('/keluar', main.keluar);
+	app.get('/pc-view/beranda', checkAuth,main.beranda);
+	app.get('/baru', main.baru);
+	//request AJAX
+	app.get('/getpenerima/:idPenerima', main.getPenerima);
+
+
+	app.get('/getkabupaten/:id', main.getKabupaten);
+	app.get('/getongkir/:idKotaTujuan/:idProduk/:berat',main.getOngkir);
+	//sebelum menggunakan API
+	//app.get('/getkecamatan/:id', main.getKecamatan);
+
+	app.post('/keranjang/tambah', cart.tambahCart);
+	app.get('/keranjang/hapussemua', cart.hapusSemuaProdukCart);
+	app.get('/keranjang/hapuspertagihan/:cartId', cart.hapusSemuaPertagihan);
+	app.get('/keranjang/hapus/:produkId', cart.hapusSatuProdukCart);
+	app.get('/keranjang', cart.getCart);
+	app.post('/keranjang/simpan', cart.insertCartToInvoice);
+	app.get('/keranjang/konfirmasi', cart.konfirmasiPembelian);
+
+	produkController.registerRoutes(app,checkAuth);
+	pembelianController.registerRoutes(app,checkAuth);
+	penggunaController.registerRoutes(app,checkAuth);
+	penjualanController.registerRoutes(app,checkAuth);
+	tokoController.registerRoutes(app,checkAuth);
+
+	//nanti yang di destroy local sessionya
 	mobile.get('/', main.utamaMobile);
 	mobile.post('/cekloginmobile', main.cekloginMobile);
 	mobile.get('/beranda', main.berandaMobile);
 	mobile.get('/daftarproduk/:idKategori', produkController.daftarByKategoriMobile);
 	mobile.get('/detailproduk/:id', produkController.detailProdukMobile);
-
-
-
+	//di pindah ke halaman app.js, dikarenakan ada res.locals.session ingin dicek menggunakan variabel statusLogin
 
 	app.get('/tes-sesi', function(req,res){
 		//todo: error disini, cannot set property penggunaId undefined
@@ -47,54 +68,13 @@ module.exports = function(app,mobile){
 		delete req.session.cart;
 		res.redirect('/sesi');
 	});
-
-	// route untuk halaman tanpa controller (halaman main)
-	app.get('/', main.utama);
-	app.post('/ceklogin', main.ceklogin);
-	//di pindah ke halaman app.js, dikarenakan ada res.locals.session ingin dicek menggunakan variabel statusLogin
-	app.get('/keluar', main.keluar);
-
-	//setelah login
-	//app.get('/pc-view/beranda', checkAuth,main.beranda);
-	app.get('/pc-view/beranda', main.beranda);
-	app.get('/baru', main.baru);
-
-
-	//request AJAX
-	app.get('/getpenerima/:idPenerima', main.getPenerima);
-	app.get('/getkabupaten/:id', main.getKabupaten);
-	app.get('/getongkir/:idKotaTujuan/:idProduk/:berat',main.getOngkir);
-
-
-	//sebelum menggunakan API
-	//app.get('/getkecamatan/:id', main.getKecamatan);
-	//route untuk data produk
-	produkController.registerRoutes(app,checkAuth);
-	app.post('/keranjang/tambah', cart.tambahCart);
-	app.get('/keranjang/hapussemua', cart.hapusSemuaProdukCart);
-	app.get('/keranjang/hapuspertagihan/:cartId', cart.hapusSemuaPertagihan);
-	app.get('/keranjang/hapus/:produkId', cart.hapusSatuProdukCart);
-	app.get('/keranjang', cart.getCart);
-	app.get('/keranjang/bersihkantransaksi', cart.bersihkanTransaksi);
-	//route untuk menambah ke invoice
-	app.post('/keranjang/simpan', cart.insertCartToInvoice);
-	app.get('/keranjang/konfirmasi', cart.konfirmasiPembelian);
-	//route untuk data pembelian
-	pembelianController.registerRoutes(app,checkAuth);
-	penggunaController.registerRoutes(app);
-	//route untuk data penjualan
-	penjualanController.registerRoutes(app,checkAuth);
-	//route untuk data toko
-	tokoController.registerRoutes(app,checkAuth);
-
-	//latihan buat form dengan banyak value
-	//app.post('/test', function(req,res){
-	//	var arr = req.body.latihan;
-	//	res.send(arr[0]+' - '+arr[1]);
-	//});
-	//app.get('/latihan', function(req,res){
-	//	res.render('latihan');
-	//});
-
-
 };
+
+function checkAuth(req, res, next) {
+	if (!res.locals.session.penggunaId) {
+		res.send('kamu tidak dapat mengakses halaman ini kembali ke <a href="/">halaman login</a>');
+	} else {
+		next();
+	}
+};
+

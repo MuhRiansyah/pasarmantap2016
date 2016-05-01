@@ -11,15 +11,59 @@ module.exports = {
         app.get('/toko/profil/:idToko/:idEtalase', this.profilToko);
         app.get('/toko/profil/:idToko/', this.profilToko);
         //fitur penjual
-        app.get('/toko/buka/', this.bukaToko);
-        app.get('/toko/favorit/', this.getTokoFavorit);
-        app.get('/toko/jadikanfavorit/:idToko', this.insertTokoFavorit);
-        app.get('/toko/pengaturan/', this.pengaturanToko);
+        app.get('/toko/buka/', checkAuth,this.bukaToko);
+        app.post('/toko/post-buka/', checkAuth,this.postBukaToko);
+        app.get('/toko/favorit/', checkAuth,this.getTokoFavorit);
+        app.get('/toko/jadikanfavorit/:idToko',checkAuth, this.insertTokoFavorit);
+        app.get('/toko/pengaturan/',checkAuth, this.pengaturanToko);
+        app.post('/toko/tambah-etalase/',checkAuth, this.tambahEtalase);
+        app.post('/toko/ubah-etalase/',checkAuth, this.ubahEtalase);
     },
 
+    ubahEtalase : function(req, res, next){
+        models.Etalase.update({
+            nama : req.body.namaEtalase
+        },{ where : {id : req.body.etalaseId} }
+        ).then(function(){
+            res.redirect('/toko/pengaturan');
+        });
+    },
+    tambahEtalase : function(req, res, next){
+        models.Etalase.create({
+            nama : req.body.namaEtalase,
+            TokoId : res.locals.session.tokoId
+        }).then(function(){
+            res.redirect('/toko/pengaturan');
+        });
+    },
     bukaToko : function(req, res, next){
-        res.render('',{
-
+        if(res.locals.session.tokoId != 0){
+            res.redirect('/pc-view/beranda')
+        }else{
+            models.Provinsi.findAll({
+            }).then(function(listProvinsi){
+                res.render('pc-view/toko/bukaToko',{
+                    listProvinsi : listProvinsi
+                });
+            })
+        }
+    },
+    postBukaToko : function(req, res, next){
+        var formidable = require('formidable');
+        var form = new formidable.IncomingForm();
+        form.parse(req, function(err, fields) {
+            models.Toko.create({
+                nama : fields.nama,
+                logo : (fields.logo) ? fields.logo : 'logo-toko.png',
+                deskripsi : fields.deskripsi,
+                ProvinsiId : fields.provinsiId,
+                KabupatenId : fields.kabupatenId,
+                kecamatan : fields.kecamatan
+            }).then(function(toko){
+                req.session.namaToko = fields.nama
+                req.session.tokoId = toko.id
+                res.redirect('/pc-view/beranda');
+            })
         });
     },
     pengaturanToko : function(req, res, next){
@@ -33,10 +77,16 @@ module.exports = {
                 where   : {tokoId:res.locals.session.tokoId}
             }).then(function(produk){
                 //console.log(produk.rows[0].Etalase.nama+' - '+produk.count[0].count);
-                res.render('pc-view/toko/pengaturanToko',{
-                    produk : produk,
-                    toko : toko
-                });
+                models.Produk.findAll({
+                    //todo: produk yang belum memiliki etalase mempunyai id 0
+                    where   : {tokoId:res.locals.session.tokoId,etalaseId:'0'}
+                }).then(function(produkKeEtalase){
+                    res.render('pc-view/toko/pengaturanToko',{
+                        produk : produk,
+                        produkKeEtalase : produkKeEtalase,
+                        toko : toko
+                    });
+                })
             });
         });
     },
@@ -108,8 +158,8 @@ module.exports = {
             })
         };
         stack.getJumlahTransaksiBerhasil = function(callback){
-            models.Transaksi.findAndCountAll({
-                where : {penjualId :'1',status_tampil :'2'}
+            models.Invoice.findAndCountAll({
+                where : {tokoId :req.params.idToko,status_tampil :'2'}
             }).then(function(jumlah) {
                 callback(null,jumlah);
             });
@@ -123,7 +173,7 @@ module.exports = {
             res.render('pc-view/toko/daftarProdukPerEtalase',{
                 toko : result.getProdukMilikEtalase,
                 etalase : result.getEtalase,
-                produkTerjual : result.getJumlahProdukTerjual,
+                produkTerjual : (result.getJumlahProdukTerjual)  ? result.getJumlahProdukTerjual : '0',
                 jumlahTransaksiBerhasil : result.getJumlahTransaksiBerhasil.count,
                 namaEtalase : namaEtalase
             });

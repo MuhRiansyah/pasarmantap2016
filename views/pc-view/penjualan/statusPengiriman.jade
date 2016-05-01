@@ -9,12 +9,11 @@ append contentDalam
                     }
                     return _number;
             }
-          if (transaksi.length == 0)
+          if (Invoice.length == 0)
             .alert.alert-danger
                 center: h4: b Tidak ada daftar pengiriman
           else
-            each val,index in transaksi
-                each inv,indexInv in val.Invoices
+                each inv,indexInv in Invoice
                   .row.alert.alert-info(style='width:683px; margin : 0 0px;height:240px')
                       table( width='650px')
                           tr
@@ -23,7 +22,7 @@ append contentDalam
                                   a(href='#') barokah
                               td(rowspan='3')
                                   b #{inv.id} <br/>
-                                  p Tanggal transaksi : <b> #{moment(val.tanggal).format('YYYY-MM-DD')} </b>
+                                  p Tanggal transaksi : <b> #{moment(inv.tanggal).format('YYYY-MM-DD')} </b>
                                     | Total : <b>Rp <span id='totalTagihan#{indexInv}'></span> </b>
                                     br
                                     i.fa.fa-question-circle(style="cursor: pointer" title="Pesanan Anda akan otomatis dibatalkan apabila penjual tidak merespon dalam waktu yang ditentukan.")
@@ -71,6 +70,7 @@ append contentDalam
                                     p Rp <span id='ongkir#{indexInv}'></span>
                                     script.
                                         document.getElementById("ongkir#{indexInv}").innerHTML = numberFormat(""+#{inv.ongkos_kirim}, ".");
+                                        //todo: eror di gambar
                             tr: td(colspan='4'): h5: i.fa.fa-list  Daftar Produk
                             - each produk,indexProduk in inv.Produks
                                 tr

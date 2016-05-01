@@ -1,3 +1,4 @@
+//daftar produk penjual
 extends ../layout
 append content
 
@@ -38,7 +39,7 @@ append content
                             td(width='23%') Macbook
                             td(width='20%') Rp <span class='uang'> </span>
                             //td <a href='/produk/ubah/buku/#{value.id}'> ubah</a> <p><a href='/produk/hapus/#{value.id}'> salin</a></p><p><a href='#'> hapus</a></p>
-                            td <a href='/produk/ubah/buku/#{value.id}'> ubah</a> <p><a href='#'> hapus</a></p>
+                            td: u <a href='/produk/ubah/buku/#{value.id}'> ubah</a> <p><a href='#'> hapus</a></p>
                                 script.
                                     document.getElementsByClassName("uang")[#{indexProduk}].innerHTML = numberFormat("#{value.harga}", ".");
 

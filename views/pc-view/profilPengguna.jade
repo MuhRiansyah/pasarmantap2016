@@ -1,34 +1,130 @@
-//
-   Created by riansyahPC on 11/27/2015.
-
+// Created by riansyahPC on 11/27/2015.
 extends layoutBelanja
 append content
-   .col-sm-1
-   .col-sm-9
-      .row
-         .col-sm-2: img(src='/images/default-user-photo.png')
-         .col-sm-10
-            table.table
-               if(session.penggunaId == penerima.Pengguna.id)
-                  tr: td: button.btn.btn-danger ubah
-               tr: td: b #{penerima.Pengguna.nama}
-               tr: td  Email : #{penerima.Pengguna.email}
-               tr: td  Telepon : #{penerima.Pengguna.telepon}
-               tr: td  Tanggal lahir : #{moment(penerima.Pengguna.tanggal_lahir).format('YYYY-MM-DD')}
-               tr: td  Lokasi : #{penerima.alamat} - #{penerima.kecamatan}, #{penerima.Kabupaten.nama},#{penerima.Provinsi.nama}
-      .row
-         h4 informasi toko
-         .row
-            .col-sm-1(style="float:left;padding-right:220px "): img(src='/images/#{penerima.Pengguna.Toko.logo}')
-            .col-sm-7(style="float:left")
-               .row
-                  h2 #{penerima.Pengguna.Toko.nama}
-                  p #{penerima.Pengguna.Toko.deskripsi}
-               .row
-                  .col-sm-5
-                     a.btn.btn-primary(href='/toko/jadikanfavorit/#{penerima.Pengguna.Tokoid}') jadikan favorit
-                  .col-sm-7
-                     center
-                        .col-sm-4 <h4>#{penerima.Kabupaten.nama}</h4> lokasi
-                        .col-sm-4 <h4>#{produkTerjual}</h4> produk terjual
+        script.
+            $(document).ready(function () {
+                var ubahSandiBtn = document.getElementById('ubahSandiBtn');
+                var konfirmasiSandi = document.getElementById('konfirmasiSandi');
+                var sandi = document.getElementById('sandi');
+                var peringatanSandi = document.getElementById('peringatanSandi');
+                ubahSandiBtn.disabled = true;
+                $("#sandiLama").change(function () {
+                    $.ajax({
+                        type: 'GET',
+                        url: '/pengguna/ceksandi/' + $('#sandiLama').val(),
+                        success: function (result) {
+                            if(result == 'salah'){
+                                document.getElementById('peringatanSandiLama').innerHTML = 'sandi lama yang anda masukkan salah';
+                            }else{
+                                ubahSandiBtn.disabled = false;
+                            }
+                        }
+                    })
+                });
+                konfirmasiSandi.addEventListener("keyup", function () {
+                    if (konfirmasiSandi.value != sandi.value) {
+                        peringatanSandi.innerHTML = 'isi konfirmasi sandi sesuai dengan sandi'
+                        ubahSandiBtn.disabled = true;
+                    } else {
+                        ubahSandiBtn.disabled = false;
+                    }
+                });
+
+
+            });
+        .col-sm-1
+        .col-sm-9
+            .modal.fade(class='modal-pengubahan-sandi' tabindex='-1', role='dialog', aria-labelledby='myLargeModalLabel', aria-hidden='true')
+                .modal-dialog.modal-sm
+                    .modal-content
+                        .modal-header
+                            h4 Pengubahan sandi
+                        .modal-body(style='padding: 40px')
+                            form(method='post' action='/pengguna/gantisandi/')
+                                table(width='520px')
+                                    tr: td(width='20%') Sandi Lama
+                                        td(colspan=4): input#sandiLama.form-control(required=true type='password' name='sandiLama')
+                                        small(style='color : red')#peringatanSandiLama
+                                    tr: td Sandi
+                                        td(colspan=4): input#sandi.form-control(required=true type='password' name='sandi')
+                                    tr: td Konfirmasi Sandi
+                                        td(colspan=4)
+                                            input#konfirmasiSandi.form-control(required=true type='password' )
+                                            small(style='color : red')#peringatanSandi
+
+                                center: input#ubahSandiBtn.btn.btn-primary(type='submit' value='Ubah Sandi' )
+            .modal.fade(class='modal-pengubahan-profil' tabindex='-1', role='dialog', aria-labelledby='myLargeModalLabel', aria-hidden='true')
+                .modal-dialog.modal-sm
+                    .modal-content
+                        .modal-header
+                            h4 Pengubahan profil
+                        .modal-body(style='padding: 40px')
+                            form(method='post',action='/pengguna/gantifoto/' enctype='multipart/form-data')
+                                table(width='520px')
+                                    tr: td(width='20%') Email
+                                        td(colspan=4): input.form-control(required=true type='email' name=penerima.Pengguna.email)
+                                    tr: td Nama
+                                        td: input.form-control(type='text' name='nama' value=penerima.Pengguna.nama)
+                                    tr: td Jenis Kelamin
+                                        td(height=70)
+                                            select#jenisKelaminInput.form-control(required=true name='jenis_kelamin')
+                                                option(value='0') Laki-laki
+                                                option(value='1') Perempuan
+                                    tr: td Foto diri
+                                        td
+                                            //TODO: saat upload ganti toko berhasil , ganti src gambar lewat jquery dibawah
+                                            img(src='/images/pengguna/default-user-photo.png' width='100px')
+                                            br
+                                            span.btn.btn-default.btn-file
+                                                | Ganti Foto
+                                                input#fieldPhotoPengguna.form-control(type='file', name='photo', accept='image/*', data-url='/upload-gambar-pengguna')
+                                                input#photoNamePengguna(type='hidden' name='foto')
+                                            #fileUploadsPengguna
+                                    script(src='/vendor/jquery-file-upload/js/vendor/jquery.ui.widget.js')
+                                    script(src='/vendor/jquery-file-upload/js/jquery.iframe-transport.js')
+                                    script(src='/vendor/jquery-file-upload/js/jquery.fileupload.js')
+                                    script.
+                                        $(document).ready(function () {
+                                            //cara kerja library ini memungkinkan photo telah diupload sebelum form disubmit
+                                            $('#fieldPhotoPengguna').fileupload({
+                                                dataType: 'json',
+                                                done: function (e, data) {
+                                                    $.each(data.result.files, function (index, file) {
+                                                        $('#fileUploadsPengguna').append($('<div class="upload">' +
+                                                                '<span class="glyphicon glyphicon-ok"></span>&nbsp;' +
+                                                                file.originalName + '</div>'));
+                                                        $('#photoNamePengguna').val(file.originalName);
+                                                    });
+                                                }
+                                            });
+                                        });
+                                center: input.btn.btn-primary(type='submit' value='Ubah Profil' )
+            .row <br>
+                .col-sm-2: img(src='/images/default-user-photo.png')
+                .col-sm-10
+                    table.table
+                        if(session.penggunaId == penerima.Pengguna.id)
+                            //todo: menggunakan modal pengubahan
+                            tr: td
+                                    a.btn.btn-danger(data-toggle='modal' data-target='.modal-pengubahan-profil') ubah profil
+                                    &nbsp;
+                                    a.btn.btn-danger(data-toggle='modal' data-target='.modal-pengubahan-sandi') ubah sandi
+                        tr: td: b #{penerima.Pengguna.nama}
+                        tr: td  Email : #{penerima.Pengguna.email}
+                        tr: td  Jenis Kelamin : #{(penerima.Pengguna.jenis_kelamin == 0) ? 'Laki-laki ' : 'Perempuan'}
+            .row
+                h4 informasi toko
+                .row
+                    .col-sm-1(style="float:left;padding-right:220px "): img(src='/images/#{penerima.Pengguna.Toko.logo}')
+                    .col-sm-7(style="float:left")
+                        .row
+                            h2 #{penerima.Pengguna.Toko.nama}
+                            p #{penerima.Pengguna.Toko.deskripsi}
+                        .row
+                            .col-sm-5
+                                a.btn.btn-primary(href='/toko/jadikanfavorit/#{penerima.Pengguna.Tokoid}') jadikan favorit
+                            .col-sm-7
+                                center
+                                    .col-sm-4 <h4>#{penerima.Kabupaten.nama}</h4> lokasi
+                                    .col-sm-4 <h4>#{produkTerjual}</h4> produk terjual
 
