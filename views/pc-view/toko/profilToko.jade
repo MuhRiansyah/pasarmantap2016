@@ -11,10 +11,7 @@ append content
                h2 #{toko.nama}
                p #{toko.deskripsi}
             .row
-               if(session.tokoId != toko.id)
-                  .col-sm-5: a.btn.btn-primary(href='/toko/jadikanfavorit/#{toko.id}') jadikan favorit
-               else
-                  .col-sm-5
+               .col-sm-5
                .col-sm-7
                   center
                      h4 informasi toko

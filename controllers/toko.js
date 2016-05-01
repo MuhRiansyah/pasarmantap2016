@@ -13,8 +13,6 @@ module.exports = {
         //fitur penjual
         app.get('/toko/buka/', checkAuth,this.bukaToko);
         app.post('/toko/post-buka/', checkAuth,this.postBukaToko);
-        app.get('/toko/favorit/', checkAuth,this.getTokoFavorit);
-        app.get('/toko/jadikanfavorit/:idToko',checkAuth, this.insertTokoFavorit);
         app.get('/toko/pengaturan/',checkAuth, this.pengaturanToko);
         app.post('/toko/tambah-etalase/',checkAuth, this.tambahEtalase);
         app.post('/toko/ubah-etalase/',checkAuth, this.ubahEtalase);
@@ -90,26 +88,7 @@ module.exports = {
             });
         });
     },
-    insertTokoFavorit : function(req, res, next){
-        models.Toko_Favorit.create({
-            include : models.Toko
-        }).then(function(tokoFavorit) {
-            redirect('/');
-        })
-    },
-    getTokoFavorit : function(req, res, next){
-        models.Toko_Favorit.findAll({
-            include : models.Toko,
-            where   : {PenggunaId:1}
-        }).then(function(tokoFavorit) {
-            //pc-view id diganti sesuai sesi
-            //mengambil produk rekomendasi toko favorit
-            //harus disusun dari tabel child hingga ke parrentnya
-            res.render('pc-view/toko/daftarTokoFavorit',{
-                tokoFavorit : tokoFavorit
-            })
-        })
-    },
+
 
     profilToko : function(req, res, next){
         var stack = {};
