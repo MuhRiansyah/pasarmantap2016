@@ -49,25 +49,25 @@ module.exports = function(app,mobile){
 	mobile.get('/detailproduk/:id', produkController.detailProdukMobile);
 	//di pindah ke halaman app.js, dikarenakan ada res.locals.session ingin dicek menggunakan variabel statusLogin
 
-	app.get('/tes-sesi', function(req,res){
-		//todo: error disini, cannot set property penggunaId undefined
-		req.session.penggunaId =  1;
-		req.session.nama =  'r';
-		req.session.tokoId =  1;
-		req.session.namaToko =  'toko';
-		req.session.loggedIn =  'true';
-		res.redirect('/sesi');
-	});
-	app.get('/hapus-sesi', function(req,res){
-		//tidak bisa mendelete req.session
-		delete req.session.nama;
-		delete req.session.penggunaId;
-		delete req.session.tokoId;
-		delete req.session.namaToko;
-		delete req.session.loggedIn;
-		delete req.session.cart;
-		res.redirect('/sesi');
-	});
+	//app.get('/tes-sesi', function(req,res){
+	//	//todo: error disini, cannot set property penggunaId undefined
+	//	req.session.penggunaId =  1;
+	//	req.session.nama =  'r';
+	//	req.session.tokoId =  1;
+	//	req.session.namaToko =  'toko';
+	//	req.session.loggedIn =  'true';
+	//	res.redirect('/sesi');
+	//});
+	//app.get('/hapus-sesi', function(req,res){
+	//	//tidak bisa mendelete req.session
+	//	delete req.session.nama;
+	//	delete req.session.penggunaId;
+	//	delete req.session.tokoId;
+	//	delete req.session.namaToko;
+	//	delete req.session.loggedIn;
+	//	delete req.session.cart;
+	//	res.redirect('/sesi');
+	//});
 };
 
 function checkAuth(req, res, next) {
