@@ -18,10 +18,11 @@ append contentDalam
             }
         .row
             each val,index in daftarInvoice
-                .modal.fade(class='modal-konfirmasi#{index}' tabindex='-1', role='dialog', aria-labelledby='myLargeModalLabel', aria-hidden='true')
-                    .modal-dialog.modal-sm
+                .modal.fade(class='modal-konfirmasi#{index}'  role='dialog')
+                      .modal-dialog
                         .modal-content
                             .modal-header
+                                button.close(type='button', data-dismiss='modal') ×
                                 h4 Konfirmasi Pembayaran
                             .modal-body(style='padding: 40px')
                                 form(method='post',action='/pembelian/konfirmasipembayaran/post' enctype='multipart/form-data')
@@ -53,31 +54,7 @@ append contentDalam
                                         tr: td(colspan=2): hr
                                         tr: td Rekening Tujuan
                                             td 039393091 A/N PT Bridea Indonesia
-                                        tr: td Unggah Bukti Pembayaran
-                                            td
-                                                span.btn.btn-default.btn-file
-                                                    | Upload
-                                                    input#fieldPhoto.form-control(type='file', name='photo', accept='image/*', data-url='/upload-bukti-pembayaran')
-                                                    input#photoName(type='hidden', name='gambar_bukti_pembayaran' )
-                                                #fileUploads
-                                            script(src='/vendor/jquery-file-upload/js/vendor/jquery.ui.widget.js')
-                                            script(src='/vendor/jquery-file-upload/js/jquery.iframe-transport.js')
-                                            script(src='/vendor/jquery-file-upload/js/jquery.fileupload.js')
-                                            script.
-                                                $(document).ready(function () {
-                                                    //cara kerja library ini memungkinkan photo telah diupload sebelum form disubmit
-                                                    $('#fieldPhoto').fileupload({
-                                                        dataType: 'json',
-                                                        done: function (e, data) {
-                                                            $.each(data.result.files, function (index, file) {
-                                                                $('#fileUploads').append($('<div class="upload">' +
-                                                                        '<span class="glyphicon glyphicon-ok"></span>&nbsp;' +
-                                                                        file.originalName + '</div>'));
-                                                                $('#photoName').val(file.originalName);
-                                                            });
-                                                        }
-                                                    });
-                                                });
+                                        //unggah bukti pembayaran dihilangkan karena transfer masuk dapat dicek di mobile banking    
                                         tr: td: br
                                     center
                                         input.btn.btn-primary(type='submit' value='Konfirmasi' )
@@ -93,15 +70,15 @@ append contentDalam
                 .span.pull-right: button.btn.btn-primary(data-toggle='collapse' data-target='.rincianTransaksi#{index}') Detail Transaksi
                 .span.pull-right &nbsp
                 .span.pull-right: a.btn.btn-primary(data-toggle='modal' data-target='.modal-konfirmasi#{index}')  Konfirmasi
-            //.row(class='rincianTransaksi#{index}').collapse
-            .row(class='rincianTransaksi#{index}')
+            //- .row(class='rincianTransaksi#{index}')
+            .row(class='rincianTransaksi#{index}').collapse
                 .row(style='margin : -10px 20px')
                       table(border='1', width='670px')
                             tr
                                 td(height='40px', colspan='3')
                                     span(style='font-size : 11pt')
                                         | Pembelian dari toko :
-                                        a(href='/toko/#{val.Toko.id}')  #{val.Toko.nama}
+                                        a(href='/toko/profil/#{val.Toko.id}')  #{val.Toko.nama}
                                     span.pull-right(style='font-size : 12pt;font-weight:bold;padding-right:10px')
                                         | #{val.kode}
                             each produk,indexProduk in val.Produks

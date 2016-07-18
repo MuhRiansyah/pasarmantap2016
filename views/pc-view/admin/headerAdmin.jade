@@ -22,7 +22,8 @@ append header
                             ul.nav.navbar-nav
                                 li: u: a(href='/admin/verifikasipembayaran/sudah') Sudah Diverifikasi
                                 li: u: a(href='/admin/verifikasipembayaran/belum') Belum Diverifikasi
-                                li: u: a(href='/admin/pengirimansampai/kirimansampai') Pengiriman Sampai
+                                li: u: a(href='/admin/dalampengiriman') Dalam Proses Pengiriman
+                                li: u: a(href='/admin/sampaiDitujuan') Sampai Ditujuan
                                 if (session.loggedIn)
                                     li: i.fa.fa-male=' Superadmin'
                                     li: a(href='/keluar'): i.fa.fa-power-off  Log Out

@@ -35,17 +35,19 @@ append contentDalam
                                 p: i.fa.fa-question-circle(style="cursor: pointer"
                                     title="Pesanan Anda akan otomatis dibatalkan " +
                                     "apabila penjual tidak merespon dalam waktu " +
-                                    "yang ditentukan."): b='jatuh tempo : ' + 4 + 'xxx hari lagi'
+                                    "yang ditentukan."): b='jatuh tempo : ' +moment(inv.jatuh_tempo).format('YYYY-MM-DD') 
                             td
                                 p: small='a/n '+inv.Penerima.nama
                                     | <br/> #{inv.Penerima.alamat} <br/>
                                     | #{inv.Penerima.kecamatan} - #{inv.Penerima.Kabupaten.nama}, #{inv.Penerima.Provinsi.nama}
-                                p: i.fa.fa-eye: a(href='#' data-toggle='modal' data-target='.modal-detail#{index}#{indexInv}')  detail transaksi
+                                //- p: i.fa.fa-eye: a(href='#' data-toggle='modal' data-target='.modal-detail#{index}#{indexInv}')  detail transaksi
                             td
                                 p: small: b jasa pengiriman - Reguler
                                 p: input#noresi.form-control.input-sm(name='noresi' type='number' placeholder='masukkan no resi' required=true)
                                 p: small: b
-                                    | ongkos kirim Rp <span id='ongkosKirim#{index}#{indexInv}'></span>
+                                    | ongkos kirim Rp <span id='ongkosKirim#{indexInv}'></span>
+                                script.
+                                  document.getElementById("ongkosKirim#{indexInv}").innerHTML = numberFormat("#{inv.ongkos_kirim}", ".");    
                             td
                                 input(type='hidden' value='#{inv.id}')
                                 p: input.btn.btn-primary(type='submit' value='konfirmasi' required=true)

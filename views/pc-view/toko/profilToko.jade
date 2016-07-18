@@ -43,17 +43,8 @@ append content
                         ul.nav.nav-list
                            li.nav-header: h4 Etalase
                            li: a(href='/toko/profil/#{toko.id}#etalase') Semua Etalase
-                           each value in etalase
-                              li: a(href='/toko/profil/#{toko.id}/#{value.id}#etalase') #{value.nama}
+                           //- hanya menampilkan etalase yang memiliki produk
+                           each val,index in etalase.rows
+                              li: a(href='/toko/profil/#{toko.id}/#{val.Etalase.id}#etalase') #{val.Etalase.nama} (#{(etalase.count[index].count) ? etalase.count[index].count : 1})</b><br/>
             .col-sm-7
                block produkMilikEtalase
-               //h3#etalase Semua Etalase <br/><br/>
-               //each value,indexProduk in toko.Produk
-               //   div(style='width:160px;height:270px;float:left')
-               //      | <a href='/produk/detail/#{value.id}'>
-               //      | <img src='/images/produk/#{value.gambar}', style='height: 150px;width:140px'/> <br/> </a>
-               //      | <h4> Rp <span class='uang'> </h4>
-               //      | <a href='/produk/detail/#{value.id}'> #{value.nama} </a><br/>
-               //   script.
-               //      document.getElementsByClassName("uang")[#{indexProduk}].innerHTML = numberFormat("#{value.harga}", ".");
-

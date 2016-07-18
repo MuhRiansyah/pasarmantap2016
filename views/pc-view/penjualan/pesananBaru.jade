@@ -14,7 +14,7 @@ append contentDalam
                             p Tanggal transaksi : <b> #{moment(inv.tanggal).format('YYYY-MM-DD')} </b>
                                 i.fa.fa-question-circle(style="cursor: pointer" title="Pesanan Anda akan otomatis dibatalkan apabila penjual tidak merespon dalam waktu yang ditentukan.")
                                 small  Jatuh tempo respon :
-                                    span(style="background-color:blue;color : white;padding:2px") x hari lagi ???
+                                    span(style="background-color:blue;color : white;padding:2px") #{moment(inv.jatuh_tempo).format('YYYY-MM-DD')}
                                 p
                                     a.btn.btn-primary(href='/penjualan/pesananbaru/update/terima/#{inv.id}'): i.fa.fa-check Terima Pesanan
                                     &nbsp;

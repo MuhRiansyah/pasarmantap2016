@@ -8,6 +8,8 @@ var credentials = require('../api/credentials.js');
 var ongkir = require('../api/rajaOngkir')({
     key: credentials.rajaOngkir.key
 });
+var statusTampil = require('../statusTampil');
+
 //dari url app.post('/keranjang/tambah', cart.tambahCart);
 exports.tambahCart = function(req, res, next) {
     var cart = req.session.cart || (req.session.cart = []);
@@ -35,7 +37,6 @@ exports.tambahCart = function(req, res, next) {
             for(var valPro in cart[val].Produk){
                 totalBeratPerTagihan = totalBeratPerTagihan + cart[val].Produk[valPro].totalBerat;
             }
-            //todo: diganti saat sudah bisa online
             //ongkir.getOngkosKirim(
             ongkir.getOngkosKirimOffline(
                 //idKotaAsalToko,idKotaPenerima,berat,
@@ -43,6 +44,7 @@ exports.tambahCart = function(req, res, next) {
                 cart[val].Penerima[0].Kabupaten[0].id,
                 totalBeratPerTagihan,
                 function(ongkosKirim){
+                    //masalahnya ongkoskirimnya masih object, disini
                     cart[val].ongkosKirim = ''+ongkosKirim;
                     //console.error(val+' - '+cart[val].ongkosKirim);
                     console.error('---- dalam 1 invoice ada banyak produk----');
@@ -194,7 +196,7 @@ exports.insertCartToInvoice = function(req, res, next) {
             tanggal : moment(now).format('YYYY-MM-DD'),
             jatuh_tempo : moment(jatuh_tempo).format('YYYY-MM-DD'),
             total_pembelian : req.body.total_pembelian,//eror disini, jika ada 2 pembelian toko
-            status_tampil : 1,
+            status_tampil : statusTampil.sudahCekOutOrder,
             pembeliId : res.locals.session.penggunaId,
             TokoId : tokoArr[countCart],
             //todo-eror : total berat dan total harga jika ada 2 invoice jadi bagus, jika cuman 1 invoice,cuman diambil 1 digit
@@ -206,7 +208,7 @@ exports.insertCartToInvoice = function(req, res, next) {
         }).then(function(invoice){
             models.Invoice_Status.create({
                 invoiceId : invoice.id,
-                statusId : 0,
+                statusId : statusTampil.sudahCekOutOrder,
                 waktu : moment(now).format('YYYY-MM-DD HH:mm')
             })
         })
@@ -221,7 +223,7 @@ exports.insertCartToInvoice = function(req, res, next) {
     models.sequelize.query(sql)
         .then(function(){
             req.session.total_pembelian = req.body.total_pembelian;
+            delete req.session.cart;
             res.redirect('/keranjang/konfirmasi');
         });
-
 };

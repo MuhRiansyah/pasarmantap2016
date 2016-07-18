@@ -5,6 +5,8 @@ var models = require('../models');
 var async = require('async');
 var moment = require('moment');
 
+
+
 statusPengiriman();
 function statusPengiriman(){
     models.Invoice.findAll({

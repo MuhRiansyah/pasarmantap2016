@@ -6,6 +6,7 @@ var tokoController = require('./controllers/toko.js');
 var penggunaController = require('./controllers/pengguna.js');
 var adminController = require('./controllers/admin.js');
 var main = require('./handlers/main.js');
+var ongkir = require('./handlers/ongkir.js');
 var cart = require('./handlers/cart.js');
 
 module.exports = function(app,mobile){
@@ -17,13 +18,12 @@ module.exports = function(app,mobile){
 	//tampilan administrasi pengguna
 	app.get('/keluar', main.keluar);
 	app.get('/pc-view/beranda', checkAuth,main.beranda);
-	app.get('/baru', main.baru);
 	//request AJAX
 	app.get('/getpenerima/:idPenerima', main.getPenerima);
 
 
 	app.get('/getkabupaten/:id', main.getKabupaten);
-	app.get('/getongkir/:idKotaTujuan/:idProduk/:berat',main.getOngkir);
+	app.get('/getongkir/:idKotaTujuan/:idProduk/:berat',ongkir.getOngkir);
 	//sebelum menggunakan API
 	//app.get('/getkecamatan/:id', main.getKecamatan);
 
@@ -49,25 +49,6 @@ module.exports = function(app,mobile){
 	mobile.get('/detailproduk/:id', produkController.detailProdukMobile);
 	//di pindah ke halaman app.js, dikarenakan ada res.locals.session ingin dicek menggunakan variabel statusLogin
 
-	//app.get('/tes-sesi', function(req,res){
-	//	//todo: error disini, cannot set property penggunaId undefined
-	//	req.session.penggunaId =  1;
-	//	req.session.nama =  'r';
-	//	req.session.tokoId =  1;
-	//	req.session.namaToko =  'toko';
-	//	req.session.loggedIn =  'true';
-	//	res.redirect('/sesi');
-	//});
-	//app.get('/hapus-sesi', function(req,res){
-	//	//tidak bisa mendelete req.session
-	//	delete req.session.nama;
-	//	delete req.session.penggunaId;
-	//	delete req.session.tokoId;
-	//	delete req.session.namaToko;
-	//	delete req.session.loggedIn;
-	//	delete req.session.cart;
-	//	res.redirect('/sesi');
-	//});
 };
 
 function checkAuth(req, res, next) {

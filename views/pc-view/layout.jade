@@ -7,9 +7,7 @@ html(lang='en')
     link(href='/stylesheets/main.css', rel='stylesheet')
     script(src='/javascripts/jquery-1.11.3.min.js')
     script(src='/javascripts/bootstrap-3.3.5.min.js')
-    link(href='/stylesheets/dataTables.bootstrap.css', rel='stylesheet')
-    //penghalang efek toogle
-    script(src='/javascripts/datatables.min.js')
+    link(href='/stylesheets/dataTables.bootstrap.css', rel='stylesheet')    
   body
     include ../header
   section <br/>
@@ -26,14 +24,15 @@ html(lang='en')
                   ul.nav.nav-list.navigasi
                     li.nav-header: h5: b Toko Saya
                     li
-                      if(session.tokoId != 0)
+                      if(session.tokoId)
                         a(href='/toko/profil/#{session.tokoId}'): b=session.namaToko
                       else
                         a(href='/toko/buka'): b Buka Toko Baru
                     li: a(href='/penjualan/daftarpenjualan') Penjualan
                     li: a(href='/produk/tambah') Tambah Produk
                     li: a(href='/produk/daftar') Daftar Produk
-                    li: a(href='/toko/pengaturan') Pengaturan Toko
+                    if(session.tokoId != 0)
+                      li: a(href='/toko/pengaturan') Pengaturan Toko
                     li.nav-header: h5: b Profil Saya
                     //li: a(href='/pemberitahuan') Pemberitahuan
                     li: a(href='/pembelian/daftartransaksi') Pembelian

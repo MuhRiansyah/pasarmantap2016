@@ -23,72 +23,18 @@ module.exports = function(rajaOngkirOptions){
                 "key": rajaOngkirOptions.key
             }
         };
-        //melakukan dekrispi dari api-key , nanti aja digunakan
-        //var bearerToken = Buffer(
-        //    encodeURIComponent(rajaOngkirOptions.key) + ':' +
-        //    encodeURIComponent(rajaOngkirOptions.consumerSecret)
-        //).toString('base64');
-        //var options = {
-        //    hostname: 'api.twitter.com',
-        //    port: 443,
-        //    method: 'POST',
-        //    path: '/oauth2/token?grant_type=client_credentials',
-        //    headers: {
-        //        'Authorization': 'Basic ' + bearerToken,
-        //    },
-        //};
-        //mengambilkan kode token yang digunakan untuk mengakses
-        //https.request(options, function(res){
-        //    var data = '';
-        //    res.on('data', function(chunk){
-        //        data += chunk;
-        //    });
-        //    res.on('end', function(){
-        //        var auth = JSON.parse(data);
-        //        if(auth.token_type!=='bearer') {
-        //            console.log('Twitter auth failed.');
-        //            return;
-        //        }
-        //        accessToken = auth.access_token;
-        //        cb(accessToken);
-        //    });
-        //}).end();
     }
-    // tahapan awal untuk otentifikasi twitter
-    // data-data yang akan dikembalikan, perhatikan pola method dibawah
     return {
-        //getListProvinsi : function(cb){
-        //        var options = {
-        //            "method": "GET",
-        //            "hostname": "api.rajaongkir.com",
-        //            "port": null,
-        //            "path": "/starter/province",
-        //            "headers": {
-        //                "key": rajaOngkirOptions.key
-        //            }
-        //        };
-        //        //cek penggunaan https dan http secara bersamaan di nodejs
-        //        http.request(options, function(res){
-        //            var chunks = [];
-        //            res.on('data', function(chunk){
-        //                chunks.push(chunk);
-        //            });
-        //            res.on('end', function(){
-        //                //console.log(JSON.parse(chunks));
-        //                var provinsi = JSON.parse(chunks);
-        //                cb(provinsi.rajaongkir.results);
-        //            });
-        //        }).end();
-        //},
         getOngkosKirimOffline : function(idKotaAsal,idKotaTujuan,beratProduk,cb){
-            if(beratProduk > 1000){
-                cb(20000);
-            }else if(beratProduk > 500){
-                cb(10000);
+            var ongkir = {"rajaongkir":{"query":{"origin":"44","destination":"17","weight":800,"courier":"pos"},"status":{"code":200,"description":"OK"},"origin_details":{"city_id":"44","province_id":"14","province":"Kalimantan Tengah","type":"Kabupaten","city_name":"Barito Selatan","postal_code":"73711"},"destination_details":{"city_id":"17","province_id":"1","province":"Bali","type":"Kabupaten","city_name":"Badung","postal_code":"80351"},"results":[{"code":"pos","name":"POS Indonesia (POS)","costs":[{"service":"Surat Kilat Khusus","description":"Surat Kilat Khusus","cost":[{"value":36500,"etd":"2-4","note":""}]}]}]}};            
+            if(beratProduk > 1000 && idKotaTujuan > 20){
+                ongkir.rajaongkir.results[0].costs[0].cost[0]['value'] = 100000;
+            }else if(beratProduk > 500 && idKotaTujuan > 10){
+                ongkir.rajaongkir.results[0].costs[0].cost[0]['value'] = 50000;
             }else{
-                cb(5000);
+                ongkir.rajaongkir.results[0].costs[0].cost[0]['value'] = 2000;
             }
-
+            cb(ongkir.rajaongkir.results[0].costs[0].cost[0]['value']);
         },
         //saatpengujian selesai gunakan yang versi API ini
         getOngkosKirim : function(idKotaAsal,idKotaTujuan,beratProduk,cb){
@@ -113,11 +59,14 @@ module.exports = function(rajaOngkirOptions){
                 res.on("end", function (err,next) {
                     var ongkir = JSON.parse(chunks);
                     if(err){
-                        console.log(ongkir.rajaongkir.results);
+                        console.log(err);                        
                         next();
                     }
-                    cb(ongkir.rajaongkir.results[0].costs[0].cost[0].value);
-
+                    if( !(ongkir.rajaongkir.results[0].costs[0]) ){
+                        cb('405');
+                    }else{
+                        cb(ongkir.rajaongkir.results[0].costs[0].cost[0]['value']);    
+                    }
                 });
             });
 
@@ -130,30 +79,5 @@ module.exports = function(rajaOngkirOptions){
             req.end();
         },
 
-        //getListKabupaten : function(idProvinsi,cb){
-        //    var options = {
-        //        "method": "GET",
-        //        "hostname": "api.rajaongkir.com",
-        //        "port": null,
-        //        "path": "/starter/city?province="+idProvinsi,
-        //        "headers": {
-        //            "key": rajaOngkirOptions.key
-        //        }
-        //    };
-        //    //cek penggunaan https dan http secara bersamaan di nodejs
-        //    http.request(options, function(res){
-        //        var chunks = [];
-        //        res.on('data', function(chunk){
-        //            chunks.push(chunk);
-        //        });
-        //        res.on('end', function(err,next){
-        //            if(err){
-        //                next();
-        //            }
-        //            var kabupaten = JSON.parse(chunks);
-        //            cb(kabupaten.rajaongkir.results);
-        //        });
-        //    }).end();
-        //},
     };
 };

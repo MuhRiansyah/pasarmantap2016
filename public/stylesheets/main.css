@@ -6,7 +6,6 @@ body {
   font-family: 'Roboto', sans-serif;
   font-size: 10pt;  
   position: relative;
-
   background: #fcfcfc
   /*background: white*/
 }
@@ -107,7 +106,6 @@ a#scrollUp i{
   background: none repeat scroll 0 0 #555500;
 }
 .headerPasar{
-  position: fixed;
   margin : 0 auto;
   width: 100%;
   background-color: #fcfcfc;
@@ -117,10 +115,7 @@ a#scrollUp i{
   z-index: 99;
 }
 .containerIsiBelanja{
-  margin: 100px 110px;
-}
-.containerIsi{
-  margin: 100px 80px
+  margin: 0px 110px;
 }
 .contactinfo ul li:first-child{
     margin-left: -15px;

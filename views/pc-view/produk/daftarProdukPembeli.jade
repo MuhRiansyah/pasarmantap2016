@@ -6,16 +6,31 @@ append content
     p(style='text-align : justify') #{kategori_produk.deskripsi}
   hr
   .col-sm-9(style='margin : 10px 100px')
-    .col-sm-2.pull-right
-      select(name='pilihan')
-        option(value='barokah')  Pilih Lokasi
-        option(value='barokah')  Kendari
-        option(value='barokah')  Cianjur
+    script.
+          $(document).ready(function () {
+              $("#pilihanUrut").change(function () {
+                  $.ajax({
+                      type: 'GET',
+                      url: '/produk/urut/' +#{kategori_produk.id}+'/'+$('#pilihanUrut option:selected').val(),
+                      success: function (result) {
+                          $('#daftarProduk').empty();
+                          console.log(result.produkHTML);
+                          document.getElementById('daftarProduk').innerHTML = result.produkHTML
+                      }
+                  })
+              });
+          });
+    // todo: perkembangan kedepan
+    //.col-sm-3.pull-right
+    //  select#pilihanLokasi(name='pilihanLokasi').form-control
+    //    option(value='barokah')  Pilih Lokasi
+    //    option(value='barokah')  Kendari
+    //    option(value='barokah')  Cianjur
     .col-sm-3.pull-right
-      select(name='pilihan')
-        option(value='barokah')  Urut Berdasar
-        option(value='barokah')  Termurah
-        option(value='barokah')  Termahal
+      select#pilihanUrut(name='pilihanUrut' ).form-control
+        option  Urut Berdasar
+        option(value='1')  Termurah
+        option(value='2')  Termahal
     br
     hr
     br
@@ -29,16 +44,16 @@ append content
                 return _number;
             }
 
-    div
-    if(daftar_produk.length == 0)
-        .alert.alert-danger: center: h4 Tidak ada produk yang terdaftar
-    else
-      each value,n in daftar_produk
-        div(style='width:160px;height:270px;float:left')
-            |<a href='/produk/detail/#{value.id}' >
-            | <img src='/images/produk/#{value.gambar}', id='detailProduk#{n}', style='height: 150px;width:140px'/> <br/> </a>
-            | <h4> Rp <span class='uang'> </h4>
-            | <a href='/produk/detail/#{value.id}'> #{value.nama} </a><br/>
-            | <i class='fa fa-flag'></i>  #{value.Toko.Kabupaten.nama} <br/><a href='#'> #{value.Toko.nama} </a>
-            script.
-                document.getElementsByClassName("uang")[#{n}].innerHTML = numberFormat("#{value.harga}",".");
+    #daftarProduk
+        if(daftar_produk.length == 0)
+            .alert.alert-danger: center: h4 Tidak ada produk yang terdaftar
+        else
+          each value,n in daftar_produk
+            div(style='width:160px;height:270px;float:left')
+                |<a href='/produk/detail/#{value.id}' >
+                | <img src='/images/produk/#{value.gambar}', id='detailProduk#{n}', style='height: 150px;width:140px'/> <br/> </a>
+                | <h4> Rp <span class='uang'> </h4>
+                | <a href='/produk/detail/#{value.id}'> #{value.nama} </a><br/>
+                | <i class='fa fa-flag'></i>  #{value.Toko.Kabupaten.nama} <br/><a href='/toko/profil/#{value.Toko.id}'> #{value.Toko.nama} </a>
+                script.
+                    document.getElementsByClassName("uang")[#{n}].innerHTML = numberFormat("#{value.harga}",".");

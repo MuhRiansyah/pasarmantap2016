@@ -19,10 +19,10 @@ append content
         .row(style='height:10px')
         each value,n in wishList
             div(style='width:160px;height:270px;float:left')
-                | <a href='/produk/detail/#{value.Produk.id}'>
+                | <a href='/produk/detail/#{value.ProdukId}'>
                 | <img src='/images/produk/#{value.Produk.gambar}', style='height: 150px;width:140px'/> <br/> </a>
                 | <h4> Rp <span class='uang-wishlist'> </h4>
                 | <a href='/produk/detail/#{value.Produk.id}'> #{value.Produk.nama} </a><br/>
-                | <i class='fa fa-dribbble'></i>  jakarta <br/><a href='#'> Barokah Clothing</a>
+                | <i class='fa fa-flag'></i>  #{value.Produk.Toko.Kabupaten.nama} <br/><a href='/toko/profil/#{value.Produk.Toko.id}'> #{value.Produk.Toko.nama} </a>
                 script.
                     document.getElementsByClassName("uang-wishlist")[#{n}].innerHTML = numberFormat("#{value.Produk.harga}", ".");

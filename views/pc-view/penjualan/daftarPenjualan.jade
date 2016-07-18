@@ -18,16 +18,17 @@ append contentDalam
                       table( width='650px')
                           tr
                               td(height='60px' width='10%' ): img(src='/images/toko/logo-toko.png' width='70px' style="margin-top:-10px")
-                              td(width='21%') Pembelian dari toko : <br>
-                                  a(href='#') barokah
+                              td(width='21%') Pembelian oleh : <br>
+                                  a(href='/pengguna/profil/#{inv.pembeliId}')  #{inv.Pengguna.nama}
                               td(rowspan='3')
-                                  b #{inv.id} <br/>
+                                  b #{inv.kode} <br/>
                                   p Tanggal transaksi : <b> #{moment(inv.tanggal).format('YYYY-MM-DD')} </b>
                                     | Total : <b>Rp <span id='totalTagihan#{indexInv}'></span> </b>
+                                    br
                                     i.fa.fa-question-circle(style="cursor: pointer" title="Pesanan Anda akan otomatis dibatalkan apabila penjual tidak merespon dalam waktu yang ditentukan.")
                                     //todo: dihitung
                                     small  batal otomatis :
-                                        span(style="background-color:blue;color : white;padding:2px") besok
+                                        span(style="background-color:blue;color : white;padding:2px") #{moment(inv.jatuh_tempo).format('YYYY-MM-DD')}
                                   script.
                                       document.getElementById("totalTagihan#{indexInv}").innerHTML = numberFormat("#{inv.total_harga}", ".");
 
@@ -35,21 +36,14 @@ append contentDalam
                                       small #{moment(inv.Statuses[(inv.Statuses.length-1)].waktu).format('YYYY-MM-DD, hh:mm')} - #{inv.Statuses[(inv.Statuses.length-1)].pesan}
                                       //todo: nomor resi di generate
                                       br
-                                      small Nomor Resi  : 2132193133
-                                  if(inv.Statuses[(inv.Statuses.length-1)].pesan == 4)
-                                      a.btn.btn-primary(href='#'): i.fa.fa-check Lacak
-                                  else if(inv.Statuses[(inv.Statuses.length-1)].pesan == 5)
-                                      a.btn.btn-primary(href='#'): i.fa.fa-check Sudah Terima
-
+                                      small Nomor Resi  : #{inv.no_resi}
                                   .span.pull-right
                                         button.btn-primary(data-toggle='collapse' data-target='.rincianPemesanan#{indexInv}')
                                             i.fa.fa-arrow-circle-down  Detail Transaksi
-                          //ini untuk rowspan
 
                           tr: td
                               td
                   br
-                  //.row(class='rincianPemesanan#{indexInv}' style='margin: -17px 10px 10px 0;')
                   .row(class='rincianPemesanan#{indexInv}' style='margin: -17px 10px 10px 0;').collapse
                         table(style='border: solid 1px lightgrey', border='1', width='680px')
                             tr
@@ -113,6 +107,6 @@ append contentDalam
                                         span(style="background-color:#{warna};color : white;padding:2px;width:140px").pull-right: b.pull-right #{status.pelaku}
                                         br
                                         b: i.fa.fa-clock-o  #{moment(status.Invoice_Status.waktu).format('YYYY-MM-DD hh:mm')}
-                                    span.pull-left
+                                    span
                                         p=status.pesan
 

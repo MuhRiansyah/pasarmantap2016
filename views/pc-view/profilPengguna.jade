@@ -6,26 +6,13 @@ append content
                 var ubahSandiBtn = document.getElementById('ubahSandiBtn');
                 var konfirmasiSandi = document.getElementById('konfirmasiSandi');
                 var sandi = document.getElementById('sandi');
-                var peringatanSandi = document.getElementById('peringatanSandi');
-                ubahSandiBtn.disabled = true;
-                $("#sandiLama").change(function () {
-                    $.ajax({
-                        type: 'GET',
-                        url: '/pengguna/ceksandi/' + $('#sandiLama').val(),
-                        success: function (result) {
-                            if(result == 'salah'){
-                                document.getElementById('peringatanSandiLama').innerHTML = 'sandi lama yang anda masukkan salah';
-                            }else{
-                                ubahSandiBtn.disabled = false;
-                            }
-                        }
-                    })
-                });
+                var peringatanSandi = document.getElementById('peringatanSandi');                
                 konfirmasiSandi.addEventListener("keyup", function () {
                     if (konfirmasiSandi.value != sandi.value) {
                         peringatanSandi.innerHTML = 'isi konfirmasi sandi sesuai dengan sandi'
                         ubahSandiBtn.disabled = true;
                     } else {
+                        peringatanSandi.innerHTML = ''
                         ubahSandiBtn.disabled = false;
                     }
                 });
@@ -35,7 +22,7 @@ append content
         .col-sm-1
         .col-sm-9
             .modal.fade(class='modal-pengubahan-sandi' tabindex='-1', role='dialog', aria-labelledby='myLargeModalLabel', aria-hidden='true')
-                .modal-dialog.modal-sm
+                .modal-dialog
                     .modal-content
                         .modal-header
                             h4 Pengubahan sandi
@@ -54,17 +41,15 @@ append content
 
                                 center: input#ubahSandiBtn.btn.btn-primary(type='submit' value='Ubah Sandi' )
             .modal.fade(class='modal-pengubahan-profil' tabindex='-1', role='dialog', aria-labelledby='myLargeModalLabel', aria-hidden='true')
-                .modal-dialog.modal-sm
+                .modal-dialog
                     .modal-content
                         .modal-header
                             h4 Pengubahan profil
                         .modal-body(style='padding: 40px')
-                            form(method='post',action='/pengguna/gantifoto/' enctype='multipart/form-data')
+                            form(method='post',action='/pengguna/postgantiprofil/' enctype='multipart/form-data')
                                 table(width='520px')
-                                    tr: td(width='20%') Email
-                                        td(colspan=4): input.form-control(required=true type='email' name=penerima.Pengguna.email)
                                     tr: td Nama
-                                        td: input.form-control(type='text' name='nama' value=penerima.Pengguna.nama)
+                                        td: input.form-control(type='text' name='nama' value=pengguna.nama)
                                     tr: td Jenis Kelamin
                                         td(height=70)
                                             select#jenisKelaminInput.form-control(required=true name='jenis_kelamin')
@@ -73,7 +58,7 @@ append content
                                     tr: td Foto diri
                                         td
                                             //TODO: saat upload ganti toko berhasil , ganti src gambar lewat jquery dibawah
-                                            img(src='/images/pengguna/default-user-photo.png' width='100px')
+                                            img(src='/images/pengguna/#{pengguna.foto}' width='100px')
                                             br
                                             span.btn.btn-default.btn-file
                                                 | Ganti Foto
@@ -100,31 +85,32 @@ append content
                                         });
                                 center: input.btn.btn-primary(type='submit' value='Ubah Profil' )
             .row <br>
-                .col-sm-2: img(src='/images/default-user-photo.png')
-                .col-sm-10
+                .col-sm-3: img(src='/images/pengguna/#{pengguna.foto}' width='170px' height='200px')
+                .col-sm-9
                     table.table
-                        if(session.penggunaId == penerima.Pengguna.id)
+                        if(session.penggunaId == pengguna.id)
                             //todo: menggunakan modal pengubahan
                             tr: td
                                     a.btn.btn-danger(data-toggle='modal' data-target='.modal-pengubahan-profil') ubah profil
                                     &nbsp;
                                     a.btn.btn-danger(data-toggle='modal' data-target='.modal-pengubahan-sandi') ubah sandi
-                        tr: td: b #{penerima.Pengguna.nama}
-                        tr: td  Email : #{penerima.Pengguna.email}
-                        tr: td  Jenis Kelamin : #{(penerima.Pengguna.jenis_kelamin == 0) ? 'Laki-laki ' : 'Perempuan'}
+                        tr: td: b #{pengguna.nama}
+                        tr: td  Email : #{pengguna.email}
+                        tr: td  Jenis Kelamin : #{(pengguna.jenis_kelamin == 0) ? 'Laki-laki ' : 'Perempuan'}
             .row
-                h4 informasi toko
-                .row
-                    .col-sm-1(style="float:left;padding-right:220px "): img(src='/images/#{penerima.Pengguna.Toko.logo}')
-                    .col-sm-7(style="float:left")
-                        .row
-                            h2 #{penerima.Pengguna.Toko.nama}
-                            p #{penerima.Pengguna.Toko.deskripsi}
-                        .row
-                            .col-sm-4
+                    h4 informasi toko
+                    .row
+                        .col-sm-1(style="float:left;padding-right:220px "): img(src='/images/#{pengguna.Toko.logo}')
+                        .col-sm-7(style="float:left")
+                            .row
+                                h2 #{pengguna.Toko.nama}
+                                p #{pengguna.Toko.deskripsi}
+                            .row
+                                .col-sm-4
 
-                            .col-sm-7
-                                center
-                                    .col-sm-4 <h4>#{penerima.Kabupaten.nama}</h4> lokasi
-                                    .col-sm-4 <h4>#{produkTerjual}</h4> produk terjual
+                                .col-sm-7
+                                    center
+                                        .col-sm-4 <h4>#{pengguna.Toko.Kabupaten.nama}</h4> lokasi
+                                        .col-sm-4 <h4> #{produkTerjual} </h4> produk terjual
+                                        .col-sm-4 <h4>#{jumlahTransaksiBerhasil}  </h4> transaksi berhasil
 

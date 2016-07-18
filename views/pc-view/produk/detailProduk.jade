@@ -14,11 +14,6 @@ append content
         .col-sm-4
             table
                 tr: td(colspan='4') <img src='/images/produk/#{produk.gambar}' width='250'>
-                //daftar gambar produk
-              //tr
-              //  td(height='160') <img src='/images/produk/#{produk.gambar}' width='80'>
-              //  td <img src='/images/produk/#{produk.gambar}' width='80'>
-              //  td <img src='/images/produk/#{produk.gambar}' width='80'>
         .col-sm-4
             p <a href='/produk/daftarbykategori/#{produk.Kategori_Produk.id}'>#{produk.Kategori_Produk.kategori} </a>
                 | > <a href='/produk/detail/#{produk.id}'> #{produk.nama}</a>
@@ -27,13 +22,19 @@ append content
                 td: h1=produk.nama
                   | <h2> Rp <span id='uang'> </span></h2>
                   if(session.nama)
-                      p: a.btn.btn-primary(href='/produk/beli/#{produk.id}')#btnBeliProduk: i.fa.fa-shopping-cart  Beli
+                      if(session.tokoId == produk.Toko.id)
+                        p: small(style='color : red') *tidak bisa dibeli, produk toko sendiri
+                      else  
+                        p: a.btn.btn-primary(href='/produk/beli/#{produk.id}')#btnBeliProduk: i.fa.fa-shopping-cart  Beli
+                        if(statusWishlist != 'sudahWishlist')
+                          a(href='/produk/jadikanwishlist/#{produk.id}').btn.btn-primary Tambahkan ke wishlist
                   else
                       p
                           a.btn.btn-primary(disabled=true): i.fa.fa-shopping-cart  Beli
                           &nbsp
-                          a.btn.btn-primary(href='#') Daftar Terlebih Dahulu
-                  | <a href='/produk/jadikanwishlist/#{produk.id}' class='btn btn-primary'>Tambahkan ke wishlist</a> <br/><br/>
+                          a.btn.btn-primary(href='/pengguna/registrasi') Daftar Terlebih Dahulu
+                      a(disabled=true).btn.btn-primary Tambahkan ke wishlist
+                  | <br/><br/>
                   | <p>Terjual : #{jumlah_terjual} buah</p>
                   | <p>Berat : #{produk.berat} gr </p>
                   if (produk.kondisi == 1)
@@ -45,11 +46,12 @@ append content
         .col-sm-3(style='margin : 0 30px')
              h3 Informasi toko
              table
-                tr: td(rowspan='4',width='110px')
+                tr: td(rowspan='3',width='110px')
                     a(href='/toko/profil/#{produk.Toko.id}'): img(src='/images/#{produk.Toko.logo}', width='100px')
-                tr: td: a(href='/toko/profil/#{produk.Toko.id}') #{produk.Toko.nama}
-                tr: td #{produk.Toko.Kabupaten.nama}
-                tr: td: a.btn-primary.btn(href='/toko/favorit/#{produk.Toko.id}') Jadikan Favorit
+                tr: td
+                     a(href='/toko/profil/#{produk.Toko.id}') #{produk.Toko.nama}
+                     small <br> Daerah Asal <br>
+                     | #{produk.Toko.Kabupaten.nama}
     br
     .row(style='margin : 0px 10px')
         .category-tab

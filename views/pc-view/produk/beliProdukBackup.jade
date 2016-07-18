@@ -2,7 +2,7 @@ extends ../layoutBelanja
 append content
     .row
         .col-sm-1
-        .col-sm-7
+        .col-sm-7(style="margin-top:20px")
             p <a href='/produk/daftarbykategori/#{toko.Produk[0].Kategori_Produk.id}'>#{toko.Produk[0].Kategori_Produk.kategori} </a>
              | > <a href='/produk/detail/#{toko.Produk[0].id}'> #{toko.Produk[0].nama}</a>
              | > <a href='#'> beli produk </a>
@@ -12,7 +12,12 @@ append content
                     tr
                         td <b style='font-size : 8pt'> Nama Produk </b><br> #{toko.Produk[0].nama}
                             input(type="hidden" name="produkId" value="#{toko.Produk[0].id}")
+                            input(type="hidden" name="namaProduk" value="#{toko.Produk[0].nama}")
+                            input(type="hidden" name="gambarProduk" value="#{toko.Produk[0].gambar}")
+                            input(type="hidden" name="beratProduk" value="#{toko.Produk[0].berat}")
+                            input(type="hidden" name="hargaProduk" value="#{toko.Produk[0].harga}")
                             input(type="hidden" name="tokoId" value="#{toko.id}")
+                            input(type="hidden" name="namaToko" value="#{toko.nama}")
                         td &nbsp;
                         td Keterangan (Opsional)
                             textarea.form-control(style='margin: 0px; width: 208px; height: 75px;')
@@ -21,8 +26,6 @@ append content
                             input#jumlah.form-control(type='number' onkeyup="hitung()" name='jumlah' required=true value='1')
                         td(width=150) Harga Barang <br> Rp <span id='harga'></span>
                         td(width=150) Total Harga Barang <br> Rp <span id='total'></span>
-                            input#totalHarga(type='hidden' name='totalHarga')
-
                             script(type='text/javascript').
                                 function numberFormat(_number, _sep) {
                                     _number = typeof _number != "undefined" && _number > 0 ? _number : "";
@@ -34,8 +37,6 @@ append content
                                 }
 
                                 //ketika input#jumlah onchange maka dijalankan fungsi hitung
-                                var totalHarga = document.getElementById('totalHarga');
-                                totalHarga.value = #{toko.Produk[0].harga};
                                 function hitung() {
                                     var total = document.getElementById('total');
                                     var jumlah = document.getElementById('jumlah');
@@ -45,10 +46,10 @@ append content
                                     var hargaSubTotal = hasil_kali + parseInt(ongkir.value);
                                     //nilai ongkir terbaru belum diambil
                                     var subTotal = document.getElementById('subTotal');
-                                    var nilaiSubTotal = document.getElementById('nilaiSubTotal');
+
                                     subTotal.innerHTML = 'Rp ' + numberFormat(""+hargaSubTotal, ".");//untuk tampilan Rp di sub total
-                                    nilaiSubTotal.value = hargaSubTotal;
-                                    totalHarga.value = hasil_kali;
+                                    //var nilaiSubTotal = document.getElementById('nilaiSubTotal');
+                                    // nilaiSubTotal.value = hargaSubTotal;
                                     return hasil_kali;
                                 }
                                 var harga = document.getElementById('harga');
@@ -60,28 +61,45 @@ append content
                 if(penerima != '')
                     script.
                         $(document).ready(function () {
-                            $("#listPenerima").change(function () {
+                            $(document).ajaxStart(function () {
+                                $("#loading").css("display", "block");
+                                $("#ongkosKirim").css("display", "none");
+                            });
+                            $("#listPenerima,#jumlah").change(function () {
                                 $.ajax({
                                     type: 'GET',
                                     url: '/getpenerima/' + $('#listPenerima option:selected').val(),
                                     success: function (result) {
                                         var penerima = result.penerimaHTML;
+                                        //untuk dimasukkan ke input hidden
+                                        $('#nilaiNamaPenerima').val(""+penerima.nama);
+                                        $('#nilaiAlamat').val(""+penerima.alamat);
+                                        $('#nilaiTelepon').val(""+penerima.telepon);
+                                        $('#nilaiKodePos').val(""+penerima.Kabupaten.kode_pos);
+                                        $('#nilaiKecamatan').val(""+penerima.kecamatan);
+                                        $('#nilaiKabupatenId').val(""+penerima.Kabupaten.id);
+                                        $('#nilaiKabupatenNama').val(""+penerima.Kabupaten.nama);
+                                        $('#nilaiProvinsiId').val(""+penerima.Provinsi.id);
+                                        $('#nilaiProvinsiNama').val(""+penerima.Provinsi.nama);
+                                        //untuk ditampilkan
                                         $('#namaPenerima').html(penerima.nama);
                                         $('#alamatPenerima').html(penerima.alamat);
                                         $('#kecamatanPenerima').html(penerima.kecamatan + ' - ');
                                         $('#kabupatenPenerima').html(penerima.Kabupaten.nama + ' - ');
                                         $('#kodePosPenerima').html(penerima.Kabupaten.kode_pos);
                                         $('#provinsiPenerima').html(penerima.Provinsi.nama);
+                                        var totalBeratSatuProduk = $('#jumlah').val() * #{toko.Produk[0].berat};
                                         $.ajax({
                                             type: 'GET',
-                                            url: '/getongkir/' + penerima.Kabupaten.id+'/'+#{toko.Produk[0].id},
+                                            url: '/getongkir/' + penerima.Kabupaten.id+'/'+#{toko.Produk[0].id}+'/'+totalBeratSatuProduk,
                                             success : function(ongkir){
-                                                //TODO: nanti digunakan untuk menghitung total biaya
-                                                $('#ongkosKirim').html('<b> Rp ' + numberFormat("" + ongkir.ongkos, ".") + '</b>');
+                                                //TODO: hitung ongkir setelah total berat didapatkan
+                                                $("#loading").css("display", "none");
+                                                $("#ongkosKirim").css("display", "block");
+                                                $('#ongkosKirim').html('Rp ' + numberFormat("" + ongkir.ongkos, "."));
                                                 $('#ongkir').val(""+ongkir.ongkos);
-                                                console.log($('#ongkir').val());
                                                 var subTotal = ongkir.ongkos + hitung();
-                                                $('#subTotal').html('<b> Rp ' + numberFormat("" + subTotal, ".") + '</b>')
+                                                $('#subTotal').html(' Rp ' + numberFormat("" + subTotal, "."))
                                             }
                                         });
                                     }
@@ -95,9 +113,18 @@ append content
                                 option(value='#{val.id}') #{val.nama} - #{val.jenis_alamat}
                         br
                         br
-                    .row(style='width:100%;height:90px;float:left;border : 1px solid black')
+                    .row(style='width:105%;padding:10px;margin-top:-30px;float:left').alert.alert-info
+                        input(type='hidden' name='idKotaAsalToko' value='#{toko.Kabupaten.id}')
+                        input#nilaiNamaPenerima(type="hidden" name="namaPenerima" value="#{penerima[0].nama}")
+                        input#nilaiTelepon(type="hidden" name="telepon" value="#{penerima[0].telepon}")
+                        input#nilaiAlamat(type="hidden" name="alamat" value="#{penerima[0].alamat}")
+                        input#nilaiKecamatan(type="hidden" name="kecamatan" value="#{penerima[0].kecamatan}")
+                        input#nilaiProvinsiId(type="hidden" name="idProvinsi" value="#{penerima[0].Provinsi.id}")
+                        input#nilaiProvinsiNama(type="hidden" name="namaProvinsi" value="#{penerima[0].Provinsi.nama}")
+                        input#nilaiKabupatenId(type="hidden" name="idKabupaten" value="#{penerima[0].Kabupaten.id}")
+                        input#nilaiKabupatenNama(type="hidden" name="namaKabupaten" value="#{penerima[0].Kabupaten.nama}")
+                        input#nilaiKodePos(type="hidden" name="kodePos" value="#{penerima[0].Kabupaten.kode_pos}")
                         table
-                            tr: td: input#penerimaId(type='hidden' value='#{penerima[0].id}')
                             tr: td#namaPenerima #{penerima[0].nama}
                             tr: td#alamatPenerima #{penerima[0].alamat}
                             tr: td  <span id='kecamatanPenerima'> #{penerima[0].kecamatan} -</span>
@@ -112,12 +139,12 @@ append content
 
                 .row(style='height:140px'): a.btn.btn-primary(href='/produk/tambahpenerima/#{toko.Produk[0].id}') Tambah alamat baru
                 .row
-                    .col-sm-5 Ongkos pengiriman &nbsp;
-                        b <span id='ongkosKirim'></span>
-                        input#ongkir(type='hidden',value='#{ongkosKirim}')
-                    .col-sm-3 Subtotal &nbsp;
-                        b <span id='subTotal'></span>
-                        input#nilaiSubTotal(type='hidden' name='nilaiSubTotal' value='#{subTotal}')
+                    .col-sm-5 Ongkos pengiriman &nbsp; <img id='loading' src='/images/loading_small.gif' style='display:none;width:30px;margin : -20px 120px'/>
+                        <span id='ongkosKirim' style="font-weight : bold;"></span>
+                        input#ongkir(type='hidden',value='#{ongkosKirim}' name='ongkosKirim')
+                    .col-sm-5 Subtotal &nbsp;
+                        <span id='subTotal' style="font-weight : bold;"></span>
+                        //input#nilaiSubTotal(type='hidden' name='nilaiSubTotal' value='#{subTotal}')
                         <br/><br/>
                     script.
                         //TODO:tidak bisa diubah nilainya
@@ -126,7 +153,7 @@ append content
                         var subTotal = document.getElementById('subTotal');
                         subTotal.innerHTML = 'Rp '+numberFormat("#{subTotal}", ".");
                 .alert.alert-info pengiriman menggunakan POS. Kecepatan pengiriman tergantung dari lokasi pengiriman dan lokasi tujuan. Untuk kota yang sama, umumnya memakan waktu 2-3 hari.
-                center: input#tombolBeli.btn.btn-primary.form-control(type='submit' value='Beli Produk Ini')
+                center: input#tombolBeli.btn.btn-primary.form-control(name='beliProduk' type='submit' value='Beli Produk Ini')
         .col-sm-3(style='margin : 0 30px')
             h3 Informasi toko
             table
@@ -134,7 +161,7 @@ append content
                     a(href='/toko/profil/#{toko.id}'): img(src='/images/#{toko.logo}', width='100px')
                 tr: td: a(href='/toko/profil/#{toko.id}') #{toko.nama}
                 tr: td #{toko.Kabupaten.nama}
-                tr: td: a.btn-primary.btn(href='/produk/favorit/#{toko.id}') Jadikan Favorit
+
     br
     br
 

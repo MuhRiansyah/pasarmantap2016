@@ -6,15 +6,6 @@ var ongkir = require('../api/rajaOngkir')({
 	key: credentials.rajaOngkir.key
 });
 
-
-
-exports.baru= function(req, res) {
-	res.render('baru',{
-	})
-};
-
-
-
 exports.utamaMobile = function(req, res){
 	async.parallel([
 			function(callback){
@@ -115,33 +106,9 @@ exports.beranda = function(req, res){
 			callback(null,produk);
 		})
 	};
-//stack.getSmartphoneTerlaris = function(callback){
-	//	models.Invoice_Produk.findAll({
-	//		attributes : ['Produk.nama','Produk.harga','Produk.gambar'],
-	//		limit : '3',
-	//		include : [{model : models.Produk,where : {KategoriProdukId : 12} }],
-	//		group : 'produkId',
-	//		order : [ [sequelize.fn('sum',sequelize.col('jumlah_produk')),'DESC'] ]
-	//	}).then(function(produk) {
-	//		callback(null,produk);
-	//	})
-	//};
-	//stack.getPakaianTerlaris = function(callback){
-	//	models.Invoice_Produk.findAll({
-	//		attributes : ['Produk.nama','Produk.harga','Produk.gambar'],
-	//		limit : '3',
-	//		include : [{model : models.Produk,where : {KategoriProdukId : 1} }],
-	//		group : 'produkId',
-	//		order : [ [sequelize.fn('sum',sequelize.col('jumlah_produk')),'DESC'] ]
-	//	}).then(function(produk) {
-	//		callback(null,produk);
-	//	});
-	//};
 	async.parallel(stack,function(err,result){
 		res.render('pc-view/beranda',{
 			hotlist : result.getHotList
-			//smartphone : result[1],
-			//pakaian : result[2]
 		})
 	})
 };
@@ -227,7 +194,7 @@ exports.getPenerima = function(req, res, next) {
 		//nanti menggunakan session pengguna
 		where : {id : req.params.idPenerima}
 	}).then(function(penerima) {
-		res.send({penerimaHTML:penerima});
+		res.send(penerima);
 	})
 };
 //fungsi ini sebelum menggunakan API, data kabupaten didapatkan dari database local
@@ -243,6 +210,7 @@ exports.getKabupaten = function(req, res, next) {
 				listKabupaten[val].nama+"</option>";
 		}
 		res.send({listArr:kabupatenHTML});
+		// res.send(kabupatenHTML);
 	})
 }
 

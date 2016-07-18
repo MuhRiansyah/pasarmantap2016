@@ -59,20 +59,6 @@ app.use('/upload-gambar-pengguna', function(req, res, next){
     }
   })(req, res, next);
 });
-app.use('/upload-bukti-pembayaran', function(req, res, next){
-  var now = Date.now();
-  jqupload.fileHandler({
-    // gimana cara ganti nama file gambar jadi waktu sekarang (misalkan jadi : 20151020101.png)
-    uploadDir: function(){
-      //return __dirname + '/public/uploads/' + now;
-      return __dirname + '/public/images/buktiPembayaran/';
-    },
-    uploadUrl: function(){
-      //return '/uploads/' + now;
-      return '/images/buktiPembayaran/';
-    }
-  })(req, res, next);
-});
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -89,6 +75,46 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.use(function(req,res,next){
+    var models  = require('./models');
+    var moment = require("moment");
+    var now = moment();
+    models.Invoice.findAll({
+      where : {
+                jatuh_tempo :moment(now).format('YYYY-MM-DD'), 
+              }
+    }).then(function(invoice) {
+        if(invoice.length > 0){
+           for(var counterInvoice =0 ; counterInvoice < invoice.length ;counterInvoice++) {        
+                if(invoice[counterInvoice].status_tampil == 3|| invoice[counterInvoice].status_tampil == 4){
+                    models.Invoice.update({
+                        status_tampil : '8'
+                    },{
+                        where: { id : invoice[counterInvoice].id }
+                    });
+                    models.Invoice_Status.create({
+                        invoiceId : invoice[counterInvoice].id,
+                        statusId : '8',
+                        waktu : moment(now).format('YYYY-MM-DD HH:mm')
+                    });
+                }else if(invoice[counterInvoice].status_tampil == 0){
+                    models.Invoice.update({
+                        status_tampil : '10'
+                    },{
+                        where: { id : invoice[counterInvoice].id }
+                    }).then(function(invoice) {
+                        models.Invoice_Status.create({
+                            invoiceId : invoice[counterInvoice].id,
+                            statusId : '10',
+                            waktu : moment(now).format('YYYY-MM-DD HH:mm')
+                        });
+                    });
+                }
+           }
+        }
+    });
+    next();
+});
 
 app.use(session({
   secret: 'keyboard cat',
@@ -98,21 +124,23 @@ app.use(session({
 
 app.use(function(req,res,next){
 
-  //ini digunakan untuk mendapatkan jumlah barang belanjaan dikeranjang
+  //ini digunakan untuk mendapatkan jumlah barang belanjaan dikeranjang, kalau tidak assign req.session.cart nya ke variabel, maka eror
   var cart = req.session.cart || (req.session.cart = []);
   //lingkungan produksi menggunakan session dari request session setelah login
   res.locals.session = req.session;
+
+  res.locals.wishList = req.session;
   // ------ lingkungan development ----- //
-  //var session = {
-  //  penggunaId : 1,
-  //  fotoPengguna : 'default-user-photo.png',
-  //  nama : 'riansyah',
-  //  tokoId : 1,
-  //  namaToko : 'barokah',
-  //  loggedIn : 'true',
-  //  cart : cart
-  //};
-  //res.locals.session = session;
+  // var session = {
+  //    penggunaId : 1,
+  //    foto : 'default-user-photo.png',
+  //    nama : 'riansyah',
+  //    tokoId : 1,
+  //    namaToko : 'barokah',
+  //    loggedIn : 'true',
+  //    cart : cart
+  // };
+  // res.locals.session = session;
   // ------ lingkungan development ----- //
   next();
 });

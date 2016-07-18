@@ -1,6 +1,6 @@
 extends ../layoutBelanja
 
-append content
+append content  
   .col-sm-11(style="margin-left:50px")
      .row
         center(style='font-size: 13pt') <b > Keranjang Belanja </b>  >  Konfirmasi Pembelian
@@ -50,8 +50,7 @@ append content
                                           document.getElementById("hargaProduk#{index}#{indexPro}").innerHTML = numberFormat("#{valPro.harga}", ".");
                                           document.getElementById("beratSatuProduk#{index}#{indexPro}").innerHTML = #{valPro.beratProduk} / 1000;
                                       br
-                                      //nanti dibuat fitur ubah pemesanan per produk
-                                      //a(href='#', style='font-size : 8pt') Ubah &nbsp;
+                                      &nbsp;
                                       a(href='/keranjang/hapus/#{valPro.id}', style='font-size : 8pt') Hapus
                               td(colspan='2')
                                   b  Harga Barang <br>
@@ -60,8 +59,7 @@ append content
                                       document.getElementById("totalHarga#{index}#{indexPro}").innerHTML = numberFormat("#{valPro.totalHarga}", ".");
                       tr
                           td
-                              b  Alamat Tujuan
-                              a(href='#', style='font-size : 11px')  Ubah <br/>
+                              h4: b  Alamat Tujuan                              
                               b  #{val.Penerima[0].nama} <br/>
                               | #{val.Penerima[0].alamat} <br/>
                               |  <input type='hidden' name='idKecamatan' value='#{val.Penerima[0].kecamatan}'/>
